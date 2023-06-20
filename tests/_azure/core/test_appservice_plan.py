@@ -24,7 +24,6 @@ class TestAppService(unittest.TestCase):
         ]
 
         r = self.appservice_helper.list()
-        print(r)
 
         self.assertEqual(expected_output, r)
 
