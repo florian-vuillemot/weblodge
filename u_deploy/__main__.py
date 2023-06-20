@@ -1,8 +1,8 @@
 from _azure import Cli
-from _azure import AppService, AppServiceHelper
+from _azure import ResourceGroupHelper
 
 cli = Cli()
-v = AppServiceHelper(cli)
+v = ResourceGroupHelper(cli)
 
 for i in v.list():
     print(i)
