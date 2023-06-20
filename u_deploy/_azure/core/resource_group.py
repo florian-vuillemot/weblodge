@@ -38,3 +38,14 @@ class ResourceGroupHelper:
                 return s
 
         raise Exception(f"Resource Group '{name}' not found.")
+
+    def create(self, name: str, location: str) -> ResourceGroup:
+        """
+        Create a new Resource Group.
+        """
+        r = self._cli.invoke(f'group create --name {name} --location {location}')
+
+        return ResourceGroup(
+            name=r['name'],
+            location=r['location']
+        )

@@ -1,19 +1,13 @@
-import json
 import unittest
-from pathlib import Path
 
 from u_deploy._azure.core.subscription import Subscription, SubscriptionHelper
 
-from .cli import Cli
+from .cli import cli
 
-
-subscriptions_json = json.loads(Path('./tests/_azure/core/subscriptions.json').read_text())
 
 class TestSubscription(unittest.TestCase):
     def setUp(self) -> None:
-        self.cli = Cli()
-        self.subscription_helper = SubscriptionHelper(self.cli)
-        self.cli.add_command('account list', subscriptions_json)
+        self.subscription_helper = SubscriptionHelper(cli)
         return super().setUp()
 
     def test_list_subscription(self):

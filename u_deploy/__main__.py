@@ -1,8 +1,11 @@
 from _azure import Cli
-from _azure import ResourceGroupHelper
+from _azure import ResourceGroupHelper, AppServiceHelper, WebAppHelper
 
 cli = Cli()
-v = ResourceGroupHelper(cli)
+rg = ResourceGroupHelper(cli)
+ap = AppServiceHelper(cli)
+wa = WebAppHelper(cli)
 
-for i in v.list():
-    print(i)
+rg.create('develop-tmp', 'North Europe')
+ap.create('app-develop-tmp', 'B1', rg)
+wa.create('webapp-develop-tmp', ap)

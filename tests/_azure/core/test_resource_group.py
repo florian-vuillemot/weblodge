@@ -1,20 +1,13 @@
-import json
 import unittest
-from pathlib import Path
 
 from u_deploy._azure.core.resource_group import ResourceGroup, ResourceGroupHelper
 
-from .cli import Cli
+from .cli import cli
 
-
-resource_groups_json = json.loads(Path('./tests/_azure/core/resource_groups.json').read_text())
 
 class TestResourceGroup(unittest.TestCase):
     def setUp(self) -> None:
-        self.cli = Cli()
-
-        self.resource_group_helper = ResourceGroupHelper(self.cli)
-        self.cli.add_command('group list', resource_groups_json)
+        self.resource_group_helper = ResourceGroupHelper(cli)
 
         return super().setUp()
 

@@ -1,26 +1,21 @@
-import json
 import unittest
-from pathlib import Path
 
-from u_deploy._azure.core.appservice import AppService, AppServiceHelper
+from u_deploy._azure import AppService, AppServiceHelper
+from u_deploy._azure import ResourceGroup
 
-from .cli import Cli
+from .cli import cli
 
-
-appservices_json = json.loads(Path('./tests/_azure/core/appservices_plan.json').read_text())
 
 class TestAppService(unittest.TestCase):
     def setUp(self) -> None:
-        self.cli = Cli()
-        self.appservice_helper = AppServiceHelper(self.cli)
-        self.cli.add_command('appservice plan list', appservices_json)
+        self.appservice_helper = AppServiceHelper(cli)
         return super().setUp()
 
     def test_list_appservice(self):
         expected_output = [
-            AppService(name='app-service', number_of_sites=2, sku='P1v3', resource_group='develop', location='North Europe'),
-            AppService(name='app-service', number_of_sites=1, sku='P1v3', resource_group='staging', location='North Europe'),
-            AppService(name='app-service', number_of_sites=1, sku='P1v3', resource_group='production', location='North Europe'),
+            AppService(name='app-service', number_of_sites=2, sku='P1v3', resource_group=ResourceGroup(name='develop', location='northeurope'), location='North Europe'),
+            AppService(name='app-service', number_of_sites=1, sku='P1v3', resource_group=ResourceGroup(name='staging', location='northeurope'), location='North Europe'),
+            AppService(name='app-service', number_of_sites=1, sku='P1v3', resource_group=ResourceGroup(name='production', location='northeurope'), location='North Europe'),
         ]
 
         r = self.appservice_helper.list()
@@ -30,14 +25,14 @@ class TestAppService(unittest.TestCase):
     def test_get_appservice(self):
         name = 'app-service'
 
-        # Without resource_group
-        resource_group = 'develop'
+        # Without providing a ResourceGroup object.
+        resource_group = ResourceGroup(name='develop', location='northeurope')
         expected_output = AppService(name=name, number_of_sites=2, sku='P1v3', resource_group=resource_group, location='North Europe')
         r = self.appservice_helper.get(name=name, resource_group=resource_group)
         self.assertEqual(expected_output, r)
 
-        # With resource_group
-        resource_group = 'staging'
+        # Providing a ResourceGroup object.
+        resource_group = ResourceGroup(name='staging', location='northeurope')
         expected_output = AppService(name=name, number_of_sites=1, sku='P1v3', resource_group=resource_group, location='North Europe')
         r = self.appservice_helper.get(name=name, resource_group=resource_group)
         self.assertEqual(expected_output, r)

@@ -1,19 +1,13 @@
-import json
 import unittest
-from pathlib import Path
 
 from u_deploy._azure import WebApp, WebAppHelper
 
-from .cli import Cli
+from .cli import cli
 
-
-web_apps_json = json.loads(Path('./tests/_azure/core/web_apps.json').read_text())
 
 class TestWebApp(unittest.TestCase):
     def setUp(self) -> None:
-        self.cli = Cli()
-        self.web_app_helper = WebAppHelper(self.cli)
-        self.cli.add_command('webapp list', web_apps_json)
+        self.web_app_helper = WebAppHelper(cli)
         return super().setUp()
 
     def test_list_web_app(self):
