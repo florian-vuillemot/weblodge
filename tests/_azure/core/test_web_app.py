@@ -1,6 +1,6 @@
 import unittest
 
-from u_deploy._azure import WebApp, WebAppHelper
+from u_deploy._azure import WebApp, WebAppHelper, ResourceGroup, ResourceGroupHelper
 
 from .cli import cli
 
@@ -14,27 +14,27 @@ class TestWebApp(unittest.TestCase):
         expected_output = [
             WebApp(
                 name="develop-app-service",
-                resource_group="develop",
                 host_names=["develop-app-service.azurewebsites.net"],
                 kind="app,linux,container",
                 location="North Europe",
-                linux_fx_version="DOCKER|develop-registry.azurecr.io/app-service:main"
+                linux_fx_version="DOCKER|develop-registry.azurecr.io/app-service:main",
+                resource_group=ResourceGroup(name="develop", location="northeurope"),
             ),
             WebApp(
                 name="staging-app-service",
-                resource_group="staging",
                 host_names=["staging-app-service.azurewebsites.net"],
                 kind="app,linux,container",
                 location="North Europe",
-                linux_fx_version="DOCKER|staging-registry.azurecr.io/app-service:main"
+                linux_fx_version="DOCKER|staging-registry.azurecr.io/app-service:main",
+                resource_group=ResourceGroup(name="staging", location="northeurope"),
             ),
             WebApp(
                 name="production-app-service",
-                resource_group="production",
                 host_names=["production-app-service.azurewebsites.net"],
                 kind="app,linux,container",
                 location="North Europe",
-                linux_fx_version="DOCKER|production-registry.azurecr.io/app-service:main"
+                linux_fx_version="DOCKER|production-registry.azurecr.io/app-service:main",
+                resource_group=ResourceGroup(name="production", location="northeurope"),
             ),
         ]
 
@@ -46,11 +46,11 @@ class TestWebApp(unittest.TestCase):
         name = 'staging-app-service'
         expected_output = WebApp(
             name=name,
-            resource_group="staging",
             host_names=["staging-app-service.azurewebsites.net"],
             kind="app,linux,container",
             location="North Europe",
-            linux_fx_version="DOCKER|staging-registry.azurecr.io/app-service:main"
+            linux_fx_version="DOCKER|staging-registry.azurecr.io/app-service:main",
+            resource_group=ResourceGroup(name="staging", location="northeurope"),
         )
 
         r = self.web_app_helper.get(name)

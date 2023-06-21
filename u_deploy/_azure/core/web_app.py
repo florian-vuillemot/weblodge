@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from typing import List
 
+from u_deploy._azure import ResourceGroup, ResourceGroupHelper
+
 from .cli import Cli
 
 
@@ -10,11 +12,11 @@ class WebApp:
     Azure WebApp representation.
     """
     name: str
-    resource_group: str
     host_names: List[str]
     kind: str
     location: str
     linux_fx_version: str
+    resource_group: ResourceGroup
 
 
 class WebAppHelper:
@@ -32,11 +34,11 @@ class WebAppHelper:
             for w in web_apps:
                 web_app = WebApp(
                     name=w['name'],
-                    resource_group=w['resourceGroup'],
                     host_names=w['hostNames'],
                     kind=w['kind'],
                     location=w['location'],
-                    linux_fx_version=w['siteConfig']['linuxFxVersion']
+                    linux_fx_version=w['siteConfig']['linuxFxVersion'],
+                    resource_group=ResourceGroupHelper(self._cli).get(w['resourceGroup']),
                 )
                 self._web_apps.append(web_app)
 
