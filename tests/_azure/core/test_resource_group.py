@@ -11,7 +11,7 @@ class TestResourceGroup(unittest.TestCase):
 
         return super().setUp()
 
-    def test_list_resource_group(self):
+    def test_list(self):
         expected_output = [
             ResourceGroup(name='develop', location='northeurope'),
             ResourceGroup(name='staging', location='northeurope'),
@@ -22,9 +22,16 @@ class TestResourceGroup(unittest.TestCase):
 
         self.assertEqual(expected_output, r)
 
-    def test_get_resource_group(self):
+    def test_get(self):
         name = 'staging'
 
         expected_output = ResourceGroup(name=name, location='northeurope')
         r = self.resource_group_helper.get(name=name)
+        self.assertEqual(expected_output, r)
+
+    def test_create(self):
+        name, location = 'staging', 'northeurope'
+
+        expected_output = ResourceGroup(name=name, location=location)
+        r = self.resource_group_helper.create(name=name, location=location)
         self.assertEqual(expected_output, r)
