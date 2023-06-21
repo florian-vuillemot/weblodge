@@ -1,11 +1,16 @@
 import unittest
 
 from u_deploy._azure import WebApp, WebAppHelper, ResourceGroup, ResourceGroupHelper
+from u_deploy._azure.core.appservice import AppService
 
 from .cli import cli
 
 
 class TestWebApp(unittest.TestCase):
+    develop = AppService(name='app-service', number_of_sites=2, sku='P1v3', resource_group=ResourceGroup(name='develop', location='northeurope'), location='North Europe')
+    staging = AppService(name='app-service', number_of_sites=1, sku='P1v3', resource_group=ResourceGroup(name='staging', location='northeurope'), location='North Europe')
+    production = AppService(name='app-service', number_of_sites=1, sku='P1v3', resource_group=ResourceGroup(name='production', location='northeurope'), location='North Europe')
+
     def setUp(self) -> None:
         self.web_app_helper = WebAppHelper(cli)
         return super().setUp()
@@ -18,6 +23,7 @@ class TestWebApp(unittest.TestCase):
                 kind="app,linux,container",
                 location="North Europe",
                 linux_fx_version="DOCKER|develop-registry.azurecr.io/app-service:main",
+                app_service=self.develop,
                 resource_group=ResourceGroup(name="develop", location="northeurope"),
             ),
             WebApp(
@@ -26,6 +32,7 @@ class TestWebApp(unittest.TestCase):
                 kind="app,linux,container",
                 location="North Europe",
                 linux_fx_version="DOCKER|staging-registry.azurecr.io/app-service:main",
+                app_service=self.staging,
                 resource_group=ResourceGroup(name="staging", location="northeurope"),
             ),
             WebApp(
@@ -34,6 +41,7 @@ class TestWebApp(unittest.TestCase):
                 kind="app,linux,container",
                 location="North Europe",
                 linux_fx_version="DOCKER|production-registry.azurecr.io/app-service:main",
+                app_service=self.production,
                 resource_group=ResourceGroup(name="production", location="northeurope"),
             ),
         ]
@@ -50,6 +58,7 @@ class TestWebApp(unittest.TestCase):
             kind="app,linux,container",
             location="North Europe",
             linux_fx_version="DOCKER|staging-registry.azurecr.io/app-service:main",
+            app_service=self.staging,
             resource_group=ResourceGroup(name="staging", location="northeurope"),
         )
 

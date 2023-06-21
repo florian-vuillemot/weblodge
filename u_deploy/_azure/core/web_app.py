@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import List
 
 from u_deploy._azure import ResourceGroup, ResourceGroupHelper
+from u_deploy._azure.core.appservice import AppService, AppServiceHelper
 
 from .cli import Cli
 
@@ -16,6 +17,7 @@ class WebApp:
     kind: str
     location: str
     linux_fx_version: str
+    app_service: AppService
     resource_group: ResourceGroup
 
 
@@ -31,6 +33,8 @@ class WebAppHelper:
     def list(self) -> list[WebApp]:
         if not self._web_apps:
             web_apps = self._cli.invoke('webapp list')
+            resource_group_helper = ResourceGroupHelper(self._cli)
+            
             for w in web_apps:
                 web_app = WebApp(
                     name=w['name'],
@@ -38,7 +42,11 @@ class WebAppHelper:
                     kind=w['kind'],
                     location=w['location'],
                     linux_fx_version=w['siteConfig']['linuxFxVersion'],
-                    resource_group=ResourceGroupHelper(self._cli).get(w['resourceGroup']),
+                    app_service=AppServiceHelper(self._cli).get(
+                        name=w['appServicePlanId'].split('/')[-1],
+                        resource_group=resource_group_helper.get(w['appServicePlanId'].split('resourceGroups/')[1].split('/')[0])
+                    ),
+                    resource_group=resource_group_helper.get(w['resourceGroup']),
                 )
                 self._web_apps.append(web_app)
 
