@@ -6,32 +6,32 @@ from .cli import cli
 
 
 class TestResourceGroup(unittest.TestCase):
+    develop_resource_group = ResourceGroup(name='develop', location='northeurope')
+    staging_resource_group = ResourceGroup(name='staging', location='northeurope')
+    production_resource_group = ResourceGroup(name='production', location='northeurope')
+
+    resource_groups = [
+        develop_resource_group,
+        staging_resource_group,
+        production_resource_group,
+    ]
+
     def setUp(self) -> None:
         self.resource_group_helper = ResourceGroupHelper(cli)
 
         return super().setUp()
 
     def test_list(self):
-        expected_output = [
-            ResourceGroup(name='develop', location='northeurope'),
-            ResourceGroup(name='staging', location='northeurope'),
-            ResourceGroup(name='production', location='northeurope'),
-        ]
-
         r = self.resource_group_helper.list()
-
-        self.assertEqual(expected_output, r)
+        self.assertEqual(self.resource_groups, r)
 
     def test_get(self):
-        name = 'staging'
-
-        expected_output = ResourceGroup(name=name, location='northeurope')
-        r = self.resource_group_helper.get(name=name)
-        self.assertEqual(expected_output, r)
+        r = self.resource_group_helper.get(name=self.staging_resource_group.name)
+        self.assertEqual(self.staging_resource_group, r)
 
     def test_create(self):
-        name, location = 'staging', 'northeurope'
-
-        expected_output = ResourceGroup(name=name, location=location)
-        r = self.resource_group_helper.create(name=name, location=location)
-        self.assertEqual(expected_output, r)
+        r = self.resource_group_helper.create(
+            name=self.staging_resource_group.name,
+            location=self.staging_resource_group.location
+        )
+        self.assertEqual(self.staging_resource_group, r)

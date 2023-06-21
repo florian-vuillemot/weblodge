@@ -1,3 +1,4 @@
+from typing import List
 from dataclasses import dataclass
 
 from .cli import Cli
@@ -14,10 +15,14 @@ class ResourceGroupHelper:
         self._cli = cli
         self.resource_groups = []
 
-    def list(self) -> list[ResourceGroup]:
+    def list(self, force_reload=False) -> List[ResourceGroup]:
         """
         List all Resource Group.
+        Force reload clears the cache and reloads the list from Azure.
         """
+        if force_reload:
+            self.resource_groups.clear()
+
         if not self.resource_groups:
             rgs = self._cli.invoke('group list')
             for s in rgs:
@@ -29,11 +34,12 @@ class ResourceGroupHelper:
 
         return self.resource_groups
     
-    def get(self, name: str) -> ResourceGroup:
+    def get(self, name: str, force_reload=False) -> ResourceGroup:
         """
         Return an resource group by its name.
+        Force reload clears the cache and reloads the list from Azure.
         """
-        for s in self.list():
+        for s in self.list(force_reload=force_reload):
             if s.name == name:
                 return s
 
@@ -41,11 +47,14 @@ class ResourceGroupHelper:
 
     def create(self, name: str, location: str) -> ResourceGroup:
         """
-        Create a new Resource Group.
+        Create a new Resource Group and return it.
         """
-        r = self._cli.invoke(f'group create --name {name} --location {location}')
+        self._cli.invoke(f'group create --name {name} --location {location}')
+        return self.get(name, force_reload=True)
 
-        return ResourceGroup(
-            name=r['name'],
-            location=r['location']
-        )
+    def delete(self, name: str) -> List[ResourceGroup]:
+        """
+        Delete a Resource Group and return all Resource Group.
+        """
+        self._cli.invoke(f'group delete --name {name} --yes')
+        return self.list(force_reload=True)
