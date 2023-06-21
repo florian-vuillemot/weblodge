@@ -42,10 +42,7 @@ class WebAppHelper:
                     kind=w['kind'],
                     location=w['location'],
                     linux_fx_version=w['siteConfig']['linuxFxVersion'],
-                    app_service=AppServiceHelper(self._cli).get(
-                        name=w['appServicePlanId'].split('/')[-1],
-                        resource_group=resource_group_helper.get(w['appServicePlanId'].split('resourceGroups/')[1].split('/')[0])
-                    ),
+                    app_service=AppServiceHelper(self._cli).get(id_=w['appServicePlanId']),
                     resource_group=resource_group_helper.get(w['resourceGroup']),
                 )
                 self._web_apps.append(web_app)
@@ -61,3 +58,10 @@ class WebAppHelper:
                 return s
 
         raise Exception(f"WebApp '{name}' not found.")
+
+    def create(self, name: str) -> WebApp:
+        """
+        Create a new WebApp.
+        """
+        ...
+#AppServicePlanID=$(az appservice plan show -n SharedAppServicePlan -g MyASPRG --query "id" --out tsv) az webapp create -g MyResourceGroup -p "$AppServicePlanID" -n MyUniqueAppName

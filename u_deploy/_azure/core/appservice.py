@@ -6,6 +6,7 @@ from .resource_group import ResourceGroup, ResourceGroupHelper
 
 @dataclass
 class AppService:
+    id: str
     name: str
     number_of_sites: int
     sku: str
@@ -26,21 +27,25 @@ class AppServiceHelper:
             appservices = self._cli.invoke('appservice plan list')
             for s in appservices:
                 a = AppService(
-                        name=s['name'],
-                        number_of_sites=int(s['numberOfSites']),
-                        sku=s['sku']['name'],
-                        resource_group=ResourceGroupHelper(self._cli).get(s['resourceGroup']),
-                        location=s['location']
+                    id=s['id'],
+                    name=s['name'],
+                    number_of_sites=int(s['numberOfSites']),
+                    sku=s['sku']['name'],
+                    resource_group=ResourceGroupHelper(self._cli).get(s['resourceGroup']),
+                    location=s['location']
                 )
                 self.appservices.append(a)
 
         return self.appservices
     
-    def get(self, name: str, resource_group: ResourceGroup = None) -> AppService:
+    def get(self, name: str = None, resource_group: ResourceGroup = None, id_: str = None) -> AppService:
         """
-        Return an appservice by its name.
+        Return an appservice by its name or its id.
+        If resource_group is provided, it will used with the name based search.
         """
         for s in self.list():
+            if s.id == id_:
+                return s
             if s.name == name:
                 if resource_group is None or s.resource_group.name == resource_group.name:
                     return s
