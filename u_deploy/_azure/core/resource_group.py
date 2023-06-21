@@ -52,9 +52,9 @@ class ResourceGroupHelper:
         self._cli.invoke(f'group create --name {name} --location {location}')
         return self.get(name, force_reload=True)
 
-    def delete(self, name: str) -> List[ResourceGroup]:
+    def delete(self, resource_group: ResourceGroup) -> List[ResourceGroup]:
         """
         Delete a Resource Group and return all Resource Group.
         """
-        self._cli.invoke(f'group delete --name {name} --yes')
+        self._cli.invoke(f'group delete --name {resource_group.name} --yes', to_json=False)
         return self.list(force_reload=True)

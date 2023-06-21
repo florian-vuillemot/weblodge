@@ -27,7 +27,7 @@ class Cli:
         r = self.cli.invoke(cmd, out_file=out_fd)
 
         if r != 0:
-            raise Exception(f"Error during execution of the command '{command}'.\nOutput: {output}")
+            raise Exception(f"Error during execution of the command '{command}'.\nOutput: {r}")
 
         # Retrieve the output.
         output = out_fd.getvalue()

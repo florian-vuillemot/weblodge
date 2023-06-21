@@ -1,3 +1,4 @@
+from typing import List
 from dataclasses import dataclass
 
 from .cli import Cli
@@ -19,10 +20,13 @@ class AppServiceHelper:
         self._cli = cli
         self.appservices = []
 
-    def list(self) -> list[AppService]:
+    def list(self, force_reload=True) -> List[AppService]:
         """
         List all AppServices Plan.
         """
+        if force_reload:
+            self.appservices.clear()
+
         if not self.appservices:
             appservices = self._cli.invoke('appservice plan list')
             for s in appservices:
@@ -38,12 +42,12 @@ class AppServiceHelper:
 
         return self.appservices
     
-    def get(self, name: str = None, resource_group: ResourceGroup = None, id_: str = None) -> AppService:
+    def get(self, name: str = None, resource_group: ResourceGroup = None, id_: str = None, force_reload=True) -> AppService:
         """
         Return an appservice by its name or its id.
         If resource_group is provided, it will used with the name based search.
         """
-        for s in self.list():
+        for s in self.list(force_reload=force_reload):
             if s.id == id_:
                 return s
             if s.name == name:
@@ -52,8 +56,17 @@ class AppServiceHelper:
 
         raise Exception(f"AppService '{name}' not found.")
 
-    def create(self, name: str, sku: str, location: str, resource_group: ResourceGroup) -> AppService:
+    def delete(self, asp: AppService) -> List[AppService]:
         """
-        Create a new AppService Plan.
+        Delete an AppService Plan.
         """
-        self._cli.invoke(f'appservice plan create --name {name} --sku {sku} --resource-group {resource_group.name} --location {location}')
+        self._cli.invoke(f'appservice plan delete --name {asp.name} --resource-group {asp.resource_group.name} --yes', to_json=False)
+        return self.list(force_reload=True)
+
+    def create(self, name: str, sku: str, resource_group: ResourceGroup, location: str = None) -> AppService:
+        """
+        Create a Linux AppService Plan.
+        """
+        location = location or resource_group.location
+        self._cli.invoke(f'appservice plan create --name {name} --sku {sku} --resource-group {resource_group.name} --location {location} --is-linux')
+        return self.get(name=name, resource_group=resource_group, force_reload=True)

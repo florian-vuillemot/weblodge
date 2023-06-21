@@ -30,7 +30,13 @@ class WebAppHelper:
         self._cli = cli
         self._web_apps = []
 
-    def list(self) -> list[WebApp]:
+    def list(self, force_reload=False) -> list[WebApp]:
+        """
+        List all WebApps.
+        """
+        if force_reload:
+            self._web_apps.clear()
+
         if not self._web_apps:
             web_apps = self._cli.invoke('webapp list')
             resource_group_helper = ResourceGroupHelper(self._cli)
@@ -49,19 +55,29 @@ class WebAppHelper:
 
         return self._web_apps
 
-    def get(self, name: str) -> WebApp:
+    def get(self, name: str, force_reload=False) -> WebApp:
         """
         Return a WebApp by its name.
         """
-        for s in self.list():
+        for s in self.list(force_reload=force_reload):
             if s.name == name:
                 return s
 
         raise Exception(f"WebApp '{name}' not found.")
 
-    def create(self, name: str) -> WebApp:
+    def delete(self, webapp: WebApp) -> List[WebApp]:
+        """
+        Delete a WebApp.
+        """
+        self._cli.invoke(f'webapp delete -g {webapp.resource_group.name} -n {webapp.name}', to_json=False)
+        return self.list(force_reload=True)
+
+    def create(self, name: str, app_service: AppService, resource_group: ResourceGroup = None, python_version: str = '3.10') -> WebApp:
         """
         Create a new WebApp.
         """
-        ...
-#AppServicePlanID=$(az appservice plan show -n SharedAppServicePlan -g MyASPRG --query "id" --out tsv) az webapp create -g MyResourceGroup -p "$AppServicePlanID" -n MyUniqueAppName
+        rg_name = resource_group.name if resource_group else app_service.resource_group.name
+        self._cli.invoke(
+            f'webapp create -g {rg_name} -p {app_service.id} -n {name} --runtime PYTHON:{python_version}'
+        )
+        return self.get(name, force_reload=True)
