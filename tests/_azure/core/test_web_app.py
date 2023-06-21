@@ -10,7 +10,7 @@ class TestWebApp(unittest.TestCase):
         self.web_app_helper = WebAppHelper(cli)
         return super().setUp()
 
-    def test_list_web_app(self):
+    def test_list(self):
         expected_output = [
             WebApp(
                 name="develop-app-service",
@@ -42,7 +42,7 @@ class TestWebApp(unittest.TestCase):
 
         self.assertEqual(expected_output, r)
 
-    def test_get_web_app(self):
+    def test_get(self):
         name = 'staging-app-service'
         expected_output = WebApp(
             name=name,

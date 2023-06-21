@@ -10,7 +10,7 @@ class TestSubscription(unittest.TestCase):
         self.subscription_helper = SubscriptionHelper(cli)
         return super().setUp()
 
-    def test_list_subscription(self):
+    def test_list(self):
         expected_output = [
             Subscription(id='15be6804-xxxx-xxxx-xxxx-xxxxxxxxxxxx', name='develop'),
             Subscription(id='8615f926-xxxx-xxxx-xxxx-xxxxxxxxxxxx', name='staging'),
@@ -21,7 +21,7 @@ class TestSubscription(unittest.TestCase):
 
         self.assertEqual(expected_output, r)
 
-    def test_get_subscription(self):
+    def test_get(self):
         name = 'staging'
         expected_output = Subscription(id='8615f926-xxxx-xxxx-xxxx-xxxxxxxxxxxx', name=name)
 

@@ -11,7 +11,7 @@ class TestAppService(unittest.TestCase):
         self.appservice_helper = AppServiceHelper(cli)
         return super().setUp()
 
-    def test_list_appservice(self):
+    def test_list(self):
         expected_output = [
             AppService(name='app-service', number_of_sites=2, sku='P1v3', resource_group=ResourceGroup(name='develop', location='northeurope'), location='North Europe'),
             AppService(name='app-service', number_of_sites=1, sku='P1v3', resource_group=ResourceGroup(name='staging', location='northeurope'), location='North Europe'),
@@ -22,7 +22,7 @@ class TestAppService(unittest.TestCase):
 
         self.assertEqual(expected_output, r)
 
-    def test_get_appservice(self):
+    def test_get(self):
         name = 'app-service'
 
         # Without providing a ResourceGroup object.
