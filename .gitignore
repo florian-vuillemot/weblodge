@@ -3,3 +3,6 @@ env
 u-deploy.pyproj
 u-deploy.sln
 .vs
+.vscode
+.venv
+**/__pycache__

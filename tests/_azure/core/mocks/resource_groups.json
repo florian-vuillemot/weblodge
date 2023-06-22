@@ -1,0 +1,35 @@
+[
+  {
+    "id": "/subscriptions/15be6804-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/develop",
+    "location": "northeurope",
+    "managedBy": null,
+    "name": "develop",
+    "properties": {
+      "provisioningState": "Succeeded"
+    },
+    "tags": {},
+    "type": "Microsoft.Resources/resourceGroups"
+  },
+  {
+    "id": "/subscriptions/8615f926-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/staging",
+    "location": "northeurope",
+    "managedBy": null,
+    "name": "staging",
+    "properties": {
+      "provisioningState": "Succeeded"
+    },
+    "tags": {},
+    "type": "Microsoft.Resources/resourceGroups"
+  },
+  {
+    "id": "/subscriptions/2f0df319-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/production",
+    "location": "northeurope",
+    "managedBy": null,
+    "name": "production",
+    "properties": {
+      "provisioningState": "Succeeded"
+    },
+    "tags": {},
+    "type": "Microsoft.Resources/resourceGroups"
+  }
+]
