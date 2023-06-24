@@ -6,3 +6,4 @@ u-deploy.sln
 .vscode
 .venv
 **/__pycache__
+.dist
