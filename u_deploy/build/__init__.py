@@ -1,1 +1,1 @@
-from .web_app import AzWebApp
+from .web_app import WebApp

@@ -4,7 +4,7 @@ import zipfile
 
 
 @dataclass
-class AzWebApp:
+class WebApp:
     # Source directory to zip.
     src: str = field(default='.')
     # Destination directory to the zip file `name`.
@@ -52,7 +52,7 @@ class AzWebApp:
         """
         Add the deployment config file to the zip folder.
         """
-        # Azure WebApp deployment config file.
+        # Kudu deployment config file.
         config = '''\
 [config]
 # Packages must be installed using during the deployment build.
