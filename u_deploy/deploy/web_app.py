@@ -18,8 +18,4 @@ class WebApp:
         _ap = ap.create('app-develop-tmp', 'B1', _rg)
         _wa = wa.create('webapp-develop-tmp', _ap)
 
-        _rg = rg.get('develop-tmp', 'northeurope')
-        _ap = ap.get('app-develop-tmp', _rg)
-        _wa = wa.get('webapp-develop-tmp')
-
         wa.deploy(_wa, src)
