@@ -81,3 +81,14 @@ class WebAppHelper:
             f'webapp create -g {rg_name} -p {app_service.id} -n {name} --runtime PYTHON:{python_version}'
         )
         return self.get(name, force_reload=True)
+    
+    def deploy(self, webapp: WebApp, src: str) -> None:
+        """
+        Deploy an application zipped to the WebApp.
+        """
+        rg = webapp.resource_group.name
+        wa = webapp.name
+
+        self._cli.invoke(
+            f'webapp deployment source config-zip -g {rg} -n {wa} --src {src}'
+        )

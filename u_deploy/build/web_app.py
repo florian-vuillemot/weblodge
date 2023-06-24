@@ -10,10 +10,17 @@ class WebApp:
     # Destination directory to the zip file `name`.
     dest: str = field(default='dist')
 
-    # Name of the zip file.
-    name: str = 'azwebapp'
-    # Kudu deployment config file
+    # Zip file that contains the user application code.
+    package: str = 'azwebapp.zip'
+    # Kudu deployment config file.
     kudu_config: str = '.deployment'
+
+    @property
+    def package_path(self) -> str:
+        """
+        Return the package path.
+        """
+        return os.path.join(self.dest, self.package)
 
     def build(self) -> None:
         """
@@ -21,10 +28,8 @@ class WebApp:
         """
         # Create the destination directory.
         os.makedirs(self.dest, exist_ok=True)
-        # Final zip file.
-        fp_zip = os.path.join(self.dest, self.name) + '.zip'
 
-        with zipfile.ZipFile(fp_zip, 'w', zipfile.ZIP_DEFLATED) as zipf:
+        with zipfile.ZipFile(self.package_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
             self._zip_user_application(zipf)
             self._add_deployment_config(zipf)
 
