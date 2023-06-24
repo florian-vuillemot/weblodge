@@ -1,1 +1,1 @@
-from .web_app import build
+from .web_app import AzWebApp
