@@ -32,15 +32,15 @@ class Cli:
 # Create a default instance of the CLI that return working output.
 cli = Cli()
 
-resource_groups_json = json.loads(Path('./tests/_azure/core/mocks/resource_groups.json').read_text())
+resource_groups_json = json.loads(Path('./tests/_azure/mocks/resource_groups.json').read_text())
 cli.add_command('group list', resource_groups_json)
 cli.add_command('group create --name staging --location northeurope', resource_groups_json[1])
 
-appservices_json = json.loads(Path('./tests/_azure/core/mocks/appservices_plan.json').read_text())
+appservices_json = json.loads(Path('./tests/_azure/mocks/appservices_plan.json').read_text())
 cli.add_command('appservice plan list', appservices_json)
 
-subscriptions_json = json.loads(Path('./tests/_azure/core/mocks/subscriptions.json').read_text())
+subscriptions_json = json.loads(Path('./tests/_azure/mocks/subscriptions.json').read_text())
 cli.add_command('account list', subscriptions_json)
 
-web_apps_json = json.loads(Path('./tests/_azure/core/mocks/web_apps.json').read_text())
+web_apps_json = json.loads(Path('./tests/_azure/mocks/web_apps.json').read_text())
 cli.add_command('webapp list', web_apps_json)

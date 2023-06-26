@@ -1,6 +1,6 @@
 import unittest
 
-from u_deploy._azure.core.subscription import Subscription, SubscriptionHelper
+from u_deploy._azure import Subscription, SubscriptionHelper
 
 from .cli import cli
 

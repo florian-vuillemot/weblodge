@@ -19,9 +19,11 @@ class ConfigField:
 
 class Config:
     def __init__(self) -> None:
+        self._fields = {}
+
         self._parser = argparse.ArgumentParser(description='Deploy a Python Flask-based application to Azure.')
-        self._parser.add_argument('target', type=str)
-        self._parser.add_argument('action', type=str)
+        self._parser.add_argument('target', type=str, help='Infrastructure to deploy.', choices=['webapp'], default='webapp')
+        self._parser.add_argument('action', type=str, help='Action to perform.', choices=['build', 'deploy'])
 
         self.args, _ = self._parser.parse_known_args()
         self.target = self.args.target
@@ -32,6 +34,7 @@ class Config:
         Load the configuration in the parser.
         """
         for field in fields:
+            self._fields[self._to_arg_parse(field.name)] = field.default
             self._parser.add_argument(
                 f'--{field.name}',
                 type=str,
@@ -42,4 +45,8 @@ class Config:
         self.args, _ = self._parser.parse_known_args()
 
     def __getitem__(self, name: str) -> Any:
-        return getattr(self.args, name)
+        return getattr(self.args, name, self._fields[self._to_arg_parse(name)])
+
+    @staticmethod
+    def _to_arg_parse(name: str) -> str:
+        return name.replace('-', '_')

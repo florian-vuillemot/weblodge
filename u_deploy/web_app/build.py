@@ -2,13 +2,15 @@ from dataclasses import dataclass, field
 import os
 import zipfile
 
+from u_deploy.config import ConfigField
+
 
 @dataclass
-class WebApp:
+class Build:
     # Source directory to zip.
-    src: str = field(default='.')
+    src: str = '.'
     # Destination directory to the zip file `name`.
-    dest: str = field(default='dist')
+    dest: str = 'dist'
 
     # Zip file that contains the user application code.
     package: str = 'azwebapp.zip'
@@ -21,6 +23,23 @@ class WebApp:
         Return the package path.
         """
         return os.path.join(self.dest, self.package)
+
+    @classmethod
+    def config(cls):
+        return [
+            ConfigField(
+                name='src',
+                description='Application folder.',
+                example='.',
+                default=cls.src
+            ),
+            ConfigField(
+                name='dest',
+                description='Build destination.',
+                example='dist',
+                default=cls.dest
+            )
+        ]
 
     def build(self) -> None:
         """

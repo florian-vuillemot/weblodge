@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from typing import List
 
-from u_deploy._azure import ResourceGroup, ResourceGroupHelper
-from u_deploy._azure.core.appservice import AppService, AppServiceHelper
+from .resource_group import ResourceGroup, ResourceGroupHelper
+from .appservice import AppService, AppServiceHelper
 
 from .cli import Cli
 
@@ -13,9 +13,9 @@ class WebApp:
     Azure WebApp representation.
     """
     name: str
-    host_names: List[str]
     kind: str
     location: str
+    host_names: List[str]
     linux_fx_version: str
     app_service: AppService
     resource_group: ResourceGroup
