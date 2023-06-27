@@ -1,10 +1,11 @@
+from typing import List
 from dataclasses import dataclass
 
-from .cli import Cli
+from .resource import Resource
 
 
 @dataclass
-class Subscription:
+class SubscriptionModel:
     """
     Azure Subscription representation.
     """
@@ -12,23 +13,18 @@ class Subscription:
     name: str
 
 
-class SubscriptionHelper:
+class Subscription(Resource):
     """
     Helper class to manage Azure subscriptions.
     """
-
-    def __init__(self, cli: Cli) -> None:
-        self._cli = cli
-        self._subscriptions = []
-
-    def list(self) -> list[Subscription]:
-        if not self._subscriptions:
+    def list(self) -> List[SubscriptionModel]:
+        if not self._resources:
             subscription = self._cli.invoke('account list')
-            self._subscriptions = [Subscription(id=s['id'], name=s['name']) for s in subscription]
+            self._resources = [SubscriptionModel(id=s['id'], name=s['name']) for s in subscription]
 
-        return self._subscriptions
+        return self._resources
 
-    def get(self, name: str) -> Subscription:
+    def get(self, name: str) -> SubscriptionModel:
         """
         Return a subscription by its name.
         """

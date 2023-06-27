@@ -1,48 +1,50 @@
 from typing import List
 from dataclasses import dataclass
 
-from .cli import Cli
-from .resource_group import ResourceGroup, ResourceGroupHelper
+from .resource import Resource
+from .resource_group import ResourceGroupModel, ResourceGroup
 
 
 @dataclass
-class AppService:
+class AppServiceModel:
+    """
+    Azure AppService Plan representation.
+    """
     id: str
     name: str
     number_of_sites: int
     sku: str
     location: str
-    resource_group: ResourceGroup
+    resource_group: ResourceGroupModel
 
 
-class AppServiceHelper:
-    def __init__(self, cli: Cli) -> None:
-        self._cli = cli
-        self.appservices = []
-
-    def list(self, force_reload=True) -> List[AppService]:
+class AppService(Resource):
+    """
+    Helper class to manage Azure AppServices Plan.
+    """
+    def list(self, force_reload=True) -> List[AppServiceModel]:
         """
         List all AppServices Plan.
         """
         if force_reload:
-            self.appservices.clear()
+            self._resources.clear()
 
-        if not self.appservices:
+        if not self._resources:
             appservices = self._cli.invoke('appservice plan list')
             for s in appservices:
-                a = AppService(
+                a = AppServiceModel(
                     id=s['id'],
                     name=s['name'],
                     number_of_sites=int(s['numberOfSites']),
                     sku=s['sku']['name'],
-                    resource_group=ResourceGroupHelper(self._cli).get(s['resourceGroup']),
+                    resource_group=ResourceGroup(self._cli).get(s['resourceGroup']),
                     location=s['location']
                 )
-                self.appservices.append(a)
+                self._resources.append(a)
 
-        return self.appservices
+        return self._resources
     
-    def get(self, name: str = None, resource_group: ResourceGroup = None, id_: str = None, force_reload=True) -> AppService:
+    def get(self, name: str = None, resource_group: ResourceGroupModel = None, id_: str = None, force_reload=True) -> AppServiceModel:
         """
         Return an appservice by its name or its id.
         If resource_group is provided, it will used with the name based search.
@@ -56,14 +58,14 @@ class AppServiceHelper:
 
         raise Exception(f"AppService '{name}' not found.")
 
-    def delete(self, asp: AppService) -> List[AppService]:
+    def delete(self, asp: AppServiceModel) -> List[AppServiceModel]:
         """
         Delete an AppService Plan.
         """
         self._cli.invoke(f'appservice plan delete --name {asp.name} --resource-group {asp.resource_group.name} --yes', to_json=False)
         return self.list(force_reload=True)
 
-    def create(self, name: str, sku: str, resource_group: ResourceGroup, location: str = None) -> AppService:
+    def create(self, name: str, sku: str, resource_group: ResourceGroupModel, location: str = None) -> AppServiceModel:
         """
         Create a Linux AppService Plan.
         """

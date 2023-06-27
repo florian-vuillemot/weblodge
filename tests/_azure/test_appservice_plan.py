@@ -1,6 +1,6 @@
 import unittest
 
-from u_deploy._azure import AppServiceHelper
+from u_deploy._azure import AppService
 
 from .cli import cli
 from .mocks.app_services_plan import develop, staging, production, rg_develop, rg_staging
@@ -8,7 +8,7 @@ from .mocks.app_services_plan import develop, staging, production, rg_develop, r
 
 class TestAppService(unittest.TestCase):
     def setUp(self) -> None:
-        self.appservice_helper = AppServiceHelper(cli)
+        self.appservice_helper = AppService(cli)
         return super().setUp()
 
     def test_list(self):

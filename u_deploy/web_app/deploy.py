@@ -5,7 +5,7 @@ from typing import List
 from dataclasses import dataclass, field
 
 from u_deploy.config import ConfigField
-from u_deploy._azure import Cli, ResourceGroupHelper, AppServiceHelper, WebAppHelper
+from u_deploy._azure import Cli, ResourceGroup, AppService, WebApp
 
 
 @dataclass
@@ -67,9 +67,9 @@ class Deploy:
         """
         default_name = f'{self.app_name}-{self.environment}-{self.location}'
         cli = Cli()
-        rg = ResourceGroupHelper(cli)
-        wa = WebAppHelper(cli)
-        ap = AppServiceHelper(cli)
+        rg = ResourceGroup(cli)
+        wa = WebApp(cli)
+        ap = AppService(cli)
 
         _rg = rg.create(f'rg-{default_name}', self.location)
         _ap = ap.create(f'asp-{default_name}', self.sku, _rg)

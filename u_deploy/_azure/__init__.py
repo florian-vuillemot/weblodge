@@ -1,5 +1,5 @@
 from .cli import Cli
-from .subscription import Subscription, SubscriptionHelper
-from .appservice import AppService, AppServiceHelper
-from .resource_group import ResourceGroup, ResourceGroupHelper
-from .web_app import WebApp, WebAppHelper
+from .subscription import SubscriptionModel, Subscription
+from .appservice import AppServiceModel, AppService
+from .resource_group import ResourceGroupModel, ResourceGroup
+from .web_app import WebAppModel, WebApp

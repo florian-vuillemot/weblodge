@@ -1,10 +1,10 @@
-from u_deploy._azure import WebApp
+from u_deploy._azure import WebAppModel
 
 from .app_services_plan import  develop as asp_develop, staging as asp_staging, production as asp_production, \
                                 rg_develop, rg_staging, rg_production
 
 
-develop = WebApp(
+develop = WebAppModel(
     name="develop-app-service",
     host_names=["develop-app-service.azurewebsites.net"],
     kind="app,linux,container",
@@ -13,7 +13,7 @@ develop = WebApp(
     app_service=asp_develop,
     resource_group=rg_develop,
 )
-staging = WebApp(
+staging = WebAppModel(
     name="staging-app-service",
     host_names=["staging-app-service.azurewebsites.net"],
     kind="app,linux,container",
@@ -22,7 +22,7 @@ staging = WebApp(
     app_service=asp_staging,
     resource_group=rg_staging
 )
-production = WebApp(
+production = WebAppModel(
     name="production-app-service",
     host_names=["production-app-service.azurewebsites.net"],
     kind="app,linux,container",

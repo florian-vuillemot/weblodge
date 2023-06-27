@@ -1,40 +1,42 @@
 from typing import List
 from dataclasses import dataclass
 
-from .cli import Cli
+from .resource import Resource
 
 
 @dataclass
-class ResourceGroup:
+class ResourceGroupModel:
+    """
+    Azure Resource Group representation.
+    """
     name: str
     location: str
 
 
-class ResourceGroupHelper:
-    def __init__(self, cli: Cli) -> None:
-        self._cli = cli
-        self.resource_groups = []
-
-    def list(self, force_reload=False) -> List[ResourceGroup]:
+class ResourceGroup(Resource):
+    """
+    Helper class to manage Azure Resource Group.
+    """
+    def list(self, force_reload=False) -> List[ResourceGroupModel]:
         """
         List all Resource Group.
         Force reload clears the cache and reloads the list from Azure.
         """
         if force_reload:
-            self.resource_groups.clear()
+            self._resources.clear()
 
-        if not self.resource_groups:
+        if not self._resources:
             rgs = self._cli.invoke('group list')
             for s in rgs:
-                a = ResourceGroup(
+                a = ResourceGroupModel(
                         name=s['name'],
                         location=s['location']
                 )
-                self.resource_groups.append(a)
+                self._resources.append(a)
 
-        return self.resource_groups
+        return self._resources
     
-    def get(self, name: str, force_reload=False) -> ResourceGroup:
+    def get(self, name: str, force_reload=False) -> ResourceGroupModel:
         """
         Return an resource group by its name.
         Force reload clears the cache and reloads the list from Azure.
@@ -45,14 +47,14 @@ class ResourceGroupHelper:
 
         raise Exception(f"Resource Group '{name}' not found.")
 
-    def create(self, name: str, location: str) -> ResourceGroup:
+    def create(self, name: str, location: str) -> ResourceGroupModel:
         """
         Create a new Resource Group and return it.
         """
         self._cli.invoke(f'group create --name {name} --location {location}')
         return self.get(name, force_reload=True)
 
-    def delete(self, resource_group: ResourceGroup) -> List[ResourceGroup]:
+    def delete(self, resource_group: ResourceGroupModel) -> List[ResourceGroupModel]:
         """
         Delete a Resource Group and return all Resource Group.
         """
