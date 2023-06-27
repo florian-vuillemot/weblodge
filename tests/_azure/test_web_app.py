@@ -1,6 +1,6 @@
 import unittest
 
-from u_deploy._azure import WebApp, WebAppHelper
+from u_deploy._azure import WebAppHelper
 
 from .cli import cli
 from .mocks.web_apps import develop, staging, production, rg_staging

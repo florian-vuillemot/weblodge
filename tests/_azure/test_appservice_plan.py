@@ -1,7 +1,6 @@
 import unittest
 
-from u_deploy._azure import AppService, AppServiceHelper
-from u_deploy._azure import ResourceGroup
+from u_deploy._azure import AppServiceHelper
 
 from .cli import cli
 from .mocks.app_services_plan import develop, staging, production, rg_develop, rg_staging

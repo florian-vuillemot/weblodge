@@ -1,6 +1,6 @@
 import unittest
 
-from u_deploy._azure.core.resource_group import ResourceGroup, ResourceGroupHelper
+from u_deploy._azure import ResourceGroupHelper
 
 from .cli import cli
 from .mocks.resource_group import develop, staging, production
