@@ -1,6 +1,6 @@
 from typing import Dict, List
 
-from u_deploy.config import Config, ConfigField
+from weblodge.config import Config, ConfigField
 
 from .build import Build
 from .deploy import Deploy
@@ -36,6 +36,5 @@ class WebApp:
         """
         return {
             'build': Build.config(),
-            'deploy': Deploy.config(),
-            'delete': Delete.config()
+            'deploy': Deploy.config()
         }

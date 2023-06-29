@@ -1,3 +1,0 @@
-pip==23.0.1
-setuptools==65.5.0
-azure-cli==2.49

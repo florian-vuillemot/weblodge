@@ -1,10 +1,10 @@
 from typing import List
 from dataclasses import dataclass
 
-from .resource import Resource
+from .cli import Cli
 
 
-@dataclass
+@dataclass(frozen=True)
 class SubscriptionModel:
     """
     Azure Subscription representation.
@@ -13,10 +13,14 @@ class SubscriptionModel:
     name: str
 
 
-class Subscription(Resource):
+class Subscription:
     """
     Helper class to manage Azure subscriptions.
     """
+    def __init__(self, cli: Cli()) -> None:
+        self._cli = cli
+        self._resources = []
+
     def list(self) -> List[SubscriptionModel]:
         if not self._resources:
             subscription = self._cli.invoke('account list')

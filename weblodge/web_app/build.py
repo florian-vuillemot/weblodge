@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 import os
 import zipfile
 
-from u_deploy.config import ConfigField
+from weblodge.config import ConfigField
 
 
 @dataclass

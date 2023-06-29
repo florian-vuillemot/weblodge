@@ -1,13 +1,12 @@
 from dataclasses import dataclass
 from typing import List
 
+from .cli import Cli
 from .resource_group import ResourceGroupModel, ResourceGroup
 from .appservice import AppServiceModel, AppService
 
-from .resource import Resource
 
-
-@dataclass
+@dataclass(frozen=True)
 class WebAppModel:
     """
     Azure WebApp representation.
@@ -21,10 +20,14 @@ class WebAppModel:
     resource_group: ResourceGroupModel
 
 
-class WebApp(Resource):
+class WebApp:
     """
     Helper class to manage Azure WebApps.
     """
+    def __init__(self, cli: Cli()) -> None:
+        self._cli = cli
+        self._resources = []
+
     def list(self, force_reload=False) -> List[WebAppModel]:
         """
         List all WebApps.

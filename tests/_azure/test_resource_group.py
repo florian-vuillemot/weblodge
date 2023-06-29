@@ -1,6 +1,6 @@
 import unittest
 
-from u_deploy._azure import ResourceGroup
+from weblodge._azure import ResourceGroup
 
 from .cli import cli
 from .mocks.resource_group import develop, staging, production

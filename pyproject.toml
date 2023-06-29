@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "weblodge"
+version = "0.1.0"
+description = ""
+authors = ["Vuillemot Florian <vuillemot.florian@outlook.fr>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.scripts]
+weblodge = "weblodge.cli:main"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+azure-cli = "2.49"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

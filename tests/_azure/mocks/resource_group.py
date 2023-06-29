@@ -1,4 +1,4 @@
-from u_deploy._azure import ResourceGroupModel
+from weblodge._azure import ResourceGroupModel
 
 
 develop = ResourceGroupModel(name='develop', location='northeurope')

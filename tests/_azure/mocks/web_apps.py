@@ -1,4 +1,4 @@
-from u_deploy._azure import WebAppModel
+from weblodge._azure import WebAppModel
 
 from .app_services_plan import  develop as asp_develop, staging as asp_staging, production as asp_production, \
                                 rg_develop, rg_staging, rg_production

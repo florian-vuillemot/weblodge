@@ -1,11 +1,11 @@
 from typing import List
 from dataclasses import dataclass
 
-from .resource import Resource
+from .cli import Cli
 from .resource_group import ResourceGroupModel, ResourceGroup
 
 
-@dataclass
+@dataclass(frozen=True)
 class AppServiceModel:
     """
     Azure AppService Plan representation.
@@ -18,11 +18,15 @@ class AppServiceModel:
     resource_group: ResourceGroupModel
 
 
-class AppService(Resource):
+class AppService:
     """
     Helper class to manage Azure AppServices Plan.
     """
-    def list(self, force_reload=True) -> List[AppServiceModel]:
+    def __init__(self, cli: Cli()) -> None:
+        self._cli = cli
+        self._resources = []
+
+    def list(self, force_reload=False) -> List[AppServiceModel]:
         """
         List all AppServices Plan.
         """

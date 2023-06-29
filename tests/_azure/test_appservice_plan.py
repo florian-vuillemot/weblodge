@@ -1,6 +1,6 @@
 import unittest
 
-from u_deploy._azure import AppService
+from weblodge._azure import AppService
 
 from .cli import cli
 from .mocks.app_services_plan import develop, staging, production, rg_develop, rg_staging

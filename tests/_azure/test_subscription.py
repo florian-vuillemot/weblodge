@@ -1,6 +1,6 @@
 import unittest
 
-from u_deploy._azure import SubscriptionModel, Subscription
+from weblodge._azure import SubscriptionModel, Subscription
 
 from .cli import cli
 

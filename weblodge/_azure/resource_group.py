@@ -1,10 +1,10 @@
 from typing import List
 from dataclasses import dataclass
 
-from .resource import Resource
+from .cli import Cli
 
 
-@dataclass
+@dataclass(frozen=True)
 class ResourceGroupModel:
     """
     Azure Resource Group representation.
@@ -13,10 +13,14 @@ class ResourceGroupModel:
     location: str
 
 
-class ResourceGroup(Resource):
+class ResourceGroup:
     """
     Helper class to manage Azure Resource Group.
     """
+    def __init__(self, cli: Cli()) -> None:
+        self._cli = cli
+        self._resources = []
+
     def list(self, force_reload=False) -> List[ResourceGroupModel]:
         """
         List all Resource Group.
@@ -26,8 +30,7 @@ class ResourceGroup(Resource):
             self._resources.clear()
 
         if not self._resources:
-            rgs = self._cli.invoke('group list')
-            for s in rgs:
+            for s in self._cli.invoke('group list'):
                 a = ResourceGroupModel(
                         name=s['name'],
                         location=s['location']

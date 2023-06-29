@@ -1,4 +1,4 @@
-from u_deploy._azure import AppServiceModel
+from weblodge._azure import AppServiceModel
 
 from .resource_group import develop as rg_develop, staging as rg_staging, production as rg_production
 

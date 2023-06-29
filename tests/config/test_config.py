@@ -1,7 +1,7 @@
 import sys
 import unittest
 
-from u_deploy.config import Config, ConfigField
+from weblodge.config import Config, ConfigField
 
 
 config_fields = [

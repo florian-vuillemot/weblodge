@@ -4,8 +4,8 @@ import string
 from typing import List
 from dataclasses import dataclass, field
 
-from u_deploy.config import ConfigField
-from u_deploy._azure import Cli, ResourceGroup, AppService, WebApp
+from weblodge.config import ConfigField
+from weblodge._azure import Cli, ResourceGroup, AppService, WebApp
 
 
 @dataclass
