@@ -22,11 +22,9 @@ class Config:
         self._fields = {}
 
         self._parser = argparse.ArgumentParser(description='Deploy a Python Flask-based application to Azure.')
-        self._parser.add_argument('target', type=str, help='Infrastructure to deploy.', choices=['webapp'], default='webapp')
         self._parser.add_argument('action', type=str, help='Action to perform.', choices=['build', 'deploy'])
 
         self.args, _ = self._parser.parse_known_args()
-        self.target = self.args.target
         self.action = self.args.action
 
     def load(self, fields: List[ConfigField]) -> None:

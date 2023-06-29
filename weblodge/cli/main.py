@@ -12,12 +12,12 @@ def main():
     w = WebApp(c)
 
     if c.action == 'build':
-        logging.info('Starting WebApp build.')
+        logging.info('Building...')
         c.load(w.config()['build'])
         w.build()
-        logging.info('WebApp built successfully.')
+        logging.info('Successfully built.')
     elif c.action == 'deploy':
-        logging.info('Starting WebApp deployment.')
+        logging.info('Deploying...')
         c.load(w.config()['deploy'])
         webapp_url = w.deploy()
-        logging.info(f"WebApp deployed successfully at 'https://{webapp_url}'.")
+        logging.info(f"Successfully deployed at 'https://{webapp_url}'.")

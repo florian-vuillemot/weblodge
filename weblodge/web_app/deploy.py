@@ -37,7 +37,7 @@ class Deploy:
             ),
             ConfigField(
                 name='sku',
-                description='The application SLU (https://azure.microsoft.com/en-us/pricing/details/app-service/linux/).',
+                description='The application computational power (https://azure.microsoft.com/en-us/pricing/details/app-service/linux/).',
                 example='F1, B1',
                 default=cls.sku
             ),
