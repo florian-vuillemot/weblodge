@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from typing import Any, Dict, List
 
 
-@dataclass
+@dataclass(frozen=True)
 class Field:
     # Name of the field.
     # This name will be used as the command line argument, in the code and config files. 
