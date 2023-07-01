@@ -1,5 +1,6 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 import os
+from typing import List
 import zipfile
 
 from weblodge.config import ConfigField
@@ -11,11 +12,17 @@ class Build:
     src: str = '.'
     # Destination directory to the zip file `name`.
     dest: str = 'dist'
+    # Application entrypoint.
+    entrypoint: str = 'app.py'
+    # Flask application object.
+    app: str = 'app'
 
     # Zip file that contains the user application code.
     package: str = 'azwebapp.zip'
     # Kudu deployment config file.
     kudu_config: str = '.deployment'
+    # Startup file.
+    startup_file: str = 'startup.txt'
 
     @property
     def package_path(self) -> str:
@@ -25,7 +32,7 @@ class Build:
         return os.path.join(self.dest, self.package)
 
     @classmethod
-    def config(cls):
+    def config(cls) -> List[ConfigField]:
         return [
             ConfigField(
                 name='src',
@@ -38,6 +45,18 @@ class Build:
                 description='Build destination.',
                 example='dist',
                 default=cls.dest
+            ),
+            ConfigField(
+                name='entrypoint',
+                description='Application entrypoint.',
+                example='app.py, main.py, application.py',
+                default=cls.entrypoint
+            ),
+            ConfigField(
+                name='app',
+                description='Flask Application object.',
+                example='app',
+                default=cls.app
             )
         ]
 
@@ -50,7 +69,8 @@ class Build:
 
         with zipfile.ZipFile(self.package_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
             self._zip_user_application(zipf)
-            self._add_deployment_config(zipf)
+            self._deployment_config(zipf)
+            self._startup_file(zipf)
 
     def _zip_user_application(self, zipf: zipfile.ZipFile):
         """
@@ -72,7 +92,7 @@ class Build:
                 relative_to = os.path.relpath(file_path, self.src)
                 zipf.write(file_path, relative_to)
 
-    def _add_deployment_config(self, zipf: zipfile.ZipFile):
+    def _deployment_config(self, zipf: zipfile.ZipFile):
         """
         Add the deployment config file to the zip folder.
         """
@@ -86,4 +106,31 @@ SCM_DO_BUILD_DURING_DEPLOYMENT = true
         zipf.writestr(
             os.path.relpath(self.kudu_config, self.src),
             config
+        )
+
+    def _startup_file(self, zipf: zipfile.ZipFile):
+        """
+        Add the startup file to the zip folder.
+        """
+        # Skip the startup file if the entrypoint is a default supported values.
+        if self.entrypoint in ('app.py', 'application.py', 'app', 'application') and self.app == 'app':
+            return
+
+        # Remove potentional .py extension.
+        entrypoint = self.entrypoint
+        if entrypoint.endswith('.py'):
+            entrypoint = entrypoint[:-3]
+        
+        # Add the application object if it's not already there.
+        if ':' not in entrypoint:
+            entrypoint = f'{entrypoint}:{self.app}'
+
+        # Default application configuration update with the user and entrypoint.
+        # https://learn.microsoft.com/en-us/azure/developer/python/configure-python-web-app-on-app-service
+        startup_file_content = f'gunicorn --bind=0.0.0.0 --timeout 600 {entrypoint}'
+        
+        # Add the startup file to the zip folder.
+        zipf.writestr(
+            os.path.relpath(self.startup_file, self.src),
+            startup_file_content
         )

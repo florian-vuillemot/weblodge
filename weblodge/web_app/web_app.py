@@ -14,7 +14,8 @@ class WebApp:
         """
         Build the application.
         """
-        build = Build(src=self._config['src'], dest=self._config['dest'])
+        build_config = self._user_config(Build.config())
+        build = Build(**build_config)
         build.build()
 
     def deploy(self) -> str:
@@ -22,12 +23,8 @@ class WebApp:
         Deploy the application to Azure.
         Return the URL of the deployed application.
         """
-        deploy = Deploy(
-            app_name=self._config['app-name'],
-            sku=self._config['sku'],
-            location=self._config['location']
-
-        )
+        deploy_config = self._user_config(Deploy.config())
+        deploy = Deploy(**deploy_config)
         return deploy.deploy()
 
     def config(self) -> Dict[str, List[ConfigField]]:
@@ -38,3 +35,9 @@ class WebApp:
             'build': Build.config(),
             'deploy': Deploy.config()
         }
+    
+    def _user_config(self, fields: List[ConfigField]) -> Dict[str, str]:
+        """
+        Extract the user configuration from the config object.
+        """
+        return {f.name: self._config[f.name] for f in fields}
