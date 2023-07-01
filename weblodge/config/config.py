@@ -44,17 +44,14 @@ def weblodge() -> str:
     )
 
 
-def load(fields: List[Field]) -> Dict[str, str]:
+def load(fields: List[Field], current_config: Dict[str, str] = {}) -> Dict[str, str]:
     """
-    Load the configuration in the parser.
+    Load the configuration from the parser.
+    Override the current config with the new values.
     """
-    res = {}
-
     # Create and configure a parser for the fields.
     parser = argparse.ArgumentParser()
     for field in fields:
-        res[_to_arg_parse(field.name)] = field.default
-
         argument = {
             'help': field.description,
         }
@@ -75,12 +72,15 @@ def load(fields: List[Field]) -> Dict[str, str]:
         )
     args_parsed, _ = parser.parse_known_args()
     
-    # Update the default values with the user values.
+    # If the user did not specify a value, use the value passed in parameter 
+    # otherwise the default one.
+    new_config = {}
     for field in fields:
         n = _to_arg_parse(field.name)
-        res[n] = getattr(args_parsed, n, res[n])
+        value_if_not_defined = current_config.get(n, field.default)
+        new_config[n] = getattr(args_parsed, n, value_if_not_defined)
 
-    return res
+    return {**current_config, **new_config}
 
 
 def _to_arg_parse(name: str) -> str:

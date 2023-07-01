@@ -29,20 +29,20 @@ config_fields = [
 class TestConfig(unittest.TestCase):
     def test_default_values(self):
         sys.argv = [sys.argv[0], 'build']
+
         self.assertEqual(config.weblodge().action, 'build')
 
     def test_config_file(self):
         filename = 'my-config-file'
 
-        sys.argv = [sys.argv[0], 'build', '--config-file', filename]
-        self.assertEqual(config.weblodge().action, 'build')
+        sys.argv = [sys.argv[0], 'deploy', '--config-file', filename]
+
+        self.assertEqual(config.weblodge().action, 'deploy')
         self.assertEqual(config.weblodge().config_filename, filename)
 
     def test_default(self):
         app_name = 'foo'
         sys.argv = [sys.argv[0], 'deploy', '--app-name', app_name]
-
-        self.assertEqual(config.weblodge().action, 'deploy')
 
         _config = config.load(config_fields)
         self.assertEqual(_config['app_name'], app_name)
@@ -55,11 +55,29 @@ class TestConfig(unittest.TestCase):
         app_name = 'foo'
 
         sys.argv = [sys.argv[0], 'build', '--app-name', app_name, '--dist', dist, '--src',  src]
-
-        self.assertEqual(config.weblodge().action, 'build')
         
         _config = config.load(config_fields)
         self.assertEqual(_config['src'], src)
         self.assertEqual(_config['dist'], dist)
         self.assertEqual(_config['app_name'], app_name)
 
+    def test_override_para(self):
+        dist='my-dist'
+        app_name = 'foo'
+
+        new_override = [
+            config.Field(
+                name='dist',
+                description='Build destination.',
+                default=dist
+            )
+        ]
+
+        sys.argv = [sys.argv[0], 'build', '--app-name', app_name]
+
+        _config = config.load(config_fields)
+        _config = config.load(new_override, _config)
+
+        self.assertEqual(_config['dist'], dist)
+        self.assertEqual(_config['app_name'], app_name)
+        self.assertEqual(_config['src'], config_fields[2].default)
