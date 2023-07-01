@@ -3,8 +3,9 @@ import logging
 import weblodge.config as config
 from weblodge.web_app import WebApp
 
-
-logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
+logger = logging.getLogger('weblodge')
+logger.setLevel(logging.INFO)
+logger.addHandler(logging.StreamHandler())
 
 
 def main():
@@ -12,26 +13,40 @@ def main():
     action = config.action()
 
     if action == 'build':
-        logging.info('Building...')
-        webapp.build(
-            config.load(webapp.config()['build'])
-        )
-        logging.info('Successfully built.')
+        build(webapp)
     elif action == 'deploy':
-        logging.info('Deploying...')
-        webapp_url = deploy(webapp)
-        logging.info(f"Successfully deployed at 'https://{webapp_url}'.")
+        deploy(webapp)
+
+
+def build(webapp: WebApp):
+    """
+    Build the application.
+    """
+    logger.info('Building...')
+    webapp.build(
+        config.load(webapp.config()['build'])
+    )
+    logger.info('Successfully built.')
 
 
 def deploy(webapp: WebApp):
+    """
+    Deploy the application.
+    """
+    # User can choose to build the application before deploying it.
     deploy_can_build = [
-        *webapp.config()['deploy'],
         config.Field(
             name='build',
             description='Build then deploy the application.',
             attending_value=False
         )
     ]
-    user_config = config.load(deploy_can_build)
-    webapp_url = webapp.deploy(user_config)
-    return webapp_url
+    must_build = config.load(deploy_can_build)
+
+    if must_build.pop('build'):
+        build(webapp)
+
+    logger.info('Deploying...')
+    webapp_url = webapp.deploy(config.load(webapp.config()['deploy']))
+
+    logger.info(f"Successfully deployed at 'https://{webapp_url}'.")

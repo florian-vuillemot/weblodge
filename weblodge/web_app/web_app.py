@@ -19,8 +19,7 @@ class WebApp:
         Deploy the application to Azure.
         Return the URL of the deployed application.
         """
-        deploy_config = self._user_config(Deploy.config(), config)
-        deploy = Deploy(**deploy_config)
+        deploy = Deploy(**config)
         return deploy.deploy()
 
     def config(self) -> Dict[str, List[ConfigField]]:

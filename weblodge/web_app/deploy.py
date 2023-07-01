@@ -2,7 +2,7 @@ import os
 import random
 import string
 from typing import List
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 from weblodge.config import Field
 from weblodge._azure import Cli, ResourceGroup, AppService, WebApp
@@ -32,6 +32,7 @@ class Deploy:
             Field(
                 name='app-name',
                 description='The unique name of the application. If not provide, a random name will be generated.',
+                default=cls.app_name
             ),
             Field(
                 name='sku',
