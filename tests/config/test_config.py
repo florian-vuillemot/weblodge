@@ -10,7 +10,7 @@ config_fields = [
         description='The unique name of the application.',
     ),
     config.Field(
-        name='dest',
+        name='dist',
         description='Build destination.',
         default='dist'
     ),
@@ -39,21 +39,21 @@ class TestConfig(unittest.TestCase):
 
         _config = config.load(config_fields)
         self.assertEqual(_config['app_name'], app_name)
-        self.assertEqual(_config['dest'], config_fields[1].default)
+        self.assertEqual(_config['dist'], config_fields[1].default)
         self.assertEqual(_config['src'], config_fields[2].default)
 
     def test_override(self):
         src='my-src'
-        dest='my-dist'
+        dist='my-dist'
         app_name = 'foo'
 
-        sys.argv = [sys.argv[0], 'build', '--app-name', app_name, '--dest', dest, '--src',  src]
+        sys.argv = [sys.argv[0], 'build', '--app-name', app_name, '--dist', dist, '--src',  src]
 
 
         self.assertEqual(config.action(), 'build')
         
         _config = config.load(config_fields)
         self.assertEqual(_config['src'], src)
-        self.assertEqual(_config['dest'], dest)
+        self.assertEqual(_config['dist'], dist)
         self.assertEqual(_config['app_name'], app_name)
 
