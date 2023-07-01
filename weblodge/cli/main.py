@@ -10,11 +10,11 @@ logger.addHandler(logging.StreamHandler())
 
 def main():
     webapp = WebApp()
-    action = config.action()
+    weblodge = config.weblodge()
 
-    if action == 'build':
+    if weblodge.action == 'build':
         build(webapp)
-    elif action == 'deploy':
+    elif weblodge.action == 'deploy':
         deploy(webapp)
 
 

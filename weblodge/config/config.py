@@ -18,14 +18,30 @@ class Field:
     default: str = None
 
 
-def action() -> Dict[str, str]:
+@dataclass(frozen=True)
+class GlobalConfig:
+    """
+    Global and pre defined configuration.
+    """
+    # The action to perform.
+    action: str
+    # The configuration file name containing the deployment state.
+    config_filename: str = '.weblodge.json'
+
+
+def weblodge() -> str:
     """
     Return the action to perform.
     """
     parser = argparse.ArgumentParser(description='Deploy a Python Flask-based application to Azure.')
     parser.add_argument('action', type=str, help='Action to perform.', choices=['build', 'deploy'])
+    parser.add_argument('--config-filename', type=str, help='File containing the deployment configuration.', default=GlobalConfig.config_filename, required=False)
     args, _ = parser.parse_known_args()
-    return args.action
+
+    return GlobalConfig(
+        action=args.action,
+        config_filename=args.config_filename
+    )
 
 
 def load(fields: List[Field]) -> Dict[str, str]:

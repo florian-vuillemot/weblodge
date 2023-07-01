@@ -29,13 +29,20 @@ config_fields = [
 class TestConfig(unittest.TestCase):
     def test_default_values(self):
         sys.argv = [sys.argv[0], 'build']
-        self.assertEqual(config.action(), 'build')
+        self.assertEqual(config.weblodge().action, 'build')
+
+    def test_config_file(self):
+        filename = 'my-config-file'
+
+        sys.argv = [sys.argv[0], 'build', '--config-file', filename]
+        self.assertEqual(config.weblodge().action, 'build')
+        self.assertEqual(config.weblodge().config_filename, filename)
 
     def test_default(self):
         app_name = 'foo'
         sys.argv = [sys.argv[0], 'deploy', '--app-name', app_name]
 
-        self.assertEqual(config.action(), 'deploy')
+        self.assertEqual(config.weblodge().action, 'deploy')
 
         _config = config.load(config_fields)
         self.assertEqual(_config['app_name'], app_name)
@@ -49,8 +56,7 @@ class TestConfig(unittest.TestCase):
 
         sys.argv = [sys.argv[0], 'build', '--app-name', app_name, '--dist', dist, '--src',  src]
 
-
-        self.assertEqual(config.action(), 'build')
+        self.assertEqual(config.weblodge().action, 'build')
         
         _config = config.load(config_fields)
         self.assertEqual(_config['src'], src)
