@@ -1,29 +1,25 @@
 from typing import Dict, List
 
-from weblodge.config import Config, ConfigField
+from weblodge.config import Field as ConfigField
 
 from .build import Build
 from .deploy import Deploy
 
 
 class WebApp:
-    def __init__(self, config: Config) -> None:
-        self._config = config
-
-    def build(self) -> None:
+    def build(self, config: Dict[str, str]) -> None:
         """
         Build the application.
         """
-        build_config = self._user_config(Build.config())
-        build = Build(**build_config)
+        build = Build(**config)
         build.build()
 
-    def deploy(self) -> str:
+    def deploy(self, config: Dict[str, str]) -> str:
         """
         Deploy the application to Azure.
         Return the URL of the deployed application.
         """
-        deploy_config = self._user_config(Deploy.config())
+        deploy_config = self._user_config(Deploy.config(), config)
         deploy = Deploy(**deploy_config)
         return deploy.deploy()
 
@@ -33,11 +29,5 @@ class WebApp:
         """
         return {
             'build': Build.config(),
-            'deploy': Deploy.config()
+            'deploy': Deploy.config(),
         }
-    
-    def _user_config(self, fields: List[ConfigField]) -> Dict[str, str]:
-        """
-        Extract the user configuration from the config object.
-        """
-        return {f.name: self._config[f.name] for f in fields}

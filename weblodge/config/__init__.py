@@ -1,1 +1,1 @@
-from .config import Config, ConfigField
+from .config import action, load, Field
