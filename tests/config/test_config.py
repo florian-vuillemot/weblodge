@@ -61,11 +61,41 @@ class TestConfig(unittest.TestCase):
         self.assertEqual(_config['dist'], dist)
         self.assertEqual(_config['app_name'], app_name)
 
-    def test_override_para(self):
-        dist='my-dist'
+    def test_override(self):
+        """
+        Test the override of passed config.
+        """
+        dist='my-real-dist'
         app_name = 'foo'
 
-        new_override = [
+        override = [
+            config.Field(
+                name='dist',
+                description='Build destination.',
+                default='default-will-be-ignored'
+            )
+        ]
+
+        sys.argv = [sys.argv[0], 'build', '--app-name', app_name]
+
+        _config = config.load(config_fields)
+        
+        sys.argv = [sys.argv[0], 'build', '--dist', dist]
+        _config = config.load(override, _config)
+
+        self.assertEqual(_config['dist'], dist)
+        self.assertEqual(_config['app_name'], app_name)
+        self.assertEqual(_config['src'], config_fields[2].default)
+
+
+    def test_no_override(self):
+        """
+        Ensure previous set values are not overriden by a default.
+        """
+        dist='no-override'
+        app_name = 'foo'
+
+        no_override = [
             config.Field(
                 name='dist',
                 description='Build destination.',
@@ -76,8 +106,9 @@ class TestConfig(unittest.TestCase):
         sys.argv = [sys.argv[0], 'build', '--app-name', app_name]
 
         _config = config.load(config_fields)
-        _config = config.load(new_override, _config)
+        # Value not defined in args, so it should be the default value.
+        _config = config.load(no_override, _config)
 
-        self.assertEqual(_config['dist'], dist)
         self.assertEqual(_config['app_name'], app_name)
         self.assertEqual(_config['src'], config_fields[2].default)
+        self.assertEqual(_config['dist'], config_fields[1].default)

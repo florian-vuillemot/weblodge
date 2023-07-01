@@ -58,11 +58,35 @@ class TestConfigWithState(unittest.TestCase):
 
         # Load the config from the CLI without args.
         sys.argv = [sys.argv[0], 'build', '--app-name', data['app_name']]
-        cli_config = config.load(config_fields)
         # Load the config from the state file.
         state_config = state.load(fd)
 
-        # Merge the two configs.
-        _config = {**cli_config, **state_config}
-
+        # Get the config.
+        _config = config.load(config_fields, state_config)
         self.assertEqual(_config, data)
+
+    def test_load_update_dump(self):
+        new_dist = 'new-dist'
+        initial_config = {
+            'app_name': 'my-src',
+            'dist': 'my-dist',
+            'src': 'foo'
+        }
+        new_config = {
+            **initial_config,
+            'dist': new_dist
+        }
+        fd = io.StringIO(json.dumps(initial_config))
+
+        # Load the config from the disk.
+        _config = state.load(fd)
+        # Load the config from the CLI and override a value.
+        sys.argv = [sys.argv[0], 'build', '--app-name', initial_config['app_name'], '--dist', new_dist]
+        _config = config.load(config_fields, _config)
+
+        # Save the config updated.
+        fd.seek(0)
+        state.dump(fd, _config)
+
+        fd.seek(0)
+        self.assertEqual(json.load(fd), new_config)

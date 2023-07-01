@@ -62,7 +62,6 @@ def load(fields: List[Field], current_config: Dict[str, str] = {}) -> Dict[str, 
             argument = {
                 **argument,
                 'type': str,
-                'default': field.default,
                 'required': field.default is None
             }
 
@@ -78,7 +77,7 @@ def load(fields: List[Field], current_config: Dict[str, str] = {}) -> Dict[str, 
     for field in fields:
         n = _to_arg_parse(field.name)
         value_if_not_defined = current_config.get(n, field.default)
-        new_config[n] = getattr(args_parsed, n, value_if_not_defined)
+        new_config[n] = getattr(args_parsed, n) or value_if_not_defined
 
     return {**current_config, **new_config}
 
