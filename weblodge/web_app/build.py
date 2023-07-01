@@ -11,7 +11,7 @@ class Build:
     # Source directory to zip.
     src: str = '.'
     # Destination directory to the zip file `name`.
-    dest: str = 'dist'
+    dist: str = 'dist'
     # Application entrypoint.
     entrypoint: str = 'app.py'
     # Flask application object.
@@ -29,7 +29,7 @@ class Build:
         """
         Return the package path.
         """
-        return os.path.join(self.dest, self.package)
+        return os.path.join(self.dist, self.package)
 
     @classmethod
     def config(cls) -> List[ConfigField]:
@@ -40,9 +40,9 @@ class Build:
                 default=cls.src
             ),
             ConfigField(
-                name='dest',
+                name='dist',
                 description='Build destination.',
-                default=cls.dest
+                default=cls.dist
             ),
             ConfigField(
                 name='entrypoint',
@@ -61,7 +61,7 @@ class Build:
         Build an application to a deployable format.
         """
         # Create the destination directory.
-        os.makedirs(self.dest, exist_ok=True)
+        os.makedirs(self.dist, exist_ok=True)
 
         with zipfile.ZipFile(self.package_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
             self._zip_user_application(zipf)
@@ -80,7 +80,7 @@ class Build:
             if '__pycache__' in root:
                 continue
             # Skip the build directory.
-            if root.startswith(self.dest) or root.startswith('./' + self.dest) or root.startswith('.\\' + self.dest):
+            if root.startswith(self.dist) or root.startswith('./' + self.dist) or root.startswith('.\\' + self.dist):
                 continue
             # Zip the files.
             for file in files:

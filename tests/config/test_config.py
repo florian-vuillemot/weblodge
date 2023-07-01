@@ -21,7 +21,7 @@ config_fields = [
     ),
     config.Field(
         name='build',
-        description='Application location.',
+        description='Application must be build before.',
         attending_value=False,
     )
 ]
