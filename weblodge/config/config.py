@@ -16,8 +16,6 @@ class Field:
     # Default value of the field.
     # When specified, the field is optional.
     default: str = None
-    # List of choices for the field.
-    choices: List[str] = None
 
 
 def action() -> Dict[str, str]:
@@ -54,8 +52,6 @@ def load(fields: List[Field]) -> Dict[str, str]:
                 'default': field.default,
                 'required': field.default is None
             }
-            if field.choices:
-                argument['choices'] = field.choices
 
         parser.add_argument(
             f'--{field.name}',
