@@ -2,10 +2,10 @@ import os
 import random
 import string
 from typing import List
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
-from u_deploy.config import ConfigField
-from u_deploy._azure import Cli, ResourceGroupHelper, AppServiceHelper, WebAppHelper
+from weblodge.config import Field
+from weblodge._azure import Cli, ResourceGroup, AppService, WebApp
 
 
 @dataclass
@@ -24,39 +24,34 @@ class Deploy:
     dist: str = 'dist'
 
     @classmethod
-    def config(cls) -> List[ConfigField]:
+    def config(cls) -> List[Field]:
         """
         Configure the application.
         """
         return [
-            ConfigField(
+            Field(
                 name='app-name',
                 description='The unique name of the application. If not provide, a random name will be generated.',
-                example='my-app',
                 default=cls.app_name
             ),
-            ConfigField(
+            Field(
                 name='sku',
-                description='The application SLU (https://azure.microsoft.com/en-us/pricing/details/app-service/linux/).',
-                example='F1, B1',
+                description='The application computational power (https://azure.microsoft.com/en-us/pricing/details/app-service/linux/).',
                 default=cls.sku
             ),
-            ConfigField(
+            Field(
                 name='location',
                 description='The physical application location.',
-                example='northeurope, westeurope',
                 default=cls.location
             ),
-            ConfigField(
+            Field(
                 name='environment',
                 description='The environment of your application.',
-                example='production, staging, development',
                 default=cls.environment
             ),
-            ConfigField(
+            Field(
                 name='dist',
                 description='Folder containing the application zipped.',
-                example='dist',
                 default=cls.dist
             ),
         ]
@@ -67,9 +62,9 @@ class Deploy:
         """
         default_name = f'{self.app_name}-{self.environment}-{self.location}'
         cli = Cli()
-        rg = ResourceGroupHelper(cli)
-        wa = WebAppHelper(cli)
-        ap = AppServiceHelper(cli)
+        rg = ResourceGroup(cli)
+        wa = WebApp(cli)
+        ap = AppService(cli)
 
         _rg = rg.create(f'rg-{default_name}', self.location)
         _ap = ap.create(f'asp-{default_name}', self.sku, _rg)

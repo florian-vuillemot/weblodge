@@ -1,6 +1,6 @@
-from u_deploy._azure import ResourceGroup
+from weblodge._azure import ResourceGroupModel
 
 
-develop = ResourceGroup(name='develop', location='northeurope')
-staging = ResourceGroup(name='staging', location='northeurope')
-production = ResourceGroup(name='production', location='northeurope')
+develop = ResourceGroupModel(name='develop', location='northeurope')
+staging = ResourceGroupModel(name='staging', location='northeurope')
+production = ResourceGroupModel(name='production', location='northeurope')

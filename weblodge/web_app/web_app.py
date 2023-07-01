@@ -1,33 +1,25 @@
 from typing import Dict, List
 
-from u_deploy.config import Config, ConfigField
+from weblodge.config import Field as ConfigField
 
 from .build import Build
 from .deploy import Deploy
 
 
 class WebApp:
-    def __init__(self, config: Config) -> None:
-        self._config = config
-
-    def build(self) -> None:
+    def build(self, config: Dict[str, str]) -> None:
         """
         Build the application.
         """
-        build = Build(src=self._config['src'], dest=self._config['dest'])
+        build = Build(**config)
         build.build()
 
-    def deploy(self) -> str:
+    def deploy(self, config: Dict[str, str]) -> str:
         """
         Deploy the application to Azure.
         Return the URL of the deployed application.
         """
-        deploy = Deploy(
-            app_name=self._config['app-name'],
-            sku=self._config['sku'],
-            location=self._config['location']
-
-        )
+        deploy = Deploy(**config)
         return deploy.deploy()
 
     def config(self) -> Dict[str, List[ConfigField]]:
@@ -37,5 +29,4 @@ class WebApp:
         return {
             'build': Build.config(),
             'deploy': Deploy.config(),
-            'delete': Delete.config()
         }

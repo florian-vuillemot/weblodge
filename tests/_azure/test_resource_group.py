@@ -1,6 +1,6 @@
 import unittest
 
-from u_deploy._azure import ResourceGroupHelper
+from weblodge._azure import ResourceGroup
 
 from .cli import cli
 from .mocks.resource_group import develop, staging, production
@@ -10,7 +10,7 @@ class TestResourceGroup(unittest.TestCase):
     resource_groups = [develop, staging, production]
 
     def setUp(self) -> None:
-        self.resource_group_helper = ResourceGroupHelper(cli)
+        self.resource_group_helper = ResourceGroup(cli)
 
         return super().setUp()
 

@@ -1,14 +1,13 @@
 from dataclasses import dataclass
 from typing import List
 
-from .resource_group import ResourceGroup, ResourceGroupHelper
-from .appservice import AppService, AppServiceHelper
-
 from .cli import Cli
+from .resource_group import ResourceGroupModel, ResourceGroup
+from .appservice import AppServiceModel, AppService
 
 
-@dataclass
-class WebApp:
+@dataclass(frozen=True)
+class WebAppModel:
     """
     Azure WebApp representation.
     """
@@ -17,45 +16,44 @@ class WebApp:
     location: str
     host_names: List[str]
     linux_fx_version: str
-    app_service: AppService
-    resource_group: ResourceGroup
+    app_service: AppServiceModel
+    resource_group: ResourceGroupModel
 
 
-class WebAppHelper:
+class WebApp:
     """
     Helper class to manage Azure WebApps.
     """
-
-    def __init__(self, cli: Cli) -> None:
+    def __init__(self, cli: Cli()) -> None:
         self._cli = cli
-        self._web_apps = []
+        self._resources = []
 
-    def list(self, force_reload=False) -> list[WebApp]:
+    def list(self, force_reload=False) -> List[WebAppModel]:
         """
         List all WebApps.
         """
         if force_reload:
-            self._web_apps.clear()
+            self._resources.clear()
 
-        if not self._web_apps:
+        if not self._resources:
             web_apps = self._cli.invoke('webapp list')
-            resource_group_helper = ResourceGroupHelper(self._cli)
+            resource_group_helper = ResourceGroup(self._cli)
             
             for w in web_apps:
-                web_app = WebApp(
+                web_app = WebAppModel(
                     name=w['name'],
                     host_names=w['hostNames'],
                     kind=w['kind'],
                     location=w['location'],
                     linux_fx_version=w['siteConfig']['linuxFxVersion'],
-                    app_service=AppServiceHelper(self._cli).get(id_=w['appServicePlanId']),
+                    app_service=AppService(self._cli).get(id_=w['appServicePlanId']),
                     resource_group=resource_group_helper.get(w['resourceGroup']),
                 )
-                self._web_apps.append(web_app)
+                self._resources.append(web_app)
 
-        return self._web_apps
+        return self._resources
 
-    def get(self, name: str, force_reload=False) -> WebApp:
+    def get(self, name: str, force_reload=False) -> WebAppModel:
         """
         Return a WebApp by its name.
         """
@@ -65,14 +63,14 @@ class WebAppHelper:
 
         raise Exception(f"WebApp '{name}' not found.")
 
-    def delete(self, webapp: WebApp) -> List[WebApp]:
+    def delete(self, webapp: WebAppModel) -> List[WebAppModel]:
         """
         Delete a WebApp.
         """
         self._cli.invoke(f'webapp delete -g {webapp.resource_group.name} -n {webapp.name}', to_json=False)
         return self.list(force_reload=True)
 
-    def create(self, name: str, app_service: AppService, resource_group: ResourceGroup = None, python_version: str = '3.10') -> WebApp:
+    def create(self, name: str, app_service: AppServiceModel, resource_group: ResourceGroupModel = None, python_version: str = '3.10') -> WebAppModel:
         """
         Create a new WebApp.
         """
@@ -82,7 +80,7 @@ class WebAppHelper:
         )
         return self.get(name, force_reload=True)
     
-    def deploy(self, webapp: WebApp, src: str) -> None:
+    def deploy(self, webapp: WebAppModel, src: str) -> None:
         """
         Deploy an application zipped to the WebApp.
         """
