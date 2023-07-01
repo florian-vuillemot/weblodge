@@ -3,8 +3,8 @@ import json
 import sys
 import unittest
 
-import weblodge.config as config
 import weblodge.state as state
+import weblodge.config as config
 
 
 config_fields = [
