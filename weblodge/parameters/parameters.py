@@ -2,24 +2,11 @@ import argparse
 from dataclasses import dataclass
 from typing import Any, Dict, List
 
-
-@dataclass(frozen=True)
-class Field:
-    # Name of the field.
-    # This name will be used as the command line argument, in the code and config files. 
-    name: str
-    # Description of the field. What is it used for?
-    description: str
-    # Does not expect a value from the user. The argument is a flag.
-    # Example: --verbose
-    attending_value: str = True
-    # Default value of the field.
-    # When specified, the field is optional.
-    default: str = None
+from weblodge.config import Item as ConfigItem
 
 
 @dataclass(frozen=True)
-class GlobalConfig:
+class Global:
     """
     Global and pre defined configuration.
     """
@@ -35,16 +22,16 @@ def weblodge() -> str:
     """
     parser = argparse.ArgumentParser(description='Deploy a Python Flask-based application to Azure.')
     parser.add_argument('action', type=str, help='Action to perform.', choices=['build', 'deploy'])
-    parser.add_argument('--config-filename', type=str, help='File containing the deployment configuration.', default=GlobalConfig.config_filename, required=False)
+    parser.add_argument('--config-filename', type=str, help='File containing the deployment configuration.', default=Global.config_filename, required=False)
     args, _ = parser.parse_known_args()
 
-    return GlobalConfig(
+    return Global(
         action=args.action,
         config_filename=args.config_filename
     )
 
 
-def load(fields: List[Field], current_config: Dict[str, str] = {}) -> Dict[str, str]:
+def load(fields: List[ConfigItem], current_config: Dict[str, str] = {}) -> Dict[str, str]:
     """
     Load the configuration from the parser.
     Override the current config with the new values.

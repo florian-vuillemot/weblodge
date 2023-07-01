@@ -3,7 +3,7 @@ import os
 from typing import List
 import zipfile
 
-from weblodge.config import Field as ConfigField
+from weblodge.config import Item as ConfigItem
 
 
 @dataclass
@@ -32,24 +32,25 @@ class Build:
         return os.path.join(self.dist, self.package)
 
     @classmethod
-    def config(cls) -> List[ConfigField]:
+    @property
+    def config(cls) -> List[ConfigItem]:
         return [
-            ConfigField(
+            ConfigItem(
                 name='src',
                 description='Application folder.',
                 default=cls.src
             ),
-            ConfigField(
+            ConfigItem(
                 name='dist',
                 description='Build destination.',
                 default=cls.dist
             ),
-            ConfigField(
+            ConfigItem(
                 name='entrypoint',
                 description='Application entrypoint.',
                 default=cls.entrypoint
             ),
-            ConfigField(
+            ConfigItem(
                 name='app',
                 description='Flask Application object.',
                 default=cls.app

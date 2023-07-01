@@ -1,7 +1,11 @@
 import logging
+from typing import Dict
 
-import weblodge.config as config
-from weblodge.web_app import WebApp
+import weblodge.parameters as parameters
+import weblodge.state as state
+import weblodge.web_app as web_app
+from weblodge.config import Item as ConfigItem
+
 
 logger = logging.getLogger('weblodge')
 logger.setLevel(logging.INFO)
@@ -9,44 +13,51 @@ logger.addHandler(logging.StreamHandler())
 
 
 def main():
-    webapp = WebApp()
-    weblodge = config.weblodge()
+    weblodge = parameters.weblodge()
+
+    config = state.load(weblodge.config_filename)
 
     if weblodge.action == 'build':
-        build(webapp)
+        build(config)
     elif weblodge.action == 'deploy':
-        deploy(webapp)
+        deploy(config)
 
 
-def build(webapp: WebApp):
+def build(config: Dict[str, str]):
     """
     Build the application.
     """
     logger.info('Building...')
-    webapp.build(
-        config.load(webapp.config()['build'])
+    params = parameters.load(
+        web_app.Build.config,
+        config
     )
+    web_app.Build(**params).build()
     logger.info('Successfully built.')
 
 
-def deploy(webapp: WebApp):
+def deploy(config: Dict[str, str]):
     """
     Deploy the application.
     """
-    # User can choose to build the application before deploying it.
+    # The application can be built before being deployed.
     deploy_can_build = [
-        config.Field(
+        ConfigItem(
             name='build',
             description='Build then deploy the application.',
             attending_value=False
         )
     ]
-    must_build = config.load(deploy_can_build)
+    must_build = parameters.load(deploy_can_build, config)
 
     if must_build.pop('build'):
-        build(webapp)
+        build(config)
 
     logger.info('Deploying...')
-    webapp_url = webapp.deploy(config.load(webapp.config()['deploy']))
+    params = parameters.load(
+        web_app.Deploy.config,
+        config
+    )
+    webapp_url = web_app.Deploy(**params).deploy()
 
     logger.info(f"Successfully deployed at 'https://{webapp_url}'.")

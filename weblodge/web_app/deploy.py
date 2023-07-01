@@ -4,7 +4,7 @@ import string
 from typing import List
 from dataclasses import dataclass
 
-from weblodge.config import Field
+from weblodge.config import Item as ConfigItem
 from weblodge._azure import Cli, ResourceGroup, AppService, WebApp
 
 
@@ -24,32 +24,33 @@ class Deploy:
     dist: str = 'dist'
 
     @classmethod
-    def config(cls) -> List[Field]:
+    @property
+    def config(cls) -> List[ConfigItem]:
         """
         Configure the application.
         """
         return [
-            Field(
+            ConfigItem(
                 name='app-name',
                 description='The unique name of the application. If not provide, a random name will be generated.',
                 default=cls.app_name
             ),
-            Field(
+            ConfigItem(
                 name='sku',
                 description='The application computational power (https://azure.microsoft.com/en-us/pricing/details/app-service/linux/).',
                 default=cls.sku
             ),
-            Field(
+            ConfigItem(
                 name='location',
                 description='The physical application location.',
                 default=cls.location
             ),
-            Field(
+            ConfigItem(
                 name='environment',
                 description='The environment of your application.',
                 default=cls.environment
             ),
-            Field(
+            ConfigItem(
                 name='dist',
                 description='Folder containing the application zipped.',
                 default=cls.dist

@@ -1,25 +1,26 @@
 import sys
 import unittest
 
-import weblodge.config as config
+import weblodge.parameters as parameters
+from weblodge.config import Item as ConfigItem
 
 
 config_fields = [
-    config.Field(
+    ConfigItem(
         name='app-name',
         description='The unique name of the application.',
     ),
-    config.Field(
+    ConfigItem(
         name='dist',
         description='Build destination.',
         default='dist'
     ),
-    config.Field(
+    ConfigItem(
         name='src',
         description='Application location.',
         default='.'
     ),
-    config.Field(
+    ConfigItem(
         name='build',
         description='Application must be build before.',
         attending_value=False,
@@ -30,21 +31,21 @@ class TestConfig(unittest.TestCase):
     def test_default_values(self):
         sys.argv = [sys.argv[0], 'build']
 
-        self.assertEqual(config.weblodge().action, 'build')
+        self.assertEqual(parameters.weblodge().action, 'build')
 
     def test_config_file(self):
         filename = 'my-config-file'
 
         sys.argv = [sys.argv[0], 'deploy', '--config-file', filename]
 
-        self.assertEqual(config.weblodge().action, 'deploy')
-        self.assertEqual(config.weblodge().config_filename, filename)
+        self.assertEqual(parameters.weblodge().action, 'deploy')
+        self.assertEqual(parameters.weblodge().config_filename, filename)
 
     def test_default(self):
         app_name = 'foo'
         sys.argv = [sys.argv[0], 'deploy', '--app-name', app_name]
 
-        _config = config.load(config_fields)
+        _config = parameters.load(config_fields)
         self.assertEqual(_config['app_name'], app_name)
         self.assertEqual(_config['dist'], config_fields[1].default)
         self.assertEqual(_config['src'], config_fields[2].default)
@@ -56,7 +57,7 @@ class TestConfig(unittest.TestCase):
 
         sys.argv = [sys.argv[0], 'build', '--app-name', app_name, '--dist', dist, '--src',  src]
         
-        _config = config.load(config_fields)
+        _config = parameters.load(config_fields)
         self.assertEqual(_config['src'], src)
         self.assertEqual(_config['dist'], dist)
         self.assertEqual(_config['app_name'], app_name)
@@ -69,7 +70,7 @@ class TestConfig(unittest.TestCase):
         app_name = 'foo'
 
         override = [
-            config.Field(
+            ConfigItem(
                 name='dist',
                 description='Build destination.',
                 default='default-will-be-ignored'
@@ -78,10 +79,10 @@ class TestConfig(unittest.TestCase):
 
         sys.argv = [sys.argv[0], 'build', '--app-name', app_name]
 
-        _config = config.load(config_fields)
+        _config = parameters.load(config_fields)
         
         sys.argv = [sys.argv[0], 'build', '--dist', dist]
-        _config = config.load(override, _config)
+        _config = parameters.load(override, _config)
 
         self.assertEqual(_config['dist'], dist)
         self.assertEqual(_config['app_name'], app_name)
@@ -96,7 +97,7 @@ class TestConfig(unittest.TestCase):
         app_name = 'foo'
 
         no_override = [
-            config.Field(
+            ConfigItem(
                 name='dist',
                 description='Build destination.',
                 default=dist
@@ -105,9 +106,9 @@ class TestConfig(unittest.TestCase):
 
         sys.argv = [sys.argv[0], 'build', '--app-name', app_name]
 
-        _config = config.load(config_fields)
+        _config = parameters.load(config_fields)
         # Value not defined in args, so it should be the default value.
-        _config = config.load(no_override, _config)
+        _config = parameters.load(no_override, _config)
 
         self.assertEqual(_config['app_name'], app_name)
         self.assertEqual(_config['src'], config_fields[2].default)

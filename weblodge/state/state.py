@@ -16,8 +16,11 @@ def load(name_or_fd):
     """
     Load the config from a file or file descriptor.
     """
-    if isinstance(name_or_fd, str):
-        with open(name_or_fd, 'r') as fd:
-            return json.load(fd)
-    else:
-        return json.load(name_or_fd)
+    try:
+        if isinstance(name_or_fd, str):
+            with open(name_or_fd, 'r') as fd:
+                return json.load(fd)
+        else:
+            return json.load(name_or_fd)
+    except FileNotFoundError:
+        return {}

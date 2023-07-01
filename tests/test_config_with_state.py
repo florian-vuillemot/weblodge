@@ -4,20 +4,21 @@ import sys
 import unittest
 
 import weblodge.state as state
-import weblodge.config as config
+import weblodge.parameters as parameters
+from weblodge.config import Item as ConfigItem
 
 
 config_fields = [
-    config.Field(
+    ConfigItem(
         name='app-name',
         description='The unique name of the application.',
     ),
-    config.Field(
+    ConfigItem(
         name='dist',
         description='Build destination.',
         default='dist'
     ),
-    config.Field(
+    ConfigItem(
         name='src',
         description='Application location.',
         default='.'
@@ -34,7 +35,7 @@ class TestConfigWithState(unittest.TestCase):
         sys.argv = [sys.argv[0], 'build', '--app-name', app_name, '--dist', dist, '--src',  src]
 
         # Create the config as if it was loaded from the command line.
-        _config = config.load(config_fields)
+        _config = parameters.load(config_fields)
         # Save the config to the file descriptor.
         state.dump(fd, _config)
 
@@ -62,7 +63,7 @@ class TestConfigWithState(unittest.TestCase):
         state_config = state.load(fd)
 
         # Get the config.
-        _config = config.load(config_fields, state_config)
+        _config = parameters.load(config_fields, state_config)
         self.assertEqual(_config, data)
 
     def test_load_update_dump(self):
@@ -82,7 +83,7 @@ class TestConfigWithState(unittest.TestCase):
         _config = state.load(fd)
         # Load the config from the CLI and override a value.
         sys.argv = [sys.argv[0], 'build', '--app-name', initial_config['app_name'], '--dist', new_dist]
-        _config = config.load(config_fields, _config)
+        _config = parameters.load(config_fields, _config)
 
         # Save the config updated.
         fd.seek(0)
