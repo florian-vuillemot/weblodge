@@ -20,6 +20,44 @@ In that case, **WebLodge** will assumes that your application entrypoint is name
 
 Behind the scene, **WebLodge** *build* then *deploy* your application.
 
+## Application structure
+
+**WebLodge** is sensible to the application structure. Applications must follow the pre-defined pattern or specify custom values.
+
+Here an example of the standard pattern deployable without configuration:
+```
+$ cat app.py  # The application filename entrypoint.
+from flask import Flask
+
+app = Flask(__name__)  # The Flask application.
+
+@app.route("/")
+def hello_world():
+    return "<p>Hello, World!</p>"
+```
+It can be deploy with `weblodge deploy --build`.
+
+Here a non standard example:
+```
+$ cat main.py  # The application filename entrypoint.
+from flask import Flask
+
+my_app = Flask(__name__)  # The Flask application.
+
+@app.route("/")
+def hello_world():
+    return "<p>Hello, World!</p>"
+```
+To be able to deploy that application you must first *build* it and specify:
+- The entrypoint file: `main.py`.
+- The **Flask** application: `my_app`.
+```
+# Build the application.
+weblodge build --entrypoint main.py --app my_app
+# Deploy the application.
+weblodge deploy
+```
+
 ## Build
 
 The *build* operation collect and prepare the application for deployment on a specific platform.
