@@ -13,7 +13,7 @@ class Build:
     # Destination directory to the zip file `name`.
     dist: str = 'dist'
     # Application entrypoint.
-    entrypoint: str = 'app.py'
+    entry_point: str = 'app.py'
     # Flask application object.
     app: str = 'app'
 
@@ -46,9 +46,9 @@ class Build:
                 default=cls.dist
             ),
             ConfigItem(
-                name='entrypoint',
-                description='Application entrypoint.',
-                default=cls.entrypoint
+                name='entry-point',
+                description='Application entry point.',
+                default=cls.entry_point
             ),
             ConfigItem(
                 name='app',
@@ -109,12 +109,12 @@ SCM_DO_BUILD_DURING_DEPLOYMENT = true
         """
         Add the startup file to the zip folder.
         """
-        # Skip the startup file if the entrypoint is a default supported values.
-        if self.entrypoint in ('app.py', 'application.py', 'app', 'application') and self.app == 'app':
+        # Skip the startup file if the entry point is a default supported values.
+        if self.entry_point in ('app.py', 'application.py', 'app', 'application') and self.app == 'app':
             return
 
         # Remove potentional .py extension.
-        entrypoint = self.entrypoint
+        entrypoint = self.entry_point
         if entrypoint.endswith('.py'):
             entrypoint = entrypoint[:-3]
         
