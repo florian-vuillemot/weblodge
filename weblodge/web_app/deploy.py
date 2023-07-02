@@ -57,9 +57,9 @@ class Deploy:
             ),
         ]
 
-    def deploy(self, package_name: str='azwebapp.zip') -> None:
+    def deploy(self, package_name: str='azwebapp.zip') -> str:
         """
-        Deploy the application to Azure.
+        Deploy the application to Azure and return its URL.
         """
         default_name = f'{self.app_name}-{self.environment}-{self.location}'
         cli = Cli()

@@ -18,3 +18,10 @@ class Item:
     # Default value of the field.
     # When specified, the field is optional.
     default: str = None
+
+    def __eq__(self, obj) -> bool:
+        if isinstance(obj, Item):
+            return self.name == obj.name
+        elif isinstance(obj, str):
+            return self.name == obj
+        return False

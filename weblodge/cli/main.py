@@ -18,25 +18,28 @@ def main():
     config = state.load(weblodge.config_filename)
 
     if weblodge.action == 'build':
-        build(config)
+        config = build(config)
     elif weblodge.action == 'deploy':
-        deploy(config)
+        config = deploy(config)
+
+    state.dump(weblodge.config_filename, config)
 
 
-def build(config: Dict[str, str]):
+def build(config: Dict[str, str]) -> Dict[str, str]:
     """
     Build the application.
     """
     logger.info('Building...')
-    params = parameters.load(
-        web_app.Build.config,
+    config = parameters.load(
+        web_app.build_config(),
         config
     )
-    web_app.Build(**params).build()
+    web_app.build(config)
     logger.info('Successfully built.')
+    return config
 
 
-def deploy(config: Dict[str, str]):
+def deploy(config: Dict[str, str]) -> Dict[str, str]:
     """
     Deploy the application.
     """
@@ -51,13 +54,14 @@ def deploy(config: Dict[str, str]):
     must_build = parameters.load(deploy_can_build, config)
 
     if must_build.pop('build'):
-        build(config)
+        config = build(config)
 
     logger.info('Deploying...')
-    params = parameters.load(
-        web_app.Deploy.config,
+    config = parameters.load(
+        web_app.deploy_config(),
         config
     )
-    webapp_url = web_app.Deploy(**params).deploy()
+    webapp_url = web_app.deploy(config)
 
     logger.info(f"Successfully deployed at 'https://{webapp_url}'.")
+    return config

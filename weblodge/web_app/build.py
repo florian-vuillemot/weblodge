@@ -6,7 +6,7 @@ import zipfile
 from weblodge.config import Item as ConfigItem
 
 
-@dataclass
+@dataclass(frozen=True)
 class Build:
     # Source directory to zip.
     src: str = '.'
