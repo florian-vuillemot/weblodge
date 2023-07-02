@@ -7,9 +7,9 @@ def dump(name_or_fd, config):
     """
     if isinstance(name_or_fd, str):
         with open(name_or_fd, 'w') as fd:
-            json.dump(config, fd)
+            json.dump(config, fd, indent=4)
     else:
-        json.dump(config, name_or_fd)
+        json.dump(config, name_or_fd, indent=4)
 
 
 def load(name_or_fd):

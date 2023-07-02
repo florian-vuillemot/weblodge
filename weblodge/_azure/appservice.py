@@ -1,4 +1,4 @@
-from typing import List
+from typing import Dict, List
 from dataclasses import dataclass
 
 from .cli import Cli
@@ -16,6 +16,7 @@ class AppServiceModel:
     sku: str
     location: str
     resource_group: ResourceGroupModel
+    tags: Dict[str, str]
 
 
 class AppService:
@@ -42,7 +43,8 @@ class AppService:
                     number_of_sites=int(s['numberOfSites']),
                     sku=s['sku']['name'],
                     resource_group=ResourceGroup(self._cli).get(s['resourceGroup']),
-                    location=s['location']
+                    location=s['location'],
+                    tags=s['tags']
                 )
                 self._resources.append(a)
 
@@ -69,10 +71,10 @@ class AppService:
         self._cli.invoke(f'appservice plan delete --name {asp.name} --resource-group {asp.resource_group.name} --yes', to_json=False)
         return self.list(force_reload=True)
 
-    def create(self, name: str, sku: str, resource_group: ResourceGroupModel, location: str = None) -> AppServiceModel:
+    def create(self, name: str, sku: str, resource_group: ResourceGroupModel, location: str = None, tags: Dict[str, str] = {}) -> AppServiceModel:
         """
         Create a Linux AppService Plan.
         """
         location = location or resource_group.location
-        self._cli.invoke(f'appservice plan create --name {name} --sku {sku} --resource-group {resource_group.name} --location {location} --is-linux')
+        self._cli.invoke(f'appservice plan create --name {name} --sku {sku} --resource-group {resource_group.name} --location {location} --is-linux', tags=tags)
         return self.get(name=name, resource_group=resource_group, force_reload=True)

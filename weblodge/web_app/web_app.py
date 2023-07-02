@@ -37,4 +37,5 @@ def deploy(config: Dict[str, str]) -> None:
     _config = {
         k: v for k, v in config.items() if k in Deploy.config
     }
+    print(_config)
     return Deploy(**_config).deploy()

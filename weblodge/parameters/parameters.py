@@ -53,7 +53,7 @@ def load(fields: List[ConfigItem], current_config: Dict[str, str] = {}) -> Dict[
             }
 
         parser.add_argument(
-            f'--{field.name}',
+            f'--{_to_display(field.name)}',
             **argument
         )
     args_parsed, _ = parser.parse_known_args()
@@ -62,12 +62,11 @@ def load(fields: List[ConfigItem], current_config: Dict[str, str] = {}) -> Dict[
     # otherwise the default one.
     new_config = {}
     for field in fields:
-        n = _to_arg_parse(field.name)
-        value_if_not_defined = current_config.get(n, field.default)
-        new_config[n] = getattr(args_parsed, n) or value_if_not_defined
+        value_if_not_defined = current_config.get(field.name, field.default)
+        new_config[field.name] = getattr(args_parsed, field.name) or value_if_not_defined
 
     return {**current_config, **new_config}
 
 
-def _to_arg_parse(name: str) -> str:
-    return name.replace('-', '_')
+def _to_display(name: str) -> str:
+    return name.replace('_', '-')

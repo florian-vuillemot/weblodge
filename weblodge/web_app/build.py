@@ -46,7 +46,7 @@ class Build:
                 default=cls.dist
             ),
             ConfigItem(
-                name='entry-point',
+                name='entry_point',
                 description='Application entry point.',
                 default=cls.entry_point
             ),

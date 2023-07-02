@@ -44,6 +44,7 @@ def deploy(config: Dict[str, str]) -> Dict[str, str]:
     Deploy the application.
     """
     # The application can be built before being deployed.
+    print(config)
     deploy_can_build = [
         ConfigItem(
             name='build',
@@ -62,6 +63,6 @@ def deploy(config: Dict[str, str]) -> Dict[str, str]:
         config
     )
     webapp_url = web_app.deploy(config)
-
+    print(config)
     logger.info(f"Successfully deployed at 'https://{webapp_url}'.")
     return config

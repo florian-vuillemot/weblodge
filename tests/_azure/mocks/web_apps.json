@@ -169,7 +169,7 @@
     "storageAccountRequired": false,
     "suspendedTill": null,
     "tags": {
-      "target": "internal",
+      "environment": "develop",
       "usage": "monitor"
     },
     "targetSwapSlot": null,
@@ -351,7 +351,7 @@
     "storageAccountRequired": false,
     "suspendedTill": null,
     "tags": {
-      "target": "internal",
+      "environment": "staging",
       "usage": "monitor"
     },
     "targetSwapSlot": null,
@@ -533,7 +533,7 @@
     "storageAccountRequired": false,
     "suspendedTill": null,
     "tags": {
-      "target": "internal",
+      "environment": "production",
       "usage": "monitor"
     },
     "targetSwapSlot": null,
