@@ -1,8 +1,12 @@
 import json
 from io import StringIO
+import logging
 from typing import Dict, Union
 
 from azure.cli.core import get_default_cli
+
+
+logger = logging.getLogger('weblodge')
 
 
 class Cli:
@@ -10,6 +14,7 @@ class Cli:
     Azure CLI wrapper.
     """
     def __init__(self):
+        self._first_invoke = True
         self.cli = get_default_cli()
 
     def invoke(self, command: str, to_json=True, tags={}) -> Union[str, Dict]:
@@ -18,6 +23,20 @@ class Cli:
         If `to_json` is True, the output is converted to a JSON object.
         """
 
+        if self._first_invoke:
+            self._first_invoke = False
+
+            try:
+                return self._invoke(command, to_json=to_json, tags=tags)
+            except Exception as e:
+                # Command may fail if the user is not logged in.
+                logger.info(f"Previous command failed, try login to Azure CLI...")
+                self._invoke('login')
+                logger.info(f"Login successful, retry previous command...")
+
+        return self._invoke(command, to_json=to_json, tags=tags)
+
+    def _invoke(self, command: str, to_json=True, tags={}) -> Union[str, Dict]:
         # Convert the string command to a array of arguments.
         cmd = command.split()
         # Create a file-like object to store the output.

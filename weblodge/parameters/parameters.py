@@ -21,7 +21,7 @@ def weblodge() -> str:
     Return the action to perform.
     """
     parser = argparse.ArgumentParser(description='Deploy a Python Flask-based application to Azure.')
-    parser.add_argument('action', type=str, help='Action to perform.', choices=['build', 'deploy'])
+    parser.add_argument('action', type=str, help='Action to perform.', choices=['build', 'deploy', 'delete'])
     parser.add_argument('--config-filename', type=str, help='File containing the deployment configuration.', default=Global.config_filename, required=False)
     args, _ = parser.parse_known_args()
 
@@ -31,7 +31,7 @@ def weblodge() -> str:
     )
 
 
-def load(fields: List[ConfigItem], current_config: Dict[str, str] = {}) -> Dict[str, str]:
+def load(fields: List[ConfigItem], existing_parameters: Dict[str, str] = {}) -> Dict[str, str]:
     """
     Load the configuration from the parser.
     Override the current config with the new values.
@@ -43,13 +43,16 @@ def load(fields: List[ConfigItem], current_config: Dict[str, str] = {}) -> Dict[
             'help': field.description,
         }
 
+        default_value = existing_parameters.get(field.name, field.default)
+
         if not field.attending_value:
             argument['action'] = 'store_true'
         else:
             argument = {
                 **argument,
                 'type': str,
-                'required': field.default is None
+                'required': default_value is None,
+                'default': default_value,
             }
 
         parser.add_argument(
@@ -57,15 +60,8 @@ def load(fields: List[ConfigItem], current_config: Dict[str, str] = {}) -> Dict[
             **argument
         )
     args_parsed, _ = parser.parse_known_args()
-    
-    # If the user did not specify a value, use the value passed in parameter 
-    # otherwise the default one.
-    new_config = {}
-    for field in fields:
-        value_if_not_defined = current_config.get(field.name, field.default)
-        new_config[field.name] = getattr(args_parsed, field.name) or value_if_not_defined
 
-    return {**current_config, **new_config}
+    return {**existing_parameters, **vars(args_parsed)}
 
 
 def _to_display(name: str) -> str:

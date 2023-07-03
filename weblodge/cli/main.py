@@ -1,5 +1,5 @@
 import logging
-from typing import Dict
+from typing import Dict, Tuple
 
 import weblodge.parameters as parameters
 import weblodge.state as state
@@ -14,15 +14,18 @@ logger.addHandler(logging.StreamHandler())
 
 def main():
     weblodge = parameters.weblodge()
+    config_filename = weblodge.config_filename
 
-    config = state.load(weblodge.config_filename)
+    config = state.load(config_filename)
 
     if weblodge.action == 'build':
         config = build(config)
     elif weblodge.action == 'deploy':
         config = deploy(config)
+    elif weblodge.action == 'delete':
+        config = delete(config)
 
-    state.dump(weblodge.config_filename, config)
+    state.dump(config_filename, config)
 
 
 def build(config: Dict[str, str]) -> Dict[str, str]:
@@ -44,7 +47,6 @@ def deploy(config: Dict[str, str]) -> Dict[str, str]:
     Deploy the application.
     """
     # The application can be built before being deployed.
-    print(config)
     deploy_can_build = [
         ConfigItem(
             name='build',
@@ -64,4 +66,33 @@ def deploy(config: Dict[str, str]) -> Dict[str, str]:
     )
     webapp_url = web_app.deploy(config)
     logger.info(f"Successfully deployed at 'https://{webapp_url}'.")
+    return config
+
+
+def delete(config: Dict[str, str]) -> Dict[str, str]:
+    """
+    Delete the application.
+    """
+    do_not_prompt = parameters.load([
+        ConfigItem(
+            name='yes',
+            description='Delete without user input.',
+            attending_value=False
+        )],
+        config
+    )
+
+    if not do_not_prompt.get('yes'):
+        if input('Are you sure you want to delete the application (yes/no.)? ') != 'yes':
+            logger.info('Aborting.')
+            return config
+
+    logger.info('Deleting...')
+    config = parameters.load(
+        web_app.delete_config(),
+        config
+    )
+    web_app.delete(config)
+    logger.info('Successfully deleted.')
+
     return config

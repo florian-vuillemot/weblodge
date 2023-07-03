@@ -1,9 +1,23 @@
+import functools
 from typing import List, Dict
 
 from weblodge.config import Item as ConfigItem
 
 from .build import Build
 from .deploy import Deploy
+from .delete import Delete
+
+
+def filter_config(retrieve_config):
+    def _filter_config(func) -> Dict[str, str]:
+        @functools.wraps(func)
+        def __filter_config(config: Dict[str, str]):
+            _config = {
+                k: v for k, v in config.items() if k in retrieve_config()
+            }
+            return func(_config)
+        return __filter_config
+    return _filter_config
 
 
 def build_config() -> List[ConfigItem]:
@@ -13,14 +27,12 @@ def build_config() -> List[ConfigItem]:
     return Build.config
 
 
+@filter_config(build_config)
 def build(config: Dict[str, str]) -> None:
     """
     Build the application from the config.
     """
-    _config = {
-        k: v for k, v in config.items() if k in Build.config
-    }
-    Build(**_config).build()
+    Build(**config).build()
 
 
 def deploy_config() -> List[ConfigItem]:
@@ -30,15 +42,31 @@ def deploy_config() -> List[ConfigItem]:
     return Deploy.config
 
 
+@filter_config(deploy_config)
 def deploy(config: Dict[str, str]) -> None:
     """
     Deploy the application from the config.
     """
-    _config = {
-        k: v for k, v in config.items() if k in Deploy.config
+    config = {
+        **config,
+        'tags': {
+            'environment': config['environment'],
+            'managed-by': 'weblodge'
+        }
     }
-    _config['tags'] = {
-        'environment': _config['environment'],
-        'managed-by': 'weblodge'
-    }
-    return Deploy(**_config).deploy()
+    return Deploy(**config).deploy()
+
+
+def delete_config() -> List[ConfigItem]:
+    """
+    Return the delete configuration.
+    """
+    return Delete.config
+
+
+@filter_config(delete_config)
+def delete(config: Dict[str, str]) -> None:
+    """
+    Delete the application from the config.
+    """
+    return Delete(**config).delete()
