@@ -63,6 +63,5 @@ def deploy(config: Dict[str, str]) -> Dict[str, str]:
         config
     )
     webapp_url = web_app.deploy(config)
-    print(config)
     logger.info(f"Successfully deployed at 'https://{webapp_url}'.")
     return config

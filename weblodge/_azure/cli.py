@@ -25,7 +25,8 @@ class Cli:
 
         if tags:
             cmd.append('--tags')
-            cmd.append(json.dumps(tags))
+            for k, v in tags.items():
+                cmd.append(f'{k}={v}')
 
         # Execute the Azure CLI command and store the return code.
         r = self.cli.invoke(cmd, out_file=out_fd)

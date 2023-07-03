@@ -72,8 +72,8 @@ class Deploy:
         ap = AppService(cli)
 
         _rg = rg.create(f'rg-{default_name}', self.location, self.tags)
-        _ap = ap.create(f'asp-{default_name}', self.sku, _rg)
-        _wa = wa.create(self.app_name, _ap)
+        _ap = ap.create(f'asp-{default_name}', self.sku, _rg, self.tags)
+        _wa = wa.create(self.app_name, _ap, self.tags)
 
         wa.deploy(_wa, os.path.join(self.dist, package_name))
         return _wa.host_names[0]
