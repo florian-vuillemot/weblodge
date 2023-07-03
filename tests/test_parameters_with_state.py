@@ -10,7 +10,7 @@ from weblodge.config import Item as ConfigItem
 
 config_fields = [
     ConfigItem(
-        name='app-name',
+        name='app_name',
         description='The unique name of the application.',
     ),
     ConfigItem(
@@ -25,7 +25,8 @@ config_fields = [
     )
 ]
 
-class TestConfigWithState(unittest.TestCase):
+
+class TestParametersWithState(unittest.TestCase):
     def test_dump(self):
         src = 'my-src'
         dist = 'my-dist'
@@ -35,9 +36,9 @@ class TestConfigWithState(unittest.TestCase):
         sys.argv = [sys.argv[0], 'build', '--app-name', app_name, '--dist', dist, '--src',  src]
 
         # Create the config as if it was loaded from the command line.
-        _config = parameters.load(config_fields)
+        params = parameters.load(config_fields)
         # Save the config to the file descriptor.
-        state.dump(fd, _config)
+        state.dump(fd, params)
 
         fd.seek(0)
         self.assertEqual(
@@ -63,8 +64,8 @@ class TestConfigWithState(unittest.TestCase):
         state_config = state.load(fd)
 
         # Get the config.
-        _config = parameters.load(config_fields, state_config)
-        self.assertEqual(_config, data)
+        params = parameters.load(config_fields, state_config)
+        self.assertEqual(params, data)
 
     def test_load_update_dump(self):
         new_dist = 'new-dist'
@@ -80,14 +81,14 @@ class TestConfigWithState(unittest.TestCase):
         fd = io.StringIO(json.dumps(initial_config))
 
         # Load the config from the disk.
-        _config = state.load(fd)
+        params = state.load(fd)
         # Load the config from the CLI and override a value.
         sys.argv = [sys.argv[0], 'build', '--app-name', initial_config['app_name'], '--dist', new_dist]
-        _config = parameters.load(config_fields, _config)
+        params = parameters.load(config_fields, params)
 
         # Save the config updated.
         fd.seek(0)
-        state.dump(fd, _config)
+        state.dump(fd, params)
 
         fd.seek(0)
         self.assertEqual(json.load(fd), new_config)
