@@ -1,5 +1,5 @@
+from typing import List, Dict
 from dataclasses import dataclass
-from typing import List
 
 from .cli import Cli
 from .resource_group import ResourceGroupModel, ResourceGroup
@@ -18,6 +18,7 @@ class WebAppModel:
     linux_fx_version: str
     app_service: AppServiceModel
     resource_group: ResourceGroupModel
+    tags: Dict[str, str]
 
 
 class WebApp:
@@ -48,6 +49,7 @@ class WebApp:
                     linux_fx_version=w['siteConfig']['linuxFxVersion'],
                     app_service=AppService(self._cli).get(id_=w['appServicePlanId']),
                     resource_group=resource_group_helper.get(w['resourceGroup']),
+                    tags=w['tags']
                 )
                 self._resources.append(web_app)
 
@@ -70,13 +72,14 @@ class WebApp:
         self._cli.invoke(f'webapp delete -g {webapp.resource_group.name} -n {webapp.name}', to_json=False)
         return self.list(force_reload=True)
 
-    def create(self, name: str, app_service: AppServiceModel, resource_group: ResourceGroupModel = None, python_version: str = '3.10') -> WebAppModel:
+    def create(self, name: str, app_service: AppServiceModel, resource_group: ResourceGroupModel = None, python_version: str = '3.10', tags: Dict[str, str] = {}) -> WebAppModel:
         """
         Create a new WebApp.
         """
         rg_name = resource_group.name if resource_group else app_service.resource_group.name
         self._cli.invoke(
-            f'webapp create -g {rg_name} -p {app_service.id} -n {name} --runtime PYTHON:{python_version}'
+            f'webapp create -g {rg_name} -p {app_service.id} -n {name} --runtime PYTHON:{python_version}',
+            tags=tags
         )
         return self.get(name, force_reload=True)
     

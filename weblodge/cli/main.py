@@ -1,7 +1,11 @@
 import logging
+from typing import Dict
 
-import weblodge.config as config
-from weblodge.web_app import WebApp
+import weblodge.parameters as parameters
+import weblodge.state as state
+import weblodge.web_app as web_app
+from weblodge.config import Item as ConfigItem
+
 
 logger = logging.getLogger('weblodge')
 logger.setLevel(logging.INFO)
@@ -9,44 +13,55 @@ logger.addHandler(logging.StreamHandler())
 
 
 def main():
-    webapp = WebApp()
-    action = config.action()
+    weblodge = parameters.weblodge()
 
-    if action == 'build':
-        build(webapp)
-    elif action == 'deploy':
-        deploy(webapp)
+    config = state.load(weblodge.config_filename)
+
+    if weblodge.action == 'build':
+        config = build(config)
+    elif weblodge.action == 'deploy':
+        config = deploy(config)
+
+    state.dump(weblodge.config_filename, config)
 
 
-def build(webapp: WebApp):
+def build(config: Dict[str, str]) -> Dict[str, str]:
     """
     Build the application.
     """
     logger.info('Building...')
-    webapp.build(
-        config.load(webapp.config()['build'])
+    config = parameters.load(
+        web_app.build_config(),
+        config
     )
+    web_app.build(config)
     logger.info('Successfully built.')
+    return config
 
 
-def deploy(webapp: WebApp):
+def deploy(config: Dict[str, str]) -> Dict[str, str]:
     """
     Deploy the application.
     """
-    # User can choose to build the application before deploying it.
+    # The application can be built before being deployed.
+    print(config)
     deploy_can_build = [
-        config.Field(
+        ConfigItem(
             name='build',
             description='Build then deploy the application.',
             attending_value=False
         )
     ]
-    must_build = config.load(deploy_can_build)
+    must_build = parameters.load(deploy_can_build, config)
 
     if must_build.pop('build'):
-        build(webapp)
+        config = build(config)
 
     logger.info('Deploying...')
-    webapp_url = webapp.deploy(config.load(webapp.config()['deploy']))
-
+    config = parameters.load(
+        web_app.deploy_config(),
+        config
+    )
+    webapp_url = web_app.deploy(config)
     logger.info(f"Successfully deployed at 'https://{webapp_url}'.")
+    return config

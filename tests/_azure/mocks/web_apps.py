@@ -12,6 +12,10 @@ develop = WebAppModel(
     linux_fx_version="DOCKER|develop-registry.azurecr.io/app-service:main",
     app_service=asp_develop,
     resource_group=rg_develop,
+    tags={
+      "environment": "develop",
+      "usage": "monitor"
+    },
 )
 staging = WebAppModel(
     name="staging-app-service",
@@ -20,7 +24,11 @@ staging = WebAppModel(
     location="North Europe",
     linux_fx_version="DOCKER|staging-registry.azurecr.io/app-service:main",
     app_service=asp_staging,
-    resource_group=rg_staging
+    resource_group=rg_staging,
+    tags={
+      "environment": "staging",
+      "usage": "monitor"
+    },
 )
 production = WebAppModel(
     name="production-app-service",
@@ -29,5 +37,9 @@ production = WebAppModel(
     location="North Europe",
     linux_fx_version="DOCKER|production-registry.azurecr.io/app-service:main",
     app_service=asp_production,
-    resource_group=rg_production
+    resource_group=rg_production,
+    tags={
+      "environment": "production",
+      "usage": "monitor"
+    },
 )

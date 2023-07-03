@@ -12,7 +12,7 @@ class Cli:
     def __init__(self):
         self.cli = get_default_cli()
 
-    def invoke(self, command: str, to_json=True) -> Union[str, Dict]:
+    def invoke(self, command: str, to_json=True, tags={}) -> Union[str, Dict]:
         """
         Execute an Azure CLI command and return its output.
         If `to_json` is True, the output is converted to a JSON object.
@@ -22,6 +22,11 @@ class Cli:
         cmd = command.split()
         # Create a file-like object to store the output.
         out_fd = StringIO()
+
+        if tags:
+            cmd.append('--tags')
+            for k, v in tags.items():
+                cmd.append(f'{k}={v}')
 
         # Execute the Azure CLI command and store the return code.
         r = self.cli.invoke(cmd, out_file=out_fd)

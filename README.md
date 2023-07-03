@@ -66,7 +66,7 @@ The *build* operation can handle the following options:
 | Option name | Description | Default value |
 |-|-|-|
 | src | Folder containing application sources. | '.' |
-| dest | Folder containing the application built. | 'dist' |
+| dist | Folder containing the application built. | 'dist' |
 
 > Note: Here the platform is implicitly [Azure App Service](https://azure.microsoft.com/en-us/products/app-service/web).
 

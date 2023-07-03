@@ -34,7 +34,7 @@ cli = Cli()
 
 resource_groups_json = json.loads(Path('./tests/_azure/mocks/resource_groups.json').read_text())
 cli.add_command('group list', resource_groups_json)
-cli.add_command('group create --name staging --location northeurope', resource_groups_json[1])
+cli.add_command('group create --name staging --location northeurope --tags {}', resource_groups_json[1])
 
 appservices_json = json.loads(Path('./tests/_azure/mocks/appservices_plan.json').read_text())
 cli.add_command('appservice plan list', appservices_json)

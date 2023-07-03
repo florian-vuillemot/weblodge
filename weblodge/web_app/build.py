@@ -3,17 +3,17 @@ import os
 from typing import List
 import zipfile
 
-from weblodge.config import Field as ConfigField
+from weblodge.config import Item as ConfigItem
 
 
-@dataclass
+@dataclass(frozen=True)
 class Build:
     # Source directory to zip.
     src: str = '.'
     # Destination directory to the zip file `name`.
-    dest: str = 'dist'
+    dist: str = 'dist'
     # Application entrypoint.
-    entrypoint: str = 'app.py'
+    entry_point: str = 'app.py'
     # Flask application object.
     app: str = 'app'
 
@@ -29,27 +29,28 @@ class Build:
         """
         Return the package path.
         """
-        return os.path.join(self.dest, self.package)
+        return os.path.join(self.dist, self.package)
 
     @classmethod
-    def config(cls) -> List[ConfigField]:
+    @property
+    def config(cls) -> List[ConfigItem]:
         return [
-            ConfigField(
+            ConfigItem(
                 name='src',
                 description='Application folder.',
                 default=cls.src
             ),
-            ConfigField(
-                name='dest',
+            ConfigItem(
+                name='dist',
                 description='Build destination.',
-                default=cls.dest
+                default=cls.dist
             ),
-            ConfigField(
-                name='entrypoint',
-                description='Application entrypoint.',
-                default=cls.entrypoint
+            ConfigItem(
+                name='entry_point',
+                description='Application entry point.',
+                default=cls.entry_point
             ),
-            ConfigField(
+            ConfigItem(
                 name='app',
                 description='Flask Application object.',
                 default=cls.app
@@ -61,7 +62,7 @@ class Build:
         Build an application to a deployable format.
         """
         # Create the destination directory.
-        os.makedirs(self.dest, exist_ok=True)
+        os.makedirs(self.dist, exist_ok=True)
 
         with zipfile.ZipFile(self.package_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
             self._zip_user_application(zipf)
@@ -80,7 +81,7 @@ class Build:
             if '__pycache__' in root:
                 continue
             # Skip the build directory.
-            if root.startswith(self.dest) or root.startswith('./' + self.dest) or root.startswith('.\\' + self.dest):
+            if root.startswith(self.dist) or root.startswith('./' + self.dist) or root.startswith('.\\' + self.dist):
                 continue
             # Zip the files.
             for file in files:
@@ -108,12 +109,12 @@ SCM_DO_BUILD_DURING_DEPLOYMENT = true
         """
         Add the startup file to the zip folder.
         """
-        # Skip the startup file if the entrypoint is a default supported values.
-        if self.entrypoint in ('app.py', 'application.py', 'app', 'application') and self.app == 'app':
+        # Skip the startup file if the entry point is a default supported values.
+        if self.entry_point in ('app.py', 'application.py', 'app', 'application') and self.app == 'app':
             return
 
         # Remove potentional .py extension.
-        entrypoint = self.entrypoint
+        entrypoint = self.entry_point
         if entrypoint.endswith('.py'):
             entrypoint = entrypoint[:-3]
         

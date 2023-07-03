@@ -3,7 +3,7 @@ import unittest
 from weblodge._azure import WebApp
 
 from .cli import cli
-from .mocks.web_apps import develop, staging, production, rg_staging
+from .mocks.web_apps import develop, staging, production
 
 
 class TestWebApp(unittest.TestCase):

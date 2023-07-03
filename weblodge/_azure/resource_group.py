@@ -1,4 +1,4 @@
-from typing import List
+from typing import Dict, List
 from dataclasses import dataclass
 
 from .cli import Cli
@@ -11,6 +11,7 @@ class ResourceGroupModel:
     """
     name: str
     location: str
+    tags: Dict[str, str]
 
 
 class ResourceGroup:
@@ -33,7 +34,8 @@ class ResourceGroup:
             for s in self._cli.invoke('group list'):
                 a = ResourceGroupModel(
                         name=s['name'],
-                        location=s['location']
+                        location=s['location'],
+                        tags=s['tags']
                 )
                 self._resources.append(a)
 
@@ -50,11 +52,11 @@ class ResourceGroup:
 
         raise Exception(f"Resource Group '{name}' not found.")
 
-    def create(self, name: str, location: str) -> ResourceGroupModel:
+    def create(self, name: str, location: str, tags: Dict[str, str] = {}) -> ResourceGroupModel:
         """
         Create a new Resource Group and return it.
         """
-        self._cli.invoke(f'group create --name {name} --location {location}')
+        self._cli.invoke(f'group create --name {name} --location {location}', tags=tags)
         return self.get(name, force_reload=True)
 
     def delete(self, resource_group: ResourceGroupModel) -> List[ResourceGroupModel]:

@@ -1,32 +1,44 @@
-from typing import Dict, List
+from typing import List, Dict
 
-from weblodge.config import Field as ConfigField
+from weblodge.config import Item as ConfigItem
 
 from .build import Build
 from .deploy import Deploy
 
 
-class WebApp:
-    def build(self, config: Dict[str, str]) -> None:
-        """
-        Build the application.
-        """
-        build = Build(**config)
-        build.build()
+def build_config() -> List[ConfigItem]:
+    """
+    Return the build configuration.
+    """
+    return Build.config
 
-    def deploy(self, config: Dict[str, str]) -> str:
-        """
-        Deploy the application to Azure.
-        Return the URL of the deployed application.
-        """
-        deploy = Deploy(**config)
-        return deploy.deploy()
 
-    def config(self) -> Dict[str, List[ConfigField]]:
-        """
-        Configure the application.
-        """
-        return {
-            'build': Build.config(),
-            'deploy': Deploy.config(),
-        }
+def build(config: Dict[str, str]) -> None:
+    """
+    Build the application from the config.
+    """
+    _config = {
+        k: v for k, v in config.items() if k in Build.config
+    }
+    Build(**_config).build()
+
+
+def deploy_config() -> List[ConfigItem]:
+    """
+    Return the deployment configuration.
+    """
+    return Deploy.config
+
+
+def deploy(config: Dict[str, str]) -> None:
+    """
+    Deploy the application from the config.
+    """
+    _config = {
+        k: v for k, v in config.items() if k in Deploy.config
+    }
+    _config['tags'] = {
+        'environment': _config['environment'],
+        'managed-by': 'weblodge'
+    }
+    return Deploy(**_config).deploy()
