@@ -7,7 +7,7 @@ from weblodge.config import Item as ConfigItem
 
 config_fields = [
     ConfigItem(
-        name='app-name',
+        name='app_name',
         description='The unique name of the application.',
     ),
     ConfigItem(
@@ -27,13 +27,13 @@ config_fields = [
     )
 ]
 
-class TestConfig(unittest.TestCase):
+class TestParameters(unittest.TestCase):
     def test_default_values(self):
         sys.argv = [sys.argv[0], 'build']
 
         self.assertEqual(parameters.weblodge().action, 'build')
 
-    def test_config_file(self):
+    def test_define_parameter(self):
         filename = 'my-config-file'
 
         sys.argv = [sys.argv[0], 'deploy', '--config-file', filename]
@@ -45,10 +45,10 @@ class TestConfig(unittest.TestCase):
         app_name = 'foo'
         sys.argv = [sys.argv[0], 'deploy', '--app-name', app_name]
 
-        _config = parameters.load(config_fields)
-        self.assertEqual(_config['app_name'], app_name)
-        self.assertEqual(_config['dist'], config_fields[1].default)
-        self.assertEqual(_config['src'], config_fields[2].default)
+        params = parameters.load(config_fields)
+        self.assertEqual(params['app_name'], app_name)
+        self.assertEqual(params['dist'], config_fields[1].default)
+        self.assertEqual(params['src'], config_fields[2].default)
 
     def test_override(self):
         src='my-src'
@@ -57,12 +57,12 @@ class TestConfig(unittest.TestCase):
 
         sys.argv = [sys.argv[0], 'build', '--app-name', app_name, '--dist', dist, '--src',  src]
         
-        _config = parameters.load(config_fields)
-        self.assertEqual(_config['src'], src)
-        self.assertEqual(_config['dist'], dist)
-        self.assertEqual(_config['app_name'], app_name)
+        params = parameters.load(config_fields)
+        self.assertEqual(params['src'], src)
+        self.assertEqual(params['dist'], dist)
+        self.assertEqual(params['app_name'], app_name)
 
-    def test_override(self):
+    def test_override_existing_parameters(self):
         """
         Test the override of passed config.
         """
@@ -79,21 +79,21 @@ class TestConfig(unittest.TestCase):
 
         sys.argv = [sys.argv[0], 'build', '--app-name', app_name]
 
-        _config = parameters.load(config_fields)
+        params = parameters.load(config_fields)
         
         sys.argv = [sys.argv[0], 'build', '--dist', dist]
-        _config = parameters.load(override, _config)
+        params = parameters.load(override, params)
 
-        self.assertEqual(_config['dist'], dist)
-        self.assertEqual(_config['app_name'], app_name)
-        self.assertEqual(_config['src'], config_fields[2].default)
+        self.assertEqual(params['dist'], dist)
+        self.assertEqual(params['app_name'], app_name)
+        self.assertEqual(params['src'], config_fields[2].default)
 
 
     def test_no_override(self):
         """
         Ensure previous set values are not overriden by a default.
         """
-        dist='no-override'
+        dist = 'no-override'
         app_name = 'foo'
 
         no_override = [
@@ -106,10 +106,28 @@ class TestConfig(unittest.TestCase):
 
         sys.argv = [sys.argv[0], 'build', '--app-name', app_name]
 
-        _config = parameters.load(config_fields)
+        params = parameters.load(config_fields)
         # Value not defined in args, so it should be the default value.
-        _config = parameters.load(no_override, _config)
+        params = parameters.load(no_override, params)
 
-        self.assertEqual(_config['app_name'], app_name)
-        self.assertEqual(_config['src'], config_fields[2].default)
-        self.assertEqual(_config['dist'], config_fields[1].default)
+        self.assertEqual(params['app_name'], app_name)
+        self.assertEqual(params['src'], config_fields[2].default)
+        self.assertEqual(params['dist'], config_fields[1].default)
+
+    def test_no_require_when_override(self):
+        """
+        User must not have to enter a value if the already existing config contains
+        it.
+        """
+        app_name = 'foo'
+
+        params = {
+            'app_name': app_name
+        }
+
+        sys.argv = [sys.argv[0], 'build']
+
+        params = parameters.load(config_fields, params)
+        self.assertEqual(params['app_name'], app_name)
+        self.assertEqual(params['src'], config_fields[2].default)
+        self.assertEqual(params['dist'], config_fields[1].default)

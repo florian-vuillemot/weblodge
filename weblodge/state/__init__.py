@@ -1,1 +1,1 @@
-from .state import load, dump
+from .state import load, dump, delete

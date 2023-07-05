@@ -1,4 +1,5 @@
 import json
+import pathlib
 
 
 def dump(name_or_fd, config):
@@ -24,3 +25,10 @@ def load(name_or_fd):
             return json.load(name_or_fd)
     except FileNotFoundError:
         return {}
+
+
+def delete(name):
+    """
+    Delete the state file if exists.
+    """
+    pathlib.Path(name).unlink(missing_ok=True)

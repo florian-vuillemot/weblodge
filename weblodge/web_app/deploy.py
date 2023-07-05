@@ -65,15 +65,15 @@ class Deploy:
         Deploy the application to Azure and return its URL.
         """
         default_name = f'{self.app_name}-{self.environment}-{self.location}'
-        print(default_name)
+
         cli = Cli()
         rg = ResourceGroup(cli)
         wa = WebApp(cli)
         ap = AppService(cli)
 
-        _rg = rg.create(f'rg-{default_name}', self.location, self.tags)
-        _ap = ap.create(f'asp-{default_name}', self.sku, _rg, self.tags)
-        _wa = wa.create(self.app_name, _ap, self.tags)
+        _rg = rg.create(f'rg-{default_name}', self.location, tags=self.tags)
+        _ap = ap.create(f'asp-{default_name}', self.sku, _rg, tags=self.tags)
+        _wa = wa.create(self.app_name, _ap, tags=self.tags)
 
         wa.deploy(_wa, os.path.join(self.dist, package_name))
         return _wa.host_names[0]
