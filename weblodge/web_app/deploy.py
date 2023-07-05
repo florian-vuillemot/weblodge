@@ -1,3 +1,14 @@
+"""
+Create the infrastructure that will host the application.
+
+The infrastructure is composed of:
+- Resource Group
+- App Service Plan
+- Web App
+
+All that infrastructure is created in the same Azure region and in the same Azure
+Resource Group.
+"""
 import os
 import random
 import string
@@ -10,6 +21,13 @@ from weblodge._azure import Cli, ResourceGroup, AppService, WebApp
 
 @dataclass
 class Deploy:
+    """
+    Facade to the deployment process.
+
+    Create the infrastructure that will host the application.
+    If not provide, a random name will be generated to allow user to deploy an application
+    without providing any input.
+    """
     # Application name.
     # This name must be unique across all of Azure WebApplication.
     # It will be used as the URL of the application and for created Azure resources.
@@ -30,17 +48,16 @@ class Deploy:
     @property
     def config(cls) -> List[ConfigItem]:
         """
-        Configure the application.
+        Configure the deployment.
         """
         return [
             ConfigItem(
                 name='app_name',
-                description='The unique name of the application. If not provide, a random name will be generated.',
-                default=cls.app_name
+                description='Unique name of the application within Azure. If not provide, a random name is used.',  # pylint: disable=line-too-long
             ),
             ConfigItem(
                 name='sku',
-                description='The application computational power (https://azure.microsoft.com/en-us/pricing/details/app-service/linux/).',
+                description='The application computational power (https://azure.microsoft.com/en-us/pricing/details/app-service/linux/).',  # pylint: disable=line-too-long
                 default=cls.sku
             ),
             ConfigItem(
@@ -67,13 +84,20 @@ class Deploy:
         default_name = f'{self.app_name}-{self.environment}-{self.location}'
 
         cli = Cli()
-        rg = ResourceGroup(cli)
-        wa = WebApp(cli)
-        ap = AppService(cli)
+        web_app_cls = WebApp(cli)
 
-        _rg = rg.create(f'rg-{default_name}', self.location, tags=self.tags)
-        _ap = ap.create(f'asp-{default_name}', self.sku, _rg, tags=self.tags)
-        _wa = wa.create(self.app_name, _ap, tags=self.tags)
+        web_app = web_app_cls.create(
+            self.app_name,
+            AppService(cli).create(
+                f'asp-{default_name}',
+                self.sku,
+                ResourceGroup(cli).create(
+                    f'rg-{default_name}',
+                    self.location,
+                    tags=self.tags
+                )
+            )
+        )
 
-        wa.deploy(_wa, os.path.join(self.dist, package_name))
-        return _wa.host_names[0]
+        web_app_cls.deploy(web_app, os.path.join(self.dist, package_name))
+        return web_app.host_names[0]

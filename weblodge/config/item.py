@@ -1,11 +1,14 @@
+"""
+A configuration item represents information about a function that can be
+overwritten at runtime.
+"""
 from dataclasses import dataclass
 
 
 @dataclass(frozen=True)
 class Item:
     """
-    Contains a configuration item for the program.
-    This configuration can be provided as a parameter of the program.
+    Information that can be overwritten at runtime.
     """
     # Name of the field.
     # This name will be used as the command line argument, in the code and config files. 

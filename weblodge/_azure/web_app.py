@@ -1,3 +1,6 @@
+"""
+Azure Web App representation.
+"""
 from typing import List, Dict
 from dataclasses import dataclass
 
@@ -7,7 +10,7 @@ from .appservice import AppServiceModel, AppService
 
 
 @dataclass(frozen=True)
-class WebAppModel:
+class WebAppModel:  # pylint: disable=too-many-instance-attributes
     """
     Azure WebApp representation.
     """
@@ -40,18 +43,19 @@ class WebApp:
             web_apps = self._cli.invoke('webapp list')
             resource_group_helper = ResourceGroup(self._cli)
             
-            for w in web_apps:
-                web_app = WebAppModel(
-                    name=w['name'],
-                    host_names=w['hostNames'],
-                    kind=w['kind'],
-                    location=w['location'],
-                    linux_fx_version=w['siteConfig']['linuxFxVersion'],
-                    app_service=AppService(self._cli).get(id_=w['appServicePlanId']),
-                    resource_group=resource_group_helper.get(w['resourceGroup']),
-                    tags=w['tags']
+            for web_app in web_apps:
+                self._resources.append(
+                    WebAppModel(
+                        name=web_app['name'],
+                        host_names=web_app['hostNames'],
+                        kind=web_app['kind'],
+                        location=web_app['location'],
+                        linux_fx_version=web_app['siteConfig']['linuxFxVersion'],
+                        app_service=AppService(self._cli).get(id_=web_app['appServicePlanId']),
+                        resource_group=resource_group_helper.get(web_app['resourceGroup']),
+                        tags=web_app['tags']
+                    )
                 )
-                self._resources.append(web_app)
 
         return self._resources
 
@@ -59,37 +63,45 @@ class WebApp:
         """
         Return a WebApp by its name.
         """
-        for s in self.list(force_reload=force_reload):
-            if s.name == name:
-                return s
+        for webapp in self.list(force_reload=force_reload):
+            if webapp.name == name:
+                return webapp
 
-        raise Exception(f"WebApp '{name}' not found.")
+        raise Exception(f"WebApp '{name}' not found.")  # pylint: disable=broad-exception-raised
 
     def delete(self, webapp: WebAppModel) -> List[WebAppModel]:
         """
         Delete a WebApp.
         """
-        self._cli.invoke(f'webapp delete -g {webapp.resource_group.name} -n {webapp.name}', to_json=False)
+        self._cli.invoke(
+            f'webapp delete -g {webapp.resource_group.name} -n {webapp.name}',
+            to_json=False
+        )
         return self.list(force_reload=True)
 
-    def create(self, name: str, app_service: AppServiceModel, resource_group: ResourceGroupModel = None, python_version: str = '3.10', tags: Dict[str, str] = {}) -> WebAppModel:
+    def create(
+            self,
+            name: str,
+            app_service: AppServiceModel,
+            resource_group: ResourceGroupModel = None,
+            python_version: str = '3.10',
+            tags: Dict[str, str] = None
+        ) -> WebAppModel:
         """
         Create a new WebApp.
         """
         rg_name = resource_group.name if resource_group else app_service.resource_group.name
+
         self._cli.invoke(
-            f'webapp create -g {rg_name} -p {app_service.id} -n {name} --runtime PYTHON:{python_version}',
+            f'webapp create -g {rg_name} -p {app_service.id} -n {name} --runtime PYTHON:{python_version}',  # pylint: disable=line-too-long
             tags=tags
         )
         return self.get(name, force_reload=True)
-    
+
     def deploy(self, webapp: WebAppModel, src: str) -> None:
         """
         Deploy an application zipped to the WebApp.
         """
-        rg = webapp.resource_group.name
-        wa = webapp.name
-
         self._cli.invoke(
-            f'webapp deployment source config-zip -g {rg} -n {wa} --src {src}'
+            f'webapp deployment source config-zip -g {webapp.resource_group.name} -n {webapp.name} --src {src}'  # pylint: disable=line-too-long
         )

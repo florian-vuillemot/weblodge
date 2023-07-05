@@ -1,5 +1,17 @@
+"""
+Based on Zip Deploy: https://learn.microsoft.com/en-us/azure/app-service/deploy-zip?tabs=cli
+
+The output generates a zip file containing
+- The user application code.
+- The user application requirements.
+- A generated Kudu deployment configuration file.
+- A generated startup file.
+
+This package is ready to be deployed on an Azure Web App.
+"""
 from dataclasses import dataclass
 import os
+from pathlib import Path
 from typing import List
 import zipfile
 
@@ -8,6 +20,12 @@ from weblodge.config import Item as ConfigItem
 
 @dataclass(frozen=True)
 class Build:
+    """
+    Facade to the build process.
+
+    User-customizable fields are found in the `config` property. All are optional from the user's
+    point of view so build can proceed without any configuration.
+    """
     # Source directory to zip.
     src: str = '.'
     # Destination directory to the zip file `name`.
@@ -34,6 +52,9 @@ class Build:
     @classmethod
     @property
     def config(cls) -> List[ConfigItem]:
+        """
+        Return the build configuration.
+        """
         return [
             ConfigItem(
                 name='src',
@@ -64,6 +85,7 @@ class Build:
         # Create the destination directory.
         os.makedirs(self.dist, exist_ok=True)
 
+        # Zip all required files together.
         with zipfile.ZipFile(self.package_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
             self._zip_user_application(zipf)
             self._deployment_config(zipf)
@@ -74,19 +96,20 @@ class Build:
         Create the zip folder.
         """
         for root, _, files in os.walk(self.src):
+            root = Path(root)
             # Skip hidden files and directories.
-            if '/.' in root or '\\.' in root:
+            if root.name.startswith('.'):
                 continue
             # Skip bytecode files.
-            if '__pycache__' in root:
+            if '__pycache__' in root.name:
                 continue
             # Skip the build directory.
-            if root.startswith(self.dist) or root.startswith('./' + self.dist) or root.startswith('.\\' + self.dist):
+            if root.is_relative_to(self.dist):
                 continue
             # Zip the files.
             for file in files:
-                file_path = os.path.join(root, file)
-                relative_to = os.path.relpath(file_path, self.src)
+                file_path = root / file
+                relative_to = file_path.relative_to(self.src)
                 zipf.write(file_path, relative_to)
 
     def _deployment_config(self, zipf: zipfile.ZipFile):
@@ -109,15 +132,11 @@ SCM_DO_BUILD_DURING_DEPLOYMENT = true
         """
         Add the startup file to the zip folder.
         """
-        # Skip the startup file if the entry point is a default supported values.
-        if self.entry_point in ('app.py', 'application.py', 'app', 'application') and self.app == 'app':
-            return
-
         # Remove potentional .py extension.
         entrypoint = self.entry_point
         if entrypoint.endswith('.py'):
             entrypoint = entrypoint[:-3]
-        
+
         # Add the application object if it's not already there.
         if ':' not in entrypoint:
             entrypoint = f'{entrypoint}:{self.app}'
@@ -125,7 +144,7 @@ SCM_DO_BUILD_DURING_DEPLOYMENT = true
         # Default application configuration update with the user and entrypoint.
         # https://learn.microsoft.com/en-us/azure/developer/python/configure-python-web-app-on-app-service
         startup_file_content = f'gunicorn --bind=0.0.0.0 --timeout 600 {entrypoint}'
-        
+
         # Add the startup file to the zip folder.
         zipf.writestr(
             os.path.relpath(self.startup_file, self.src),

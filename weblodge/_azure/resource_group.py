@@ -1,3 +1,6 @@
+"""
+Azure Resource Group interface.
+"""
 from typing import Dict, List
 from dataclasses import dataclass
 
@@ -31,31 +34,34 @@ class ResourceGroup:
             self._resources.clear()
 
         if not self._resources:
-            for s in self._cli.invoke('group list'):
-                a = ResourceGroupModel(
-                        name=s['name'],
-                        location=s['location'],
-                        tags=s['tags']
+            for group in self._cli.invoke('group list'):
+                self._resources.append(
+                    ResourceGroupModel(
+                        name=group['name'],
+                        location=group['location'],
+                        tags=group['tags']
+                    )
                 )
-                self._resources.append(a)
 
         return self._resources
-    
+
     def get(self, name: str, force_reload=False) -> ResourceGroupModel:
         """
         Return an resource group by its name.
         Force reload clears the cache and reloads the list from Azure.
         """
-        for s in self.list(force_reload=force_reload):
-            if s.name == name:
-                return s
+        for group in self.list(force_reload=force_reload):
+            if group.name == name:
+                return group
 
-        raise Exception(f"Resource Group '{name}' not found.")
+        raise Exception(f"Resource Group '{name}' not found.")  # pylint: disable=broad-exception-raised
 
-    def create(self, name: str, location: str, tags: Dict[str, str] = {}) -> ResourceGroupModel:
+    def create(self, name: str, location: str, tags: Dict[str, str] = None) -> ResourceGroupModel:
         """
         Create a new Resource Group and return it.
         """
+        tags = tags or {}
+
         self._cli.invoke(f'group create --name {name} --location {location}', tags=tags)
         return self.get(name, force_reload=True)
 

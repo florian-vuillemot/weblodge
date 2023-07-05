@@ -1,9 +1,17 @@
-import logging
-from typing import Dict, Tuple
+# pylint: disable=consider-using-from-import
 
-import weblodge.parameters as parameters
+"""
+Entry point for the CLI.
+
+This module is the entry point for the CLI. It parses the command line arguments
+and calls the appropriate functions.
+"""
+import logging
+from typing import Dict
+
 import weblodge.state as state
 import weblodge.web_app as web_app
+import weblodge.parameters as parameters
 from weblodge.config import Item as ConfigItem
 
 
@@ -12,6 +20,7 @@ logger.setLevel(logging.INFO)
 logger.addHandler(logging.StreamHandler())
 
 
+# pylint: disable=missing-function-docstring
 def main():
     weblodge = parameters.weblodge()
     config_filename = weblodge.config_filename

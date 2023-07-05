@@ -1,15 +1,21 @@
-import os
-import random
-import string
+"""
+Delete all resources associated with the application.
+"""
 from typing import List
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 from weblodge.config import Item as ConfigItem
-from weblodge._azure import Cli, ResourceGroup, AppService, WebApp
+from weblodge._azure import Cli, ResourceGroup, WebApp
 
 
 @dataclass
 class Delete:
+    """
+    Facade to the delete process.
+
+    Azure Web App names are unique across the entire Azure platform. Therefore, simply providing
+    the name is enough to delete the application and all associated resources.
+    """
     # Application name to delete.
     app_name: str = None
 
@@ -17,7 +23,7 @@ class Delete:
     @property
     def config(cls) -> List[ConfigItem]:
         """
-        Configure the application.
+        Delete class configuration.
         """
         return [
             ConfigItem(
@@ -29,11 +35,13 @@ class Delete:
 
     def delete(self) -> None:
         """
-        Delete the application and each Azure resources.
+        Delete the application and corresponding resources.
         """
         cli = Cli()
-        rg = ResourceGroup(cli)
-        wa = WebApp(cli)
 
-        _wa = wa.get(self.app_name)
-        rg.delete(_wa.resource_group)
+        # Retrieve the Azure Web App.
+        web_app = WebApp(cli).get(self.app_name)
+        # Delete the Azure Web App Resource Group.
+        # It is only possible because we are putting all the application resources in the
+        # same Resource Group.
+        ResourceGroup(cli).delete(web_app.resource_group)
