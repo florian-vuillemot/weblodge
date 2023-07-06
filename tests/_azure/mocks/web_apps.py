@@ -1,3 +1,6 @@
+"""
+Default Web App Mocks.
+"""
 from weblodge._azure import WebAppModel
 
 from .app_services_plan import  develop as asp_develop, staging as asp_staging, production as asp_production, \

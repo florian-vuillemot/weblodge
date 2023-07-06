@@ -1,3 +1,6 @@
+"""
+Azure Subscription representation.
+"""
 from typing import List
 from dataclasses import dataclass
 
@@ -9,7 +12,7 @@ class SubscriptionModel:
     """
     Azure Subscription representation.
     """
-    id: str
+    id: str  # pylint: disable=invalid-name
     name: str
 
 
@@ -22,6 +25,9 @@ class Subscription:
         self._resources = []
 
     def list(self) -> List[SubscriptionModel]:
+        """
+        Return the list of subscriptions.
+        """
         if not self._resources:
             subscription = self._cli.invoke('account list')
             self._resources = [SubscriptionModel(id=s['id'], name=s['name']) for s in subscription]
@@ -32,8 +38,8 @@ class Subscription:
         """
         Return a subscription by its name.
         """
-        for s in self.list():
-            if s.name == name:
-                return s
+        for sub in self.list():
+            if sub.name == name:
+                return sub
 
-        raise Exception(f"Subscription '{name}' not found.")
+        raise Exception(f"Subscription '{name}' not found.")  # pylint: disable=broad-exception-raised

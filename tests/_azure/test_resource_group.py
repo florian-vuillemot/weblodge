@@ -1,3 +1,6 @@
+"""
+Resource Group Tests.
+"""
 import unittest
 
 from weblodge._azure import ResourceGroup
@@ -7,24 +10,40 @@ from .mocks.resource_group import develop, staging, production
 
 
 class TestResourceGroup(unittest.TestCase):
-    resource_groups = [develop, staging, production]
-
+    """
+    Resource Group CRUD Tests.
+    """
     def setUp(self) -> None:
-        self.resource_group_helper = ResourceGroup(cli)
+        self.resource_group = ResourceGroup(cli)
 
         return super().setUp()
 
     def test_list(self):
-        r = self.resource_group_helper.list()
-        self.assertEqual(self.resource_groups, r)
+        """
+        Ensure the corresponding conversion is done by the `list` method.
+        """
+        self.assertEqual(
+            [develop, staging, production],
+            self.resource_group.list()
+        )
 
     def test_get(self):
-        r = self.resource_group_helper.get(name=staging.name)
-        self.assertEqual(staging, r)
+        """
+        Ensure the `get` method returns the corresponding Resource Group.
+        """
+        self.assertEqual(
+            staging,
+            self.resource_group.get(name=staging.name)
+        )
 
     def test_create(self):
-        r = self.resource_group_helper.create(
-            name=staging.name,
-            location=staging.location
+        """
+        Ensure the `create` method returns the corresponding Resource Group.
+        """
+        self.assertEqual(
+            staging,
+            self.resource_group.create(
+                name=staging.name,
+                location=staging.location
+            )
         )
-        self.assertEqual(staging, r)

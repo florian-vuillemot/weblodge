@@ -1,6 +1,12 @@
+"""
+User inputs can be provided by command line.
+This package contains the logic to parse the command line arguments for internal
+components based on the configuration items. but also the global arguments that are
+hard coded.
+"""
 import argparse
 from dataclasses import dataclass
-from typing import Any, Dict, List
+from typing import Dict, List
 
 from weblodge.config import Item as ConfigItem
 
@@ -20,9 +26,22 @@ def weblodge() -> str:
     """
     Return the action to perform.
     """
-    parser = argparse.ArgumentParser(description='Deploy a Python Flask-based application to Azure.')
-    parser.add_argument('action', type=str, help='Action to perform.', choices=['build', 'deploy', 'delete'])
-    parser.add_argument('--config-filename', type=str, help='File containing the deployment configuration.', default=Global.config_filename, required=False)
+    parser = argparse.ArgumentParser(
+        description='Deploy a Python Flask-based application to Azure.'
+    )
+    parser.add_argument(
+        'action',
+        type=str,
+        help='Action to perform.',
+        choices=['build', 'deploy', 'delete']
+    )
+    parser.add_argument(
+        '--config-filename',
+        type=str,
+        help='File containing the deployment configuration.',
+        default=Global.config_filename,
+        required=False
+    )
     args, _ = parser.parse_known_args()
 
     return Global(
@@ -31,11 +50,13 @@ def weblodge() -> str:
     )
 
 
-def load(fields: List[ConfigItem], existing_parameters: Dict[str, str] = {}) -> Dict[str, str]:
+def load(fields: List[ConfigItem], existing_parameters: Dict[str, str] = None) -> Dict[str, str]:
     """
     Load the configuration from the parser.
     Override the current config with the new values.
     """
+    existing_parameters = existing_parameters or {}
+
     # Create and configure a parser for the fields.
     parser = argparse.ArgumentParser()
     for field in fields:

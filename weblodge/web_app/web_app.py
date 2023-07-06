@@ -1,3 +1,6 @@
+"""
+Web App function to simplify the build, deploy and delete process.
+"""
 import functools
 from typing import List, Dict
 
@@ -8,6 +11,7 @@ from .deploy import Deploy
 from .delete import Delete
 
 
+# pylint: disable=missing-function-docstring
 def filter_config(retrieve_config):
     def _filter_config(func) -> Dict[str, str]:
         @functools.wraps(func)

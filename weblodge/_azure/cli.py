@@ -1,3 +1,6 @@
+"""
+Interface to the Azure CLI.
+"""
 import json
 from io import StringIO
 import logging
@@ -17,7 +20,12 @@ class Cli:
         self._first_invoke = True
         self.cli = get_default_cli()
 
-    def invoke(self, command: str, to_json=True, tags={}) -> Union[str, Dict]:
+    def invoke(
+            self,
+            command: str,
+            to_json=True,
+            tags: Dict[str, str] = None
+        ) -> Union[str, Dict]:
         """
         Execute an Azure CLI command and return its output.
         If `to_json` is True, the output is converted to a JSON object.
@@ -28,15 +36,15 @@ class Cli:
 
             try:
                 return self._invoke(command, to_json=to_json, tags=tags)
-            except Exception as e:
+            except Exception:  # pylint: disable=broad-exception-caught
                 # Command may fail if the user is not logged in.
-                logger.info(f"Previous command failed, try login to Azure CLI...")
-                self._invoke('login')
-                logger.info(f"Login successful, retry previous command...")
+                logger.info('Previous command failed, try login to Azure CLI...')
+                self._invoke('login', False, None)
+                logger.info('Login successful, retry previous command...')
 
         return self._invoke(command, to_json=to_json, tags=tags)
 
-    def _invoke(self, command: str, to_json=True, tags={}) -> Union[str, Dict]:
+    def _invoke(self, command: str, to_json: bool, tags) -> Union[str, Dict]:
         # Convert the string command to a array of arguments.
         cmd = command.split()
         # Create a file-like object to store the output.
@@ -44,14 +52,11 @@ class Cli:
 
         if tags:
             cmd.append('--tags')
-            for k, v in tags.items():
-                cmd.append(f'{k}={v}')
+            cmd.extend(f'{k}={v}' for k, v in tags.items())
 
         # Execute the Azure CLI command and store the return code.
-        r = self.cli.invoke(cmd, out_file=out_fd)
-
-        if r != 0:
-            raise Exception(f"Error during execution of the command '{command}'.\nOutput: {r}")
+        if self.cli.invoke(cmd, out_file=out_fd):
+            raise Exception(f"Error during execution of the command '{command}'.")  # pylint: disable=broad-exception-raised
 
         # Retrieve the output.
         output = out_fd.getvalue()

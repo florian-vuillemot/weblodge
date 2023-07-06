@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "weblodge"
-version = "0.1.0"
+version = "0.1.1"
 description = ""
 authors = ["Vuillemot Florian <vuillemot.florian@outlook.fr>"]
 license = "MIT"
@@ -10,9 +10,11 @@ readme = "README.md"
 weblodge = "weblodge.cli:main"
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = ">=3.8,<3.12"
 azure-cli = "2.49"
 
+[tool.poetry.group.linter.dependencies]
+pylint = ">=2.17,<=3.0"
 
 [build-system]
 requires = ["poetry-core"]

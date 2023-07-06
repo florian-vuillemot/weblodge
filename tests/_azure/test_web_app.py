@@ -1,3 +1,6 @@
+"""
+Web App Tests.
+"""
 import unittest
 
 from weblodge._azure import WebApp
@@ -7,18 +10,27 @@ from .mocks.web_apps import develop, staging, production
 
 
 class TestWebApp(unittest.TestCase):
+    """
+    Web App CRUD Tests.
+    """
     def setUp(self) -> None:
         self.web_app_helper = WebApp(cli)
         return super().setUp()
 
     def test_list(self):
-        expected_output = [develop, staging, production]
-
-        r = self.web_app_helper.list()
-        self.assertEqual(expected_output, r)
+        """
+        Ensure the corresponding conversion is done by the `list` method.
+        """
+        self.assertEqual(
+            [develop, staging, production],
+            self.web_app_helper.list()
+        )
 
     def test_get(self):
-        name = 'staging-app-service'
-
-        r = self.web_app_helper.get(name)
-        self.assertEqual(staging, r)
+        """
+        Ensure the `get` method returns the corresponding Web App.
+        """
+        self.assertEqual(
+            staging,
+            self.web_app_helper.get('staging-app-service')
+        )

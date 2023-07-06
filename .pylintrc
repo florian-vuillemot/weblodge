@@ -1,0 +1,10 @@
+[MESSAGES CONTROL]
+disable =
+    logging-fstring-interpolation,
+    too-few-public-methods,
+    relative-beyond-top-level,
+    consider-using-from-import,
+    duplicate-code
+
+[FORMAT]
+max-line-length=120
