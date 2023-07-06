@@ -104,12 +104,13 @@ class Build:
             if '__pycache__' in root.name:
                 continue
             # Skip the build directory.
-            if root.is_relative_to(self.dist):
+            # Path conversion removes unnecessary slashes.
+            if root.name.startswith(Path(self.dist).name):
                 continue
             # Zip the files.
             for file in files:
                 file_path = root / file
-                relative_to = file_path.relative_to(self.src)
+                relative_to = os.path.relpath(file_path, self.src)
                 zipf.write(file_path, relative_to)
 
     def _deployment_config(self, zipf: zipfile.ZipFile):
