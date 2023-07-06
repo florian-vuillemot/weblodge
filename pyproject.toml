@@ -10,7 +10,7 @@ readme = "README.md"
 weblodge = "weblodge.cli:main"
 
 [tool.poetry.dependencies]
-python = ">=3.8,<=3.11"
+python = ">=3.8,<3.12"
 azure-cli = "2.49"
 
 [tool.poetry.group.linter.dependencies]
