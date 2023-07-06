@@ -1,3 +1,6 @@
+"""
+Default Resource Group Mocks.
+"""
 from weblodge._azure import ResourceGroupModel
 
 
