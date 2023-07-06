@@ -1,3 +1,4 @@
+# pylint: disable=line-too-long
 """
 Default App Service Plan Mocks.
 """
@@ -12,7 +13,7 @@ develop = AppServiceModel(
     sku='P1v3',
     resource_group=rg_develop,
     location='North Europe',
-    id='/subscriptions/15be6804-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/develop/providers/Microsoft.Web/serverfarms/app-service',  # Pylint: disable=line-too-long
+    id='/subscriptions/15be6804-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/develop/providers/Microsoft.Web/serverfarms/app-service',
     tags={}
 )
 staging = AppServiceModel(
@@ -21,7 +22,7 @@ staging = AppServiceModel(
     sku='P1v3',
     resource_group=rg_staging,
     location='North Europe',
-    id='/subscriptions/8615f926-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/staging/providers/Microsoft.Web/serverfarms/app-service',  # Pylint: disable=line-too-long
+    id='/subscriptions/8615f926-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/staging/providers/Microsoft.Web/serverfarms/app-service',
     tags={}
 )
 production = AppServiceModel(
@@ -30,6 +31,6 @@ production = AppServiceModel(
     sku='P1v3',
     resource_group=rg_production,
     location='North Europe',
-    id='/subscriptions/2f0df319-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/production/providers/Microsoft.Web/serverfarms/app-service',  # Pylint: disable=line-too-long
+    id='/subscriptions/2f0df319-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/production/providers/Microsoft.Web/serverfarms/app-service',
     tags={}
 )

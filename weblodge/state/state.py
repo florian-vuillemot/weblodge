@@ -1,6 +1,5 @@
 # pylint: disable=missing-module-docstring
 import json
-import pathlib
 
 
 def dump(name_or_fd, config):

@@ -15,23 +15,23 @@ class Cli:
     def __init__(self):
         self._commands = {}
 
-    def add_command(self, command: str, output = Union[Dict, str], to_json=True):
+    def add_command(self, command: str, output = Union[Dict, str]):
         """
         Add new command to the mock that will return the given output.
         """
-        self._commands[(command, to_json)] = output
+        self._commands[command] = output
 
-    def add_exception(self, command: str, to_json=True):
+    def add_exception(self, command: str):
         """
         Raised an exception when the given command is invoked.
         """
-        self._commands[(command, to_json)] = Exception
+        self._commands[command] = Exception
 
-    def invoke(self, command: str, to_json=True, tags=None) -> Union[str, Dict]:
+    def invoke(self, command: str, *_args, **_kwargs) -> Union[str, Dict]:
         """
         Invoke the given command and return pre defined output.
         """
-        output = self._commands[(command, to_json)]
+        output = self._commands[command]
         if isinstance(output, Exception):
             raise output
         return output
@@ -40,7 +40,7 @@ class Cli:
 cli = Cli()
 
 resource_groups_json = json.loads(
-    Path('./tests/_azure/mocks/resource_groups.json').read_text()
+    Path('./tests/_azure/mocks/resource_groups.json').read_text(encoding='utf-8')
 )
 cli.add_command('group list', resource_groups_json)
 cli.add_command('group create --name staging --location northeurope', resource_groups_json[1])

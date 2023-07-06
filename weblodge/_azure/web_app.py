@@ -42,7 +42,7 @@ class WebApp:
         if not self._resources:
             web_apps = self._cli.invoke('webapp list')
             resource_group_helper = ResourceGroup(self._cli)
-            
+
             for web_app in web_apps:
                 self._resources.append(
                     WebAppModel(
@@ -79,6 +79,7 @@ class WebApp:
         )
         return self.list(force_reload=True)
 
+    # pylint: disable=too-many-arguments
     def create(
             self,
             name: str,

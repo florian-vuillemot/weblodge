@@ -90,6 +90,7 @@ class AppService:
 
         return self.list(force_reload=True)
 
+    # pylint: disable=too-many-arguments
     def create(
             self,
             name: str,
