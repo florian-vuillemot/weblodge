@@ -33,7 +33,7 @@ def weblodge() -> str:
         'action',
         type=str,
         help='Action to perform.',
-        choices=['build', 'deploy', 'delete']
+        choices=['build', 'deploy', 'delete', 'logs']
     )
     parser.add_argument(
         '--config-filename',
