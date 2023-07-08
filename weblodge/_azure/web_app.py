@@ -90,12 +90,25 @@ class WebApp:
         ) -> WebAppModel:
         """
         Create a new WebApp.
+
+        Settings enabled:
+        - WebSockets
+        - HTTP/2
+        - Always On
         """
         rg_name = resource_group.name if resource_group else app_service.resource_group.name
 
         self._cli.invoke(
             f'webapp create -g {rg_name} -p {app_service.id} -n {name} --runtime PYTHON:{python_version}',  # pylint: disable=line-too-long
             tags=tags
+        )
+        self._cli.invoke(
+            ' '.join((
+                f'webapp config set --resource-group {rg_name} --name {name}',
+                '--web-sockets-enabled true',
+                '--http20-enabled',
+                '--always-on true'
+            ))
         )
         return self.get(name, force_reload=True)
 
@@ -104,5 +117,17 @@ class WebApp:
         Deploy an application zipped to the WebApp.
         """
         self._cli.invoke(
-            f'webapp deployment source config-zip -g {webapp.resource_group.name} -n {webapp.name} --src {src}'  # pylint: disable=line-too-long
+            ' '.join((
+                'webapp deployment source config-zip',
+                f'-g {webapp.resource_group.name} -n {webapp.name}',
+                f'--src {src}'
+            ))
+        )
+
+    def logs(self, webapp: WebAppModel) -> None:
+        """
+        Stream WebApp logs.
+        """
+        self._cli.invoke(
+            f'webapp log tail -g {webapp.resource_group.name} -n {webapp.name}'
         )

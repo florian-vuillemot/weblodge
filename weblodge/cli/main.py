@@ -33,6 +33,8 @@ def main():
         config = deploy(config)
     elif weblodge.action == 'delete':
         config = delete(config)
+    elif weblodge.action == 'logs':
+        logs(config)
 
     state.dump(config_filename, config)
 
@@ -105,3 +107,15 @@ def delete(config: Dict[str, str]) -> Dict[str, str]:
     logger.info('Successfully deleted.')
 
     return config
+
+
+def logs(config: Dict[str, str]) -> None:
+    """
+    Stream application logs.
+    """
+    logger.info('Logs will be stream, execute CTRL+C to stop the application.\nRecovering logs...')
+    config = parameters.load(
+        web_app.logs_config(),
+        config
+    )
+    web_app.logs(config)
