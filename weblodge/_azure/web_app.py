@@ -107,6 +107,7 @@ class WebApp:
                 f'webapp config set --resource-group {rg_name} --name {name}',
                 '--web-sockets-enabled true',
                 '--http20-enabled',
+                '--startup-file weblodge.startup',
                 f'--always-on {app_service.sku != "F1"}',
             ))
         )

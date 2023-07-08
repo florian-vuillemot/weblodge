@@ -106,11 +106,11 @@ class Deploy:
                 )
             )
         )
-        logger.info('The infrastructure has been created.')
+        logger.info('The infrastructure has been created or updated.')
 
         logger.info('Waiting the infrastructure to be running...')
         if not self.ping(web_app):
-            logger.info('The infrastructure is not yet running...')
+            logger.info('The infrastructure is not yet running. Retrying...')
             if not self.ping(web_app):
                 logger.critical('The infrastructure is not yet running.\nPlease retry later.')
                 return None
