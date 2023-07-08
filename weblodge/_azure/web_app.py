@@ -94,7 +94,7 @@ class WebApp:
         Settings enabled:
         - WebSockets
         - HTTP/2
-        - Always On
+        - Always On: If the SKU is not F1.
         """
         rg_name = resource_group.name if resource_group else app_service.resource_group.name
 
@@ -107,7 +107,7 @@ class WebApp:
                 f'webapp config set --resource-group {rg_name} --name {name}',
                 '--web-sockets-enabled true',
                 '--http20-enabled',
-                '--always-on true'
+                f'--always-on {app_service.sku != "F1"}',
             ))
         )
         return self.get(name, force_reload=True)

@@ -4,11 +4,16 @@ This package contains the logic to parse the command line arguments for internal
 components based on the configuration items. but also the global arguments that are
 hard coded.
 """
+import sys
 import argparse
 from dataclasses import dataclass
 from typing import Dict, List
 
 from weblodge.config import Item as ConfigItem
+
+
+# Command Line Interface name.
+CLI_NAME = sys.argv[0]
 
 
 @dataclass(frozen=True)

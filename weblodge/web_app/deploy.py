@@ -12,11 +12,17 @@ Resource Group.
 import os
 import random
 import string
-from typing import List
+import logging
+from typing import List, Optional
 from dataclasses import dataclass, field
+
+from urllib3 import Retry, request
 
 from weblodge.config import Item as ConfigItem
 from weblodge._azure import Cli, ResourceGroup, AppService, WebApp
+
+
+logger = logging.getLogger('weblodge')
 
 
 @dataclass
@@ -54,6 +60,7 @@ class Deploy:
             ConfigItem(
                 name='app_name',
                 description='Unique name of the application within Azure. If not provide, a random name is used.',  # pylint: disable=line-too-long
+                default=cls.app_name
             ),
             ConfigItem(
                 name='sku',
@@ -77,7 +84,7 @@ class Deploy:
             ),
         ]
 
-    def deploy(self, package_name: str='azwebapp.zip') -> str:
+    def deploy(self, package_name: str='azwebapp.zip') -> Optional[str]:
         """
         Deploy the application to Azure and return its URL.
         """
@@ -86,6 +93,7 @@ class Deploy:
         cli = Cli()
         web_app_cls = WebApp(cli)
 
+        logger.info('The infrastructure is being created or updated...')
         web_app = web_app_cls.create(
             self.app_name,
             AppService(cli).create(
@@ -98,6 +106,31 @@ class Deploy:
                 )
             )
         )
+        logger.info('The infrastructure has been created.')
 
+        logger.info('Waiting the infrastructure to be running...')
+        if not self.ping(web_app):
+            logger.info('The infrastructure is not yet running...')
+            if not self.ping(web_app):
+                logger.critical('The infrastructure is not yet running.\nPlease retry later.')
+                return None
+        logger.info('The infrastructure is running.')
+
+        logger.info('Uploading the application...')
         web_app_cls.deploy(web_app, os.path.join(self.dist, package_name))
+        logger.info('The application has been uploaded.')
         return web_app.host_names[0]
+
+    def ping(self, web_app: WebApp) -> bool:
+        """
+        Ping the application to warm it up.
+        Return True if the application is up and running.
+        """
+        try:
+            return request(
+                "GET",
+                web_app.host_names[0],
+                retries=Retry(total=10, backoff_factor=5)
+            ).status < 400
+        except:  # pylint: disable=bare-except
+            return False
