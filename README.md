@@ -2,7 +2,7 @@
 
 **WebLodge** is a command line aiming to provide anyone with deployment and cloud management capabilities.
 
-## What do I need?
+## Prerequisite
 
 - Install the command line with `pip install weblodge`.
 - A Python [Flask](https://flask.palletsprojects.com/en/2.3.x/) application.
@@ -134,14 +134,14 @@ Example:
 weblodge logs
 ```
 
-## Configuration file
+## Configuration file: `.weblodge.json`
 
 At the end of a deployment, **WebLodge** creates a file named `.weblodge.json` by default.
 This file contains the previous configuration, enabling **WebLodge** to update your application with the same parameters. This file can be version-controlled and used in your Continuous Deployment.
 
 You can change the name of this file with the `--config-filename` option.
 
-Exampe:
+Example:
 ```
 weblodge build --config-filename myconfigfile.json
 ```
