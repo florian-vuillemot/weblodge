@@ -67,9 +67,20 @@ The *build* operation can handle the following options:
 |-|-|-|
 | src | Folder containing application sources. | '.' |
 | dist | Folder containing the application built. | 'dist' |
+| entry-point | The application file to be executed with `python`. | 'app.py' |
+| app | The Flask application object in the `entry-point` file. | 'app' |
+| requirements | The **requirements.txt** file path of the application. This file will be put at the root of the application. | 'requirements.txt' |
 
 > Note: Here, the platform is implicitly [Azure App Service](https://azure.microsoft.com/en-us/products/app-service/web).
 
+Example:
+```
+# Build the local application.
+weblodge build
+
+# Build the application in the 'myapp' folder.
+weblodge build --src myapp
+```
 
 ## Deploy
 
@@ -83,6 +94,14 @@ The *deploy* operation creates the necessary infrastructure and uploads the buil
 | environment | The environment of your application. | 'development' |
 | dist | Folder containing the application built. | 'dist' |
 
+Example:
+```
+# Deploy the local application.
+weblodge deploy
+
+# Deploy the local application with a custom name.
+weblodge deploy --app-name myapp
+```
 
 ## Delete
 
@@ -90,9 +109,52 @@ The *delete* operation deletes the infrastructure deployed but keeps the build.
 
 | Option name | Description | Default value |
 |-|-|-|
-| app-name | The name of the application to be deployed. | `<my-app>` |
+| app-name | The name of the application to be deleted. | `<my-app>` |
 | yes | Do not prompt a validation message before deletion. | 'false' |
 
+
+Example:
+```
+# Delete the application previously deployed.
+weblodge delete
+```
+
+
+## Logs
+
+The *logs* operation streams your application logs. Because it is a stream, logs are truncated.
+
+| Option name | Description | Default value |
+|-|-|-|
+| app-name | The name of the application. | `<my-app>` |
+
+Example:
+```
+# Print logs of the application previously created.
+weblodge logs
+```
+
+## Configuration file
+
+At the end of a deployment, **WebLodge** creates a file named `.weblodge.json` by default.
+This file contains the previous configuration, enabling **WebLodge** to update your application with the same parameters. This file can be version-controlled and used in your Continuous Deployment.
+
+You can change the name of this file with the `--config-filename` option.
+
+Exampe:
+```
+weblodge build --config-filename myconfigfile.json
+```
+
+## Manage your WebLodge-deployed application
+
+Managing and updating is a daily infrastructure task with no visible value for the end user.
+**WebLodge** uses an Azure [Platform as a Service](https://azure.microsoft.com/en-in/resources/cloud-computing-dictionary/what-is-paas/)
+resource named [Azure App Service](https://learn.microsoft.com/en-us/azure/app-service/)
+to keep your infrastructure as secure, up-to-date and reliable as possible.
+This tool keeps your infrastructure at the state-of-the-art, allowing you to focus on your application's functionality.
+
+But whatever your infrastructure tools are, it's your responsibility to keep your application secure and your dependencies up-to-date.
 
 ## Feedbacks
 
