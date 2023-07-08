@@ -95,6 +95,7 @@ class WebApp:
         - WebSockets
         - HTTP/2
         - Always On: If the SKU is not F1.
+        - Startup file: weblodge.startup
         """
         rg_name = resource_group.name if resource_group else app_service.resource_group.name
 

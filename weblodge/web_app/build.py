@@ -40,6 +40,7 @@ class Build:
     # Kudu deployment config file.
     kudu_config: str = '.deployment'
     # Startup file.
+    # Set in the deployment config too.
     startup_file: str = 'weblodge.startup'
 
     @property
