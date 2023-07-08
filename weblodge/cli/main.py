@@ -80,7 +80,7 @@ def deploy(config: Dict[str, str]) -> Dict[str, str]:
     else:
         logger.critical(
             'The application may not be deployed, but the infrastructure may be' \
-            f" partially created. You can delete it by running: '{parameters.CLI_NAME} delete'"
+            f' partially created. You can delete it by running: {parameters.CLI_NAME} delete'
         )
     return config
 
