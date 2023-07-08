@@ -124,10 +124,7 @@ class Build:
 SCM_DO_BUILD_DURING_DEPLOYMENT = true
 '''
         # Add the deployment config file to the zip folder.
-        zipf.writestr(
-            os.path.relpath(self.kudu_config, self.src),
-            config
-        )
+        zipf.writestr(self.kudu_config, config)
 
     def _startup_file(self, zipf: zipfile.ZipFile):
         """
@@ -147,7 +144,4 @@ SCM_DO_BUILD_DURING_DEPLOYMENT = true
         startup_file_content = f'gunicorn --bind=0.0.0.0 --timeout 600 {entrypoint}'
 
         # Add the startup file to the zip folder.
-        zipf.writestr(
-            os.path.relpath(self.startup_file, self.src),
-            startup_file_content
-        )
+        zipf.writestr(self.startup_file, startup_file_content)
