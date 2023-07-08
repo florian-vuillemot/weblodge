@@ -127,6 +127,7 @@ class WebApp:
     def logs(self, webapp: WebAppModel) -> None:
         """
         Stream WebApp logs.
+        This is a blocking operation. User must run CTRL+C to stop the process.
         """
         self._cli.invoke(
             f'webapp log tail -g {webapp.resource_group.name} -n {webapp.name}'

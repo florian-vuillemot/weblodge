@@ -113,7 +113,8 @@ def logs(config: Dict[str, str]) -> None:
     """
     Stream application logs.
     """
-    logger.info('Logs will be stream, execute CTRL+C to stop the application.\nRecovering logs...')
+    logger.warning('Logs will be stream, execute CTRL+C to stop the application.')
+    logger.info('Recovering logs...')
     config = parameters.load(
         web_app.logs_config(),
         config
