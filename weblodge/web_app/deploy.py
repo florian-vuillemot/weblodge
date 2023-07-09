@@ -37,7 +37,7 @@ class Deploy:
     # Application name.
     # This name must be unique across all of Azure WebApplication.
     # It will be used as the URL of the application and for created Azure resources.
-    app_name: str = ''.join(random.choice(string.ascii_uppercase) for _ in range(20))
+    app_name: str = ''.join(random.choice(string.ascii_lowercase) for _ in range(20))
     # Application SKU (https://azure.microsoft.com/en-us/pricing/details/app-service/linux/).
     sku: str = 'F1'
     # Application location.
@@ -108,17 +108,10 @@ class Deploy:
         )
         logger.info('The infrastructure has been created or updated.')
 
-        logger.info('Waiting the infrastructure to be running...')
-        if not self.ping(web_app):
-            logger.info('The infrastructure is not yet running. Retrying...')
-            if not self.ping(web_app):
-                logger.critical('The infrastructure is not yet running.\nPlease retry later.')
-                return None
-        logger.info('The infrastructure is running.')
-
         logger.info('Uploading the application...')
         web_app_cls.deploy(web_app, os.path.join(self.dist, package_name))
         logger.info('The application has been uploaded.')
+
         return web_app.host_names[0]
 
     def ping(self, web_app: WebApp) -> bool:
