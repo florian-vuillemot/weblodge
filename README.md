@@ -6,7 +6,7 @@
 
 - Install the command line with `pip install weblodge`.
 - A Python [Flask](https://flask.palletsprojects.com/en/2.3.x/) application.
-- A `requirements.txt` with your dependencies. 
+- A `requirements.txt` with the application dependencies. 
 - Have an [Azure account](https://azure.microsoft.com/en-us/free).
 
 > Note: By default, **WebLodge** uses **Free** [Azure services](https://azure.microsoft.com/en-us/pricing/free-services) and lets the user specify non-free configurations.

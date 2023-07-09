@@ -40,7 +40,8 @@ class Build:
     # Kudu deployment config file.
     kudu_config: str = '.deployment'
     # Startup file.
-    startup_file: str = 'startup.txt'
+    # Set in the deployment config too.
+    startup_file: str = 'weblodge.startup'
 
     @property
     def package_path(self) -> str:

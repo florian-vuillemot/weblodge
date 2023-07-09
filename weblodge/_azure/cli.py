@@ -2,6 +2,7 @@
 Interface to the Azure CLI.
 """
 import json
+import time
 from io import StringIO
 import logging
 from typing import Dict, Union
@@ -30,7 +31,6 @@ class Cli:
         Execute an Azure CLI command and return its output.
         If `to_json` is True, the output is converted to a JSON object.
         """
-
         if self._first_invoke:
             self._first_invoke = False
 
@@ -42,7 +42,16 @@ class Cli:
                 self._invoke('login', False, None)
                 logger.info('Login successful, retry previous command...')
 
-        return self._invoke(command, to_json=to_json, tags=tags)
+        try:
+            return self._invoke(command, to_json=to_json, tags=tags)
+        except Exception:  # pylint: disable=broad-exception-caught
+            logger.info(
+                'The previous command failed.\n'
+                'This may be due to simultaneous asynchronous operations.\n'
+                'Will try again in 30 seconds...'
+            )
+            time.sleep(30)
+            return self._invoke(command, to_json=to_json, tags=tags)
 
     def _invoke(self, command: str, to_json: bool, tags) -> Union[str, Dict]:
         # Convert the string command to a array of arguments.

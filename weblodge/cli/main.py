@@ -75,8 +75,13 @@ def deploy(config: Dict[str, str]) -> Dict[str, str]:
         web_app.deploy_config(),
         config
     )
-    webapp_url = web_app.deploy(config)
-    logger.info(f"Successfully deployed at 'https://{webapp_url}'.")
+    if webapp_url := web_app.deploy(config):
+        logger.info(f"The application will soon be available on: https://{webapp_url}")
+    else:
+        logger.critical(
+            'The application may not be deployed, but the infrastructure may be' \
+            f' partially created. You can delete it by running: {parameters.CLI_NAME} delete'
+        )
     return config
 
 
