@@ -57,7 +57,7 @@ def deploy(config: Dict[str, str]) -> Dict[str, str]:
     Deploy the application.
     """
     # The application can be built before being deployed.
-    deploy_can_build = [
+    build_too = [
         ConfigItem(
             name='build',
             description='Build then deploy the application. Parameters are the same as for the `build` command.',
@@ -66,7 +66,7 @@ def deploy(config: Dict[str, str]) -> Dict[str, str]:
     ]
 
     config = parameters.load(
-        web_app.deploy_config() + deploy_can_build,
+        web_app.deploy_config() + build_too,
         config
     )
 
