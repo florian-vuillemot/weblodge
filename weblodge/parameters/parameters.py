@@ -3,6 +3,11 @@ User inputs can be provided by command line.
 This package contains the logic to parse the command line arguments for internal
 components based on the configuration items. but also the global arguments that are
 hard coded.
+
+The help method must be adapted to the action to be carried out.
+Examples:
+    `python weblodge.py -h` must print the `help` message of **WebLodge**.
+    `python weblodge.py build -h` must print the `help` message for the `build` action.
 """
 import sys
 import argparse
@@ -31,8 +36,15 @@ def weblodge() -> str:
     """
     Return the action to perform.
     """
+    # If run user run: `python weblodge.py -h` or `python weblodge.py --help`
+    # then we want to display the **WebLodge** `help` message.
+    # Otherwise, we want to parse the arguments and better scope the help message.
+    # Example: `python weblodge.py build -h` must print the `help` message for the `build` action.
+    asking_global_help = len(sys.argv) == 2 and '-h' in sys.argv[1]
+
     parser = argparse.ArgumentParser(
-        description='Deploy a Python Flask-based application to Azure.'
+        description='Deploy a Python Flask-based application to Azure.',
+        add_help=asking_global_help
     )
     parser.add_argument(
         'action',
