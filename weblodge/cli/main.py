@@ -26,7 +26,6 @@ def main():
     config_filename = weblodge.config_filename
 
     config = state.load(config_filename)
-
     if weblodge.action == 'build':
         config = build(config)
     elif weblodge.action == 'deploy':
@@ -43,11 +42,11 @@ def build(config: Dict[str, str]) -> Dict[str, str]:
     """
     Build the application.
     """
-    logger.info('Building...')
     config = parameters.load(
         web_app.build_config(),
         config
     )
+    logger.info('Building...')
     web_app.build(config)
     logger.info('Successfully built.')
     return config
@@ -58,23 +57,23 @@ def deploy(config: Dict[str, str]) -> Dict[str, str]:
     Deploy the application.
     """
     # The application can be built before being deployed.
-    deploy_can_build = [
+    build_too = [
         ConfigItem(
             name='build',
-            description='Build then deploy the application.',
+            description='Build then deploy the application. Parameters are the same as for the `build` command.',
             attending_value=False
         )
     ]
-    must_build = parameters.load(deploy_can_build, config)
 
-    if must_build.pop('build'):
-        config = build(config)
-
-    logger.info('Deploying...')
     config = parameters.load(
-        web_app.deploy_config(),
+        web_app.deploy_config() + build_too,
         config
     )
+
+    if config['build']:
+        build(config)
+
+    logger.info('Deploying...')
     if webapp_url := web_app.deploy(config):
         logger.info(f"The application will soon be available on: https://{webapp_url}")
     else:
@@ -103,11 +102,11 @@ def delete(config: Dict[str, str]) -> Dict[str, str]:
             logger.info('Aborting.')
             return config
 
-    logger.info('Deleting...')
     config = parameters.load(
         web_app.delete_config(),
         config
     )
+    logger.info('Deleting...')
     web_app.delete(config)
     logger.info('Successfully deleted.')
 
@@ -118,10 +117,10 @@ def logs(config: Dict[str, str]) -> None:
     """
     Stream application logs.
     """
-    logger.warning('Logs will be stream, execute CTRL+C to stop the application.')
-    logger.info('Recovering logs...')
     config = parameters.load(
         web_app.logs_config(),
         config
     )
+    logger.warning('Logs will be stream, execute CTRL+C to stop the application.')
+    logger.info('Recovering logs...')
     web_app.logs(config)
