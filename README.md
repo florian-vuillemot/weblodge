@@ -23,6 +23,8 @@ In that case, **WebLodge** will assume that your application entry point is name
 
 Behind the scene, **WebLodge** *build* then *deploy* your application.
 
+![CLI: weblodge deploy --build](./images/deploy.gif)
+
 ## Application structure
 
 **WebLodge** is sensible to the application structure. Applications must follow the pre-defined pattern or specify custom values.
