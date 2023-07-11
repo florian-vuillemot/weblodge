@@ -6,7 +6,6 @@ from typing import List, Dict
 
 from weblodge.config import Item as ConfigItem
 
-from .build import Build
 from .deploy import Deploy
 from .delete import Delete
 
@@ -22,21 +21,6 @@ def filter_config(retrieve_config):
             return func(_config)
         return __filter_config
     return _filter_config
-
-
-def build_config() -> List[ConfigItem]:
-    """
-    Return the build configuration.
-    """
-    return Build.config
-
-
-@filter_config(build_config)
-def build(config: Dict[str, str]) -> None:
-    """
-    Build the application from the config.
-    """
-    Build(**config).build()
 
 
 def deploy_config() -> List[ConfigItem]:
