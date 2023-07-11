@@ -12,6 +12,9 @@
 > Note: By default, **WebLodge** uses **Free** [Azure services](https://azure.microsoft.com/en-us/pricing/free-services) and lets the user specify non-free configurations.
 
 
+> Note: Today, **WebLodge** is only available for **Flask** applications.
+
+
 ## Deploying an application
 
 The simple way to deploy your local application is by running the command line `weblodge deploy --build` in your application directory.
