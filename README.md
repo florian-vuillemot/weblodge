@@ -69,7 +69,7 @@ The *build* operation can handle the following options:
 | dist | Folder containing the application built. | `dist` |
 | entry-point | The application file to be executed with `python`. | `app.py` |
 | app | The Flask application object in the `entry-point` file. | `app` |
-| requirements | The **requirements.txt** file path of the application. Ignored if a `requirements.txt` file is located at the root of the application. | `requirements.txt` |
+| requirements | The **requirements.txt** file path of the application. Ignores if a `requirements.txt` file is located at the root of the application. | `requirements.txt` |
 
 > Note: Here, the platform is implicitly [Azure App Service](https://azure.microsoft.com/en-us/products/app-service/web).
 
