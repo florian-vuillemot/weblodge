@@ -2,7 +2,7 @@
 
 **WebLodge** is a command line aiming to provide anyone with deployment and cloud management capabilities.
 
-## Prerequisite
+## Prerequisites
 
 - Install the command line with `pip install weblodge`.
 - A Python [Flask](https://flask.palletsprojects.com/en/2.3.x/) application.
