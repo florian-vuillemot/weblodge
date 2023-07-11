@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "weblodge"
-version = "0.1.4"
-description = ""
+version = "0.1.5"
+description = "A simple command line aiming to provide anyone with deployment and cloud management capabilities."
 authors = ["Vuillemot Florian <vuillemot.florian@outlook.fr>"]
 
 repository = "https://github.com/florian-vuillemot/weblodge"
