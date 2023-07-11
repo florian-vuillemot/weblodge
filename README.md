@@ -2,7 +2,7 @@
 
 **WebLodge** is a command line aiming to provide anyone with deployment and cloud management capabilities.
 
-## Prerequisite
+## Prerequisites
 
 - Install the command line with `pip install weblodge`.
 - A Python [Flask](https://flask.palletsprojects.com/en/2.3.x/) application.
@@ -12,6 +12,9 @@
 > Note: By default, **WebLodge** uses **Free** [Azure services](https://azure.microsoft.com/en-us/pricing/free-services) and lets the user specify non-free configurations.
 
 
+> Note: Today, **WebLodge** is only available for **Flask** applications.
+
+
 ## Deploying an application
 
 The simple way to deploy your local application is by running the command line `weblodge deploy --build` in your application directory.
@@ -19,6 +22,8 @@ The simple way to deploy your local application is by running the command line `
 In that case, **WebLodge** will assume that your application entry point is named `app.py` and your dependencies file is `requirements.txt`.
 
 Behind the scene, **WebLodge** *build* then *deploy* your application.
+
+![CLI: weblodge deploy --build](./images/deploy.gif)
 
 ## Application structure
 
@@ -65,11 +70,11 @@ The *build* operation collects and prepares the application for deployment on a 
 The *build* operation can handle the following options:
 | Option name | Description | Default value |
 |-|-|-|
-| src | Folder containing application sources. | '.' |
-| dist | Folder containing the application built. | 'dist' |
-| entry-point | The application file to be executed with `python`. | 'app.py' |
-| app | The Flask application object in the `entry-point` file. | 'app' |
-| requirements | The **requirements.txt** file path of the application. This file will be put at the root of the application. | 'requirements.txt' |
+| src | Folder containing application sources. | `.` |
+| dist | Folder containing the application built. | `dist` |
+| entry-point | The application file to be executed with `python`. | `app.py` |
+| app | The Flask application object in the `entry-point` file. | `app` |
+| requirements | The **requirements.txt** file path of the application. Ignores if a `requirements.txt` file is located at the root of the application. | `requirements.txt` |
 
 > Note: Here, the platform is implicitly [Azure App Service](https://azure.microsoft.com/en-us/products/app-service/web).
 
@@ -89,10 +94,10 @@ The *deploy* operation creates the necessary infrastructure and uploads the buil
 | Option name | Description | Default value |
 |-|-|-|
 | app-name | The unique name of the application on the Internet. It will be included in the application URL. | `<randomly generated>` |
-| sku | The application [computational power](https://azure.microsoft.com/en-us/pricing/details/app-service/linux/). | 'F1' |
-| location | The physical application location. | 'northeurope' |
-| environment | The environment of your application. | 'development' |
-| dist | Folder containing the application built. | 'dist' |
+| sku | The application [computational power](https://azure.microsoft.com/en-us/pricing/details/app-service/linux/). | `F1` |
+| location | The physical application location. | `northeurope` |
+| environment | The environment of your application. | `development` |
+| dist | Folder containing the application built. | `dist` |
 
 Example:
 ```
@@ -110,7 +115,7 @@ The *delete* operation deletes the infrastructure deployed but keeps the build.
 | Option name | Description | Default value |
 |-|-|-|
 | app-name | The name of the application to be deleted. | `<my-app>` |
-| yes | Do not prompt a validation message before deletion. | 'false' |
+| yes | Do not prompt a validation message before deletion. | `false` |
 
 
 Example:

@@ -43,11 +43,20 @@ def build(config: Dict[str, str]) -> Dict[str, str]:
     Build the application.
     """
     config = parameters.load(
-        web_app.build_config(),
+        web_app.BuildConfig.items,
         config
     )
+
     logger.info('Building...')
-    web_app.build(config)
+    build_config = web_app.BuildConfig(**config)
+
+    try:
+        web_app.build(build_config)
+    except web_app.RequirementsFileNotFound:
+        logger.critical(f"Requirements file '{build_config.requirements}' not found.")
+        logger.critical('Build failed.')
+        return config
+
     logger.info('Successfully built.')
     return config
 
