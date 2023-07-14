@@ -12,10 +12,9 @@ jobs:
     environment: azure-tests
 
     strategy:
+      # Testing removes the infrastructure and must not be interrupted.
+      fail-fast: false
       matrix:
-        # Using F1 SKU by default, it is limited to one by
-        # subscription and region.
-        max-parallel: 1
         python-version: ["3.8", "3.9", "3.10", "3.11"]
         os: [ubuntu-latest, windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}

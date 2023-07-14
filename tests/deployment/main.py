@@ -24,6 +24,7 @@ def test(folder, cmd, log):
     Automatic delete the infrastructure at the end.
     """
     print(f'---------------------- {log} ----------------------')
+    print(f'Running: {cmd}')
 
     app_reached = False
     os.chdir(folder)
