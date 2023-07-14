@@ -62,5 +62,7 @@ def test(folder, cmd, log):
     print('-----------------------------------------------------\n\n\n')
 
 
-test('app', 'weblodge deploy --build', 'No parameters provided.')
-test('.', 'weblodge deploy --build --src app', 'Specifies the source folder.')
+# B1 SKU is used for parallel testing.
+# Azure limits the `F1` SKU to one per region and per subscription.
+test('app', 'weblodge deploy --build --sku B1', 'No parameters provided.')
+test('.', 'weblodge deploy --build --src app --sku B1', 'Specifies the source folder.')
