@@ -6,6 +6,7 @@ checking that it is accessible via HTTP.
 import os
 import sys
 import json
+import sleep
 import shutil
 
 from weblodge.cli import main
@@ -34,6 +35,7 @@ def test(folder, cmd, log):
     main()
 
     # Ensure the application is reachable.
+    sleep.time(30)
     try:
         with open('.weblodge.json', 'r', encoding='utf-8') as genereated_config:
             web_app = WebApp(Cli()).get(
