@@ -76,7 +76,6 @@ class BuildConfig:
         return os.path.join(self.dist, self.package)
 
     @classmethod
-    @property
     def items(cls) -> List[ConfigItem]:
         """
         Items that can be configured.

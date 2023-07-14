@@ -43,7 +43,7 @@ def build(config: Dict[str, str]) -> Dict[str, str]:
     Build the application.
     """
     config = parameters.load(
-        web_app.BuildConfig.items,
+        web_app.BuildConfig.items(),
         config
     )
 
