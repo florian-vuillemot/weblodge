@@ -6,7 +6,7 @@ checking that it is accessible via HTTP.
 import os
 import sys
 import json
-import sleep
+import time
 import shutil
 
 from weblodge.cli import main
