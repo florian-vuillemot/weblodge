@@ -27,7 +27,7 @@ def deploy_config() -> List[ConfigItem]:
     """
     Return the deployment configuration.
     """
-    return Deploy.config
+    return Deploy.config()
 
 
 @filter_config(deploy_config)

@@ -51,7 +51,6 @@ class Deploy:
     tags: dict = field(default_factory=dict)
 
     @classmethod
-    @property
     def config(cls) -> List[ConfigItem]:
         """
         Configure the deployment.
