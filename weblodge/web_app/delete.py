@@ -20,7 +20,6 @@ class Delete:
     app_name: str = None
 
     @classmethod
-    @property
     def config(cls) -> List[ConfigItem]:
         """
         Delete class configuration.

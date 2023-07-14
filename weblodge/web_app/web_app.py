@@ -49,7 +49,7 @@ def delete_config() -> List[ConfigItem]:
     """
     Return the delete configuration.
     """
-    return Delete.config
+    return Delete.config()
 
 
 @filter_config(delete_config)
