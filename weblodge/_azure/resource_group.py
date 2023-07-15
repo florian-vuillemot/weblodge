@@ -46,7 +46,7 @@ class ResourceGroup:
 
         return self._resources
 
-    def get(self, name: str, force_reload: bool = False, retry: int = 5) -> ResourceGroupModel:
+    def get(self, name: str, force_reload: bool = False, retry: int = 10) -> ResourceGroupModel:
         """
         Return an resource group by its name.
         Force reload clears the cache and reloads the list from Azure.

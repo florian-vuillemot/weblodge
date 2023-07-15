@@ -49,7 +49,10 @@ class AppService:
                         name=asp['name'],
                         number_of_sites=int(asp['numberOfSites']),
                         sku=asp['sku']['name'],
-                        resource_group=ResourceGroup(self._cli).get(asp['resourceGroup']),
+                        resource_group=ResourceGroup(self._cli).get(
+                            asp['resourceGroup'],
+                            force_reload=force_reload
+                        ),
                         location=asp['location'],
                         tags=asp['tags']
                     )
@@ -64,7 +67,7 @@ class AppService:
             resource_group: ResourceGroupModel = None,
             id_: str = None,
             force_reload: bool = False,
-            retry: int = 5
+            retry: int = 10
         ) -> AppServiceModel:
         """
         Return an appservice by its name or its id.

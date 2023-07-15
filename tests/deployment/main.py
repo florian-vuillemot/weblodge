@@ -39,8 +39,10 @@ def test(folder, cmd, log):
     try:
         with open('.weblodge.json', 'r', encoding='utf-8') as genereated_config:
             web_app = WebApp(Cli()).get(
-                json.load(genereated_config)['app_name']
+                json.load(genereated_config)['app_name'],
+                force_reload=True
             )
+        print(genereated_config, flush=True)
         app_reached = Deploy().ping(web_app)
     except Exception as e: # pylint: disable=invalid-name,broad-exception-caught
         print(f"Test failed.\nFolder: '{folder}'\nCMD: '{cmd}'\nTraceback: {e}", flush=True, file=sys.stderr)

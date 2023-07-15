@@ -33,7 +33,7 @@ class WebApp:
         self._cli = cli
         self._resources = []
 
-    def list(self, force_reload=False) -> List[WebAppModel]:
+    def list(self, force_reload: bool = False) -> List[WebAppModel]:
         """
         List all WebApps.
         """
@@ -66,7 +66,7 @@ class WebApp:
 
         return self._resources
 
-    def get(self, name: str, force_reload: bool = False, retry: int = 5) -> WebAppModel:
+    def get(self, name: str, force_reload: bool = False, retry: int = 10) -> WebAppModel:
         """
         Return a WebApp by its name.
         """
