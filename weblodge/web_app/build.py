@@ -46,6 +46,35 @@ class BuildConfig:
     # Kudu needs a requirements file at the root of the zip.
     kudu_requirements_path = 'requirements.txt'
 
+    # Configurable items of the build.
+    items = [
+        ConfigItem(
+            name='src',
+            description='Application folder.',
+            default='.'
+        ),
+        ConfigItem(
+            name='dist',
+            description='Build destination.',
+            default='dist'
+        ),
+        ConfigItem(
+            name='entry_point',
+            description='Application entry point.',
+            default='app.py'
+        ),
+        ConfigItem(
+            name='app',
+            description='Flask Application object.',
+            default='app'
+        ),
+        ConfigItem(
+            name='requirements',
+            description='Requirements.txt file path.',
+            default='requirements.txt'
+        )
+    ]
+
     # pylint: disable=too-many-arguments
     def __init__(
         self,
@@ -74,39 +103,6 @@ class BuildConfig:
         Return the package path.
         """
         return os.path.join(self.dist, self.package)
-
-    @classmethod
-    def items(cls) -> List[ConfigItem]:
-        """
-        Items that can be configured.
-        """
-        return [
-            ConfigItem(
-                name='src',
-                description='Application folder.',
-                default='.'
-            ),
-            ConfigItem(
-                name='dist',
-                description='Build destination.',
-                default='dist'
-            ),
-            ConfigItem(
-                name='entry_point',
-                description='Application entry point.',
-                default='app.py'
-            ),
-            ConfigItem(
-                name='app',
-                description='Flask Application object.',
-                default='app'
-            ),
-            ConfigItem(
-                name='requirements',
-                description='Requirements.txt file path.',
-                default='requirements.txt'
-            )
-        ]
 
 
 def build(config: BuildConfig) -> None:

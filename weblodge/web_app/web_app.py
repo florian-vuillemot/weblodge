@@ -1,60 +1,89 @@
 """
-Web App function to simplify the build, deploy and delete process.
+Web App facade.
+
+Wrapp all actions related to the Azure Web App.
 """
-import functools
-from typing import List, Dict
+import logging
+
+from typing import Callable, List, Dict, Tuple
 
 from weblodge.config import Item as ConfigItem
+from weblodge._azure import WebApp as _WebApp
 
-from .deploy import Deploy
-from .delete import Delete
-
-
-# pylint: disable=missing-function-docstring
-def filter_config(retrieve_config):
-    def _filter_config(func) -> Dict[str, str]:
-        @functools.wraps(func)
-        def __filter_config(config: Dict[str, str]):
-            _config = {
-                k: v for k, v in config.items() if k in retrieve_config()
-            }
-            return func(_config)
-        return __filter_config
-    return _filter_config
+from .logs import LogsConfig, logs as _logs
+from .delete import DeleteConfig, delete as _delete
+from .deployment import DeploymentConfig, deploy as _deploy
+from .build import BuildConfig, RequirementsFileNotFound, build as _build
 
 
-def deploy_config() -> List[ConfigItem]:
+logger = logging.getLogger('weblodge')
+
+
+class WebApp:
     """
-    Return the deployment configuration.
+    Represent a Flask Web Application deploy on Azure.
     """
-    return Deploy.config()
+    def __init__(self, config_loader: Callable[[List[ConfigItem]], Dict[str, str]]):
+        self.config_loader = config_loader
+        self._web_app = _WebApp
 
+    def build(self, config: Dict[str, str]) -> Tuple[bool, Dict[str, str]]:
+        """
+        Build the application.
+        """
+        config = self.config_loader(BuildConfig.items, config)
+        build_config = BuildConfig(**config)
 
-@filter_config(deploy_config)
-def deploy(config: Dict[str, str]) -> None:
-    """
-    Deploy the application from the config.
-    """
-    config = {
-        **config,
-        'tags': {
-            'environment': config['environment'],
-            'managed-by': 'weblodge'
-        }
-    }
-    return Deploy(**config).deploy()
+        logger.info('Building...')
+        try:
+            _build(build_config)
+        except RequirementsFileNotFound:
+            logger.critical(f"Requirements file '{build_config.requirements}' not found.")
+            logger.critical('Build failed.')
+            return False, build_config
 
+        logger.info('Successfully built.')
+        return True, config
 
-def delete_config() -> List[ConfigItem]:
-    """
-    Return the delete configuration.
-    """
-    return Delete.config()
+    def deploy(self, config: Dict[str, str]) -> Tuple[bool, Dict[str, str]]:
+        """
+        Deploy an application.
+        """
+        config = self.config_loader(DeploymentConfig.items, config)
+        deployment_config = DeploymentConfig(**config)
 
+        logger.info('Deploying...')
+        self._web_app = _deploy(deployment_config)
+        logger.info('Successfully deployed.')
 
-@filter_config(delete_config)
-def delete(config: Dict[str, str]) -> None:
-    """
-    Delete the application from the config.
-    """
-    return Delete(**config).delete()
+        return True, config
+
+    def url(self):
+        """
+        Get the URL of the deployed application.
+        """
+        return self._web_app.domain
+
+    def delete(self, config: Dict[str, str]) -> Tuple[bool, Dict[str, str]]:
+        """
+        Delete the application.
+        """
+        config = self.config_loader(DeleteConfig.items, config)
+        delete_config = DeleteConfig(**config)
+
+        logger.info('Deleting...')
+        _delete(delete_config)
+        self._web_app = None
+        logger.info('Successfully deleted.')
+
+        return True, config
+
+    def print_logs(self, config: Dict[str, str]):
+        """
+        Print the application logs.
+        This method is blocking and never returns.
+        """
+        logs_config = LogsConfig(
+            **self.config_loader(LogsConfig.items, config)
+        )
+        _logs(logs_config)

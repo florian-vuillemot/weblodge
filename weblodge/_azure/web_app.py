@@ -17,8 +17,8 @@ class WebAppModel:  # pylint: disable=too-many-instance-attributes
     """
     name: str
     kind: str
+    domain: str
     location: str
-    host_names: List[str]
     linux_fx_version: str
     app_service: AppServiceModel
     resource_group: ResourceGroupModel
@@ -48,7 +48,7 @@ class WebApp:
                 self._resources.append(
                     WebAppModel(
                         name=web_app['name'],
-                        host_names=web_app['hostNames'],
+                        domain=web_app['hostNames'][0],
                         kind=web_app['kind'],
                         location=web_app['location'],
                         linux_fx_version=web_app['siteConfig']['linuxFxVersion'],

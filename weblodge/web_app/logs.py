@@ -1,24 +1,26 @@
 """
 Stream logs from an Azure Web App in the user console.
 """
-from typing import List, Dict
-
 from weblodge.config import Item as ConfigItem
 from weblodge._azure import Cli, WebApp
 
 
-def config() -> List[ConfigItem]:
+class LogsConfig():
     """
-    Getting logs from the application configuration.
+    Logs configuration.
+
+    Azure Web App names are unique across the entire Azure platform. Therefore, simply providing
+    the name is enough to retrieve the application logs.
     """
-    return [
+    items = [
         ConfigItem(
             name='app_name',
             description='The application name.'
         )
     ]
 
-def logs(config_: Dict[str, str]):
+
+def logs(config: LogsConfig):
     """
     Stream logs from the application.
     This function is blocking and never returns.
@@ -27,4 +29,4 @@ def logs(config_: Dict[str, str]):
     web_app = WebApp(Cli())
 
     # Stream logs.
-    web_app.logs(web_app.get(config_['app_name']))
+    web_app.logs(web_app.get(config.app_name))
