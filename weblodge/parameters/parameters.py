@@ -92,13 +92,10 @@ class Parser:
         args_parsed, _ = parser.parse_known_args()
         new_config = vars(args_parsed)
 
-        config = {**existing_parameters, **new_config}
-
-        # Remove triggers from the config.
-        # They are only used to trigger functions and must not polute the config.
-        for trigger in self._triggers:
-            if trigger.name in config:
-                del config[trigger.name]
+        # Expected configuration must not contains configuration used for intermediate
+        # operations.
+        _complete_config = {**existing_parameters, **new_config}
+        config = {k: v for k, v in _complete_config.items() if k not in self._triggers}
 
         # Trigger meta configs functions.
         while self._triggers:
@@ -119,13 +116,6 @@ class Parser:
                 config = _config.trigger(config)
 
         return config
-
-    def exists(self, field_name: str) -> bool:
-        """
-        Return True if the field exists.
-        This function is only for parameters without attending value.
-        """
-        return '--' + _to_display(field_name) in sys.argv
 
     @contextmanager
     def add_trigger(self, trigger: _ConfigTrigger) -> 'Parser':
