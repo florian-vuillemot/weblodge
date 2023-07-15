@@ -61,7 +61,7 @@ class AppService:
             name: str = None,
             resource_group: ResourceGroupModel = None,
             id_: str = None,
-            force_reload=True
+            force_reload: bool = False
         ) -> AppServiceModel:
         """
         Return an appservice by its name or its id.
@@ -74,7 +74,7 @@ class AppService:
                 if resource_group is None or asp.resource_group.name == resource_group.name:
                     return asp
 
-        raise Exception(f"AppService '{name}' not found.")  # pylint: disable=broad-exception-raised
+        raise Exception(f"AppService name='{name}', id='{id_}' not found.")  # pylint: disable=broad-exception-raised
 
     def delete(self, asp: AppServiceModel) -> List[AppServiceModel]:
         """

@@ -51,8 +51,14 @@ class WebApp:
                         kind=web_app['kind'],
                         location=web_app['location'],
                         linux_fx_version=web_app['siteConfig']['linuxFxVersion'],
-                        app_service=AppService(self._cli).get(id_=web_app['appServicePlanId']),
-                        resource_group=resource_group_helper.get(web_app['resourceGroup']),
+                        app_service=AppService(self._cli).get(
+                            id_=web_app['appServicePlanId'],
+                            force_reload=force_reload
+                        ),
+                        resource_group=resource_group_helper.get(
+                            web_app['resourceGroup'],
+                            force_reload=force_reload
+                        ),
                         tags=web_app['tags']
                     )
                 )
@@ -109,6 +115,7 @@ class WebApp:
                 '--web-sockets-enabled true',
                 '--http20-enabled',
                 '--startup-file weblodge.startup',
+                # WebApp F1 SKU does not support Always On.
                 f'--always-on {app_service.sku != "F1"}',
             ))
         )

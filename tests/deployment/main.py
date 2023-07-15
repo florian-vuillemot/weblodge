@@ -25,7 +25,7 @@ def test(folder, cmd, log):
     Automatic delete the infrastructure at the end.
     """
     print(f'---------------------- {log} ----------------------')
-    print(f'Running: {cmd}')
+    print(f'Running: {cmd}', flush=True)
 
     app_reached = False
     os.chdir(folder)
@@ -43,7 +43,7 @@ def test(folder, cmd, log):
             )
         app_reached = Deploy().ping(web_app)
     except Exception as e: # pylint: disable=invalid-name,broad-exception-caught
-        print(f"Test failed.\nFolder: '{folder}'\nCMD: '{cmd}'\nTraceback: {e}")
+        print(f"Test failed.\nFolder: '{folder}'\nCMD: '{cmd}'\nTraceback: {e}", flush=True, file=sys.stderr)
 
     # Delete resources.
     sys.argv = ['weblodge', 'delete', '--yes']
@@ -61,7 +61,7 @@ def test(folder, cmd, log):
 
     print('-----------------------------------------------------')
     print('---------------------- Success ----------------------')
-    print('-----------------------------------------------------\n\n\n')
+    print('-----------------------------------------------------\n\n\n', flush=True)
 
 
 # B1 SKU is used for parallel testing.
