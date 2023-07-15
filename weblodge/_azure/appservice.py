@@ -3,6 +3,7 @@ Azure AppService Plan abstraction.
 
 Allow to CRUD on Azure AppService Plan.
 """
+import time
 from typing import Dict, List
 from dataclasses import dataclass
 
@@ -56,12 +57,14 @@ class AppService:
 
         return self._resources
 
+    # pylint: disable=too-many-arguments
     def get(
             self,
             name: str = None,
             resource_group: ResourceGroupModel = None,
             id_: str = None,
-            force_reload: bool = False
+            force_reload: bool = False,
+            retry: int = 5
         ) -> AppServiceModel:
         """
         Return an appservice by its name or its id.
@@ -74,6 +77,9 @@ class AppService:
                 if resource_group is None or asp.resource_group.name == resource_group.name:
                     return asp
 
+        if retry > 0:
+            time.sleep(30)
+            return self.get(name, resource_group, id_, force_reload=True, retry=retry - 1)
         raise Exception(f"AppService name='{name}', id='{id_}' not found.")  # pylint: disable=broad-exception-raised
 
     def delete(self, asp: AppServiceModel) -> List[AppServiceModel]:

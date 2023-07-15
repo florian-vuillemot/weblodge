@@ -1,6 +1,7 @@
 """
 Azure Resource Group interface.
 """
+import time
 from typing import Dict, List
 from dataclasses import dataclass
 
@@ -45,7 +46,7 @@ class ResourceGroup:
 
         return self._resources
 
-    def get(self, name: str, force_reload=False) -> ResourceGroupModel:
+    def get(self, name: str, force_reload: bool = False, retry: int = 5) -> ResourceGroupModel:
         """
         Return an resource group by its name.
         Force reload clears the cache and reloads the list from Azure.
@@ -54,6 +55,9 @@ class ResourceGroup:
             if group.name == name:
                 return group
 
+        if retry > 0:
+            time.sleep(30)
+            return self.get(name, force_reload=True, retry=retry - 1)
         raise Exception(f"Resource Group '{name}' not found.")  # pylint: disable=broad-exception-raised
 
     def create(self, name: str, location: str, tags: Dict[str, str] = None) -> ResourceGroupModel:

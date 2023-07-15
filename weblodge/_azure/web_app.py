@@ -1,6 +1,7 @@
 """
 Azure Web App representation.
 """
+import time
 from typing import List, Dict
 from dataclasses import dataclass
 
@@ -65,7 +66,7 @@ class WebApp:
 
         return self._resources
 
-    def get(self, name: str, force_reload=False) -> WebAppModel:
+    def get(self, name: str, force_reload: bool = False, retry: int = 5) -> WebAppModel:
         """
         Return a WebApp by its name.
         """
@@ -73,6 +74,9 @@ class WebApp:
             if webapp.name == name:
                 return webapp
 
+        if retry > 0:
+            time.sleep(30)
+            return self.get(name, force_reload=True, retry=retry - 1)
         raise Exception(f"WebApp '{name}' not found.")  # pylint: disable=broad-exception-raised
 
     def delete(self, webapp: WebAppModel) -> List[WebAppModel]:
