@@ -3,11 +3,8 @@ Retrieve parameters of the application.
 
 Currently, the parameters are retrieved from the command line.
 """
-import sys
 import argparse
-import dataclasses
 
-from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import Callable, Dict, List
 

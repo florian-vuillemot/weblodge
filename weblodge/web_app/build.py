@@ -11,7 +11,6 @@ This package is ready to be deployed on an Azure Web App.
 """
 import os
 from pathlib import Path
-from typing import List
 import zipfile
 
 from weblodge.config import Item as ConfigItem
