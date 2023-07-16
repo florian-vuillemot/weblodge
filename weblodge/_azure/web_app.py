@@ -45,24 +45,30 @@ class WebApp:
             resource_group_helper = ResourceGroup(self._cli)
 
             for web_app in web_apps:
-                self._resources.append(
-                    WebAppModel(
-                        name=web_app['name'],
-                        domain=web_app['hostNames'][0],
-                        kind=web_app['kind'],
-                        location=web_app['location'],
-                        linux_fx_version=web_app['siteConfig']['linuxFxVersion'],
-                        app_service=AppService(self._cli).get(
-                            id_=web_app['appServicePlanId'],
-                            force_reload=force_reload
-                        ),
-                        resource_group=resource_group_helper.get(
-                            web_app['resourceGroup'],
-                            force_reload=force_reload
-                        ),
-                        tags=web_app['tags']
+                try:
+                    self._resources.append(
+                        WebAppModel(
+                            name=web_app['name'],
+                            domain=web_app['hostNames'][0],
+                            kind=web_app['kind'],
+                            location=web_app['location'],
+                            linux_fx_version=web_app['siteConfig']['linuxFxVersion'],
+                            app_service=AppService(self._cli).get(
+                                id_=web_app['appServicePlanId'],
+                                force_reload=force_reload
+                            ),
+                            resource_group=resource_group_helper.get(
+                                web_app['resourceGroup'],
+                                force_reload=force_reload
+                            ),
+                            tags=web_app['tags']
+                        )
                     )
-                )
+                # WebApp is not fully created yet.
+                except KeyError:
+                    pass
+                except IndexError:
+                    pass
 
         return self._resources
 
