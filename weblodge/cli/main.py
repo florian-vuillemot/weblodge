@@ -42,7 +42,7 @@ def main():
 
     if success:
         state.dump(config_filename, config)
-        return config
+        return web_app
 
     sys.exit(1)
 

@@ -29,7 +29,7 @@ class WebApp:
     """
     Helper class to manage Azure WebApps.
     """
-    def __init__(self, cli: Cli()) -> None:
+    def __init__(self, cli: Cli = Cli()) -> None:
         self._cli = cli
         self._resources = []
 

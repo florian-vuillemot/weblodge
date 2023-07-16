@@ -25,7 +25,7 @@ class WebApp:
     """
     def __init__(self, config_loader: Callable[[List[ConfigItem]], Dict[str, str]]):
         self.config_loader = config_loader
-        self._web_app = _WebApp
+        self._web_app: _WebApp = None
 
     def build(self, config: Dict[str, str]) -> Tuple[bool, Dict[str, str]]:
         """

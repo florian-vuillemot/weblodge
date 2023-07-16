@@ -5,13 +5,12 @@ checking that it is accessible via HTTP.
 """
 import os
 import sys
-import json
 import time
 import shutil
 
+from urllib3 import Retry, request
+
 from weblodge.cli import main
-from weblodge._azure import Cli, WebApp
-from weblodge.web_app.deployment import Deploy
 
 
 # Tests update the application folder.
@@ -32,20 +31,14 @@ def test(folder, cmd, log):
 
     # Simulate the CLI call.
     sys.argv = cmd.split()
-    main()
+    web_app = main()
 
     # Ensure the application is reachable.
     time.sleep(30)
     try:
-        with open('.weblodge.json', 'r', encoding='utf-8') as genereated_config:
-            web_app = WebApp(Cli()).get(
-                json.load(genereated_config)['app_name'],
-                force_reload=True
-            )
-        print(genereated_config.read(), flush=True)
-        app_reached = Deploy().ping(web_app)
+        app_reached = request("GET", web_app.url(), retries=Retry(total=10, backoff_factor=5)).status < 400
     except Exception as e: # pylint: disable=invalid-name,broad-exception-caught
-        print(f"Test failed.\nFolder: '{folder}'\nCMD: '{cmd}'\nTraceback: {e}", flush=True, file=sys.stderr)
+        print(f"Test failed.\nTraceback: {e}", flush=True, file=sys.stderr)
 
     # Delete resources.
     sys.argv = ['weblodge', 'delete', '--yes']
