@@ -2,7 +2,7 @@
 Delete all resources associated with the application.
 """
 from weblodge.config import Item as ConfigItem
-from weblodge._azure import Cli, ResourceGroup, WebApp
+from weblodge._azure import Cli, ResourceGroup, WebApp as AzureWebApp
 
 
 class DeleteConfig:
@@ -27,11 +27,10 @@ def delete(config: DeleteConfig) -> None:
     """
     Delete the application and corresponding resources.
     """
-    cli = Cli()
-
     # Retrieve the Azure Web App.
-    web_app = WebApp(cli).get(config.app_name)
+    web_app = AzureWebApp(config.app_name)
+    web_app.load()
     # Delete the Azure Web App Resource Group.
     # It is only possible because we are putting all the application resources in the
     # same Resource Group.
-    ResourceGroup(cli).delete(web_app.resource_group)
+    ResourceGroup(Cli()).delete(web_app.resource_group)

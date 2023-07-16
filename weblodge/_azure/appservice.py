@@ -24,6 +24,13 @@ class AppServiceModel:
     resource_group: ResourceGroupModel
     tags: Dict[str, str]
 
+    @property
+    def always_on_supported(self) -> bool:
+        """
+        Return True if the AppService Plan support AlwaysOn.
+        """
+        return self.sku != 'F1'
+
 
 class AppService:
     """

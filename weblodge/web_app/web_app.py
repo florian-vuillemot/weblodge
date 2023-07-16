@@ -8,11 +8,10 @@ import logging
 from typing import Callable, List, Dict, Tuple
 
 from weblodge.config import Item as ConfigItem
-from weblodge._azure import WebApp as _WebApp
 
 from .logs import LogsConfig, logs as _logs
 from .delete import DeleteConfig, delete as _delete
-from .deployment import DeploymentConfig, deploy as _deploy
+from .deploy import DeploymentConfig, deploy as _deploy
 from .build import BuildConfig, RequirementsFileNotFound, build as _build
 
 
@@ -25,7 +24,7 @@ class WebApp:
     """
     def __init__(self, config_loader: Callable[[List[ConfigItem]], Dict[str, str]]):
         self.config_loader = config_loader
-        self._web_app: _WebApp = None
+        self._web_app = None
 
     def build(self, config: Dict[str, str]) -> Tuple[bool, Dict[str, str]]:
         """

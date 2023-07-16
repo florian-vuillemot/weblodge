@@ -15,7 +15,7 @@ import string
 import logging
 
 from weblodge.config import Item as ConfigItem
-from weblodge._azure import Cli, ResourceGroup, AppService, WebApp
+from weblodge._azure import Cli, ResourceGroup, AppService, WebApp as AzureWebApp
 
 
 logger = logging.getLogger('weblodge')
@@ -92,32 +92,38 @@ class DeploymentConfig:
         }
 
 
-def deploy(config: DeploymentConfig) -> WebApp:
+def deploy(config: DeploymentConfig) -> AzureWebApp:
     """
     Deploy the application to Azure and return its URL.
     """
     default_name = f'{config.app_name}-{config.environment}-{config.location}'
 
-    cli = Cli()
-    web_app_cls = WebApp(cli)
+    web_app = AzureWebApp(config.app_name)
 
-    logger.info('The infrastructure is being created or updated...')
-    web_app = web_app_cls.create(
-        config.app_name,
-        AppService(cli).create(
-            f'asp-{default_name}',
-            config.sku,
-            ResourceGroup(cli).create(
-                f'rg-{default_name}',
-                config.location,
-                tags=config.tags
-            )
+    if web_app.exists():
+        logger.info('The infrastructure already exists.')
+        web_app.load()
+    else:
+        cli = Cli()
+
+        logger.info('The infrastructure is being created...')
+        resource_group = ResourceGroup(cli).create(
+            f'rg-{default_name}',
+            config.location,
+            tags=config.tags
         )
-    )
-    logger.info('The infrastructure has been created or updated.')
+        web_app.create(
+            AppService(cli).create(
+                f'asp-{default_name}',
+                config.sku,
+                resource_group
+            ),
+            resource_group
+        )
+        logger.info('The infrastructure has been created or updated.')
 
     logger.info('Uploading the application...')
-    web_app_cls.deploy(web_app, os.path.join(config.dist, config.package))
+    web_app.deploy(os.path.join(config.dist, config.package))
     logger.info('The application has been uploaded.')
 
     return web_app
