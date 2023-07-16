@@ -6,8 +6,8 @@ Ensure CLI parsing of parameters is done correctly.
 import sys
 import unittest
 
-from weblodge.parameters import Parser
 from weblodge.config import Item as ConfigItem
+from weblodge.parameters import Parser, ConfigIsDefined, ConfigIsNotDefined
 
 
 class TestConfigBasedParameters(unittest.TestCase):
@@ -119,3 +119,85 @@ class TestConfigBasedParameters(unittest.TestCase):
         self.assertEqual(params['app_name'], app_name)
         self.assertEqual(params['src'], self.config_fields[2].default)
         self.assertEqual(params['dist'], self.config_fields[1].default)
+
+    def test_trigger_is_defined(self):
+        """
+        Ensure trigger is call when defined.
+        """
+        def _must_be_called(_config):
+            self.assertNotIn('yes', _config)
+            return {
+                **_config,
+                'called': True
+            }
+
+        def _must_not_be_called(_config):
+            self.assertRaises('Must not be called.')
+
+        yes_trigger = ConfigIsDefined(
+            name='yes',
+            description='Do not prompt validation.',
+            trigger=_must_be_called,
+            attending_value=False
+        )
+        no_trigger = ConfigIsDefined(
+            name='no',
+            description='Do not prompt validation.',
+            trigger=_must_not_be_called,
+            attending_value=False
+        )
+
+        # First set of parameters loaded.
+        # `dist` is loaded as a default value.
+        sys.argv = [sys.argv[0], 'build', '--yes', '--app-name', 'foo']
+        parser = Parser()
+        parser.trigger_once(yes_trigger)
+        parser.trigger_once(no_trigger)
+        config = parser.load(self.config_fields)
+
+        # Ensure the trigger was called.
+        self.assertIn('called', config)
+        # Ensure the config is not polluted by triggers.
+        self.assertNotIn('yes', config)
+        self.assertNotIn('no', config)
+
+    def test_trigger_is_not_defined(self):
+        """
+        Ensure trigger is call when not defined.
+        """
+        def _must_be_called(_config):
+            self.assertNotIn('yes', _config)
+            return {
+                **_config,
+                'called': True
+            }
+
+        def _must_not_be_called(_config):
+            self.assertRaises('Must not be called.')
+
+        yes_trigger = ConfigIsNotDefined(
+            name='yes',
+            description='Do not prompt validation.',
+            trigger=_must_be_called,
+            attending_value=False
+        )
+        no_trigger = ConfigIsNotDefined(
+            name='no',
+            description='Do not prompt validation.',
+            trigger=_must_not_be_called,
+            attending_value=False
+        )
+
+        # First set of parameters loaded.
+        # `dist` is loaded as a default value.
+        sys.argv = [sys.argv[0], 'build', '--no', '--app-name', 'foo']
+        parser = Parser()
+        parser.trigger_once(yes_trigger)
+        parser.trigger_once(no_trigger)
+        config = parser.load(self.config_fields)
+
+        # Ensure the trigger was called.
+        self.assertIn('called', config)
+        # Ensure the config is not polluted by triggers.
+        self.assertNotIn('yes', config)
+        self.assertNotIn('no', config)

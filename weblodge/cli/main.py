@@ -67,8 +67,8 @@ def deploy(config: Dict[str, str], web_app: WebApp, parameters: Parser):
         trigger=_build
     )
 
-    with parameters.add_trigger(build_too):
-        success, config = web_app.deploy(config)
+    parameters.trigger_once(build_too)
+    success, config = web_app.deploy(config)
 
     if success:
         logger.info(f"The application will soon be available on: https://{web_app.url()}")
@@ -97,5 +97,5 @@ def delete(config: Dict[str, str], web_app: WebApp, parameters: Parser):
         attending_value=False
     )
 
-    with parameters.add_trigger(prompt):
-        return web_app.delete(config)
+    parameters.trigger_once(prompt)
+    return web_app.delete(config)

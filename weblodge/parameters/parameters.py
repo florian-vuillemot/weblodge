@@ -14,7 +14,7 @@ from typing import Callable, Dict, List
 from weblodge.config import Item as ConfigItem
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=False)
 class _ConfigTrigger(ConfigItem):
     """
     Configuration Item with a function to trigger.
@@ -24,14 +24,14 @@ class _ConfigTrigger(ConfigItem):
     trigger: Callable[[Dict[str, str]], Dict[str, str]] = None
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=False)
 class ConfigIsDefined(_ConfigTrigger):
     """
     Call the trigger if the user provides the parameter.
     """
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=False)
 class ConfigIsNotDefined(_ConfigTrigger):
     """
     Call the trigger if the user does not provide the parameter.
@@ -46,14 +46,18 @@ class Parser:
     They will run only onces and their config will not be added to the global config.
     Example:
     ```
+    def _build(config):
+        print('Build the application.')
+        return config
     parser = Parser()
-    _build = lambda c: print('Build the application.') and c
-    trigger = ConfigTrigger(name='build', description='Build the application.', trigger=lambda c: _build)
-    with parser.add_trigger(trigger):
-        # If the user runs: `python weblodge.py build -h` then the help message will contain
-        # the `build` option.
-        # Config will not 
-        parser.load(config)
+    parser.trigger_once(
+        ConfigTrigger(name='build', description='Build the application.', trigger=_build)
+    )
+    # If the user runs: `python weblodge.py build -h` then the help message will contain
+    # the `build` option.
+    # If the user runs: `python weblodge.py build` then the `_build` function will be called
+    # but the config will not contains the 'build' item.
+    parser.load(config)
     ```
     """
     def __init__(self) -> None:
@@ -117,15 +121,13 @@ class Parser:
 
         return config
 
-    @contextmanager
-    def add_trigger(self, trigger: _ConfigTrigger) -> 'Parser':
+    def trigger_once(self, trigger: _ConfigTrigger) -> 'Parser':
         """
-        Scope the meta configuration items.
+        Add configuration trigger.
+        Configuration defined will not be added to the config.
+        This trigger will be analyse only once then remove from triggers.
         """
-        _triggers = self._triggers
-        self._triggers = _triggers + [trigger]
-        yield self
-        self._triggers = _triggers
+        self._triggers.append(trigger)
 
 
 def _to_display(name: str) -> str:
