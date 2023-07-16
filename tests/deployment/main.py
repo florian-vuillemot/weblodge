@@ -11,7 +11,7 @@ import shutil
 
 from weblodge.cli import main
 from weblodge._azure import Cli, WebApp
-from weblodge.web_app.deploy import Deploy
+from weblodge.web_app.deployment import Deploy
 
 
 # Tests update the application folder.
@@ -42,7 +42,7 @@ def test(folder, cmd, log):
                 json.load(genereated_config)['app_name'],
                 force_reload=True
             )
-        print(genereated_config, flush=True)
+        print(genereated_config.read(), flush=True)
         app_reached = Deploy().ping(web_app)
     except Exception as e: # pylint: disable=invalid-name,broad-exception-caught
         print(f"Test failed.\nFolder: '{folder}'\nCMD: '{cmd}'\nTraceback: {e}", flush=True, file=sys.stderr)

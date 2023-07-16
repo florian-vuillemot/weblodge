@@ -7,7 +7,7 @@ import sys
 import unittest
 
 import weblodge.state as state
-import weblodge.parameters as parameters
+from weblodge.parameters import Parser
 from weblodge.config import Item as ConfigItem
 
 
@@ -48,7 +48,7 @@ class TestParametersWithState(unittest.TestCase):
         sys.argv = [sys.argv[0], 'build', '--app-name', app_name, '--dist', dist, '--src',  src]
 
         # Create the config as if it was loaded from the command line.
-        params = parameters.load(config_fields)
+        params = Parser().load(config_fields)
         # Save the config to the file descriptor.
         state.dump(file, params)
 
@@ -80,7 +80,7 @@ class TestParametersWithState(unittest.TestCase):
         sys.argv = [sys.argv[0], 'build', '--app-name', data['app_name']]
 
         # Merge configs.
-        params = parameters.load(config_fields, state_config)
+        params = Parser().load(config_fields, state_config)
         self.assertEqual(params, data)
 
     def test_load_update_dump(self):
@@ -103,7 +103,7 @@ class TestParametersWithState(unittest.TestCase):
         params = state.load(file)
         # Load the config from the CLI and override a value.
         sys.argv = [sys.argv[0], 'build', '--app-name', initial_config['app_name'], '--dist', new_dist]
-        params = parameters.load(config_fields, params)
+        params = Parser().load(config_fields, params)
 
         # Save the config updated.
         file.seek(0)

@@ -9,7 +9,7 @@ from .app_services_plan import  develop as asp_develop, staging as asp_staging, 
 
 develop = WebAppModel(
     name="develop-app-service",
-    host_names=["develop-app-service.azurewebsites.net"],
+    domain="develop-app-service.azurewebsites.net",
     kind="app,linux,container",
     location="North Europe",
     linux_fx_version="DOCKER|develop-registry.azurecr.io/app-service:main",
@@ -22,7 +22,7 @@ develop = WebAppModel(
 )
 staging = WebAppModel(
     name="staging-app-service",
-    host_names=["staging-app-service.azurewebsites.net"],
+    domain="staging-app-service.azurewebsites.net",
     kind="app,linux,container",
     location="North Europe",
     linux_fx_version="DOCKER|staging-registry.azurecr.io/app-service:main",
@@ -35,7 +35,7 @@ staging = WebAppModel(
 )
 production = WebAppModel(
     name="production-app-service",
-    host_names=["production-app-service.azurewebsites.net"],
+    domain="production-app-service.azurewebsites.net",
     kind="app,linux,container",
     location="North Europe",
     linux_fx_version="DOCKER|production-registry.azurecr.io/app-service:main",
