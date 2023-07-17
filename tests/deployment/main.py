@@ -7,10 +7,12 @@ import os
 import sys
 import time
 import shutil
+import importlib
 
 from urllib3 import Retry, request
 
 from weblodge.cli import main
+import weblodge.web_app.deploy as deploy_module
 
 
 # Tests update the application folder.
@@ -23,6 +25,12 @@ def test(folder, cmd, log):
     Deploy application by going in the `folder` and running the `cmd`.
     Automatic delete the infrastructure at the end.
     """
+    # This module contains the deployment configuration which contains a random name
+    # used to create the infrastructure. To avoid name collisions with the
+    # infrastructures being deleted, the module is reloaded between each test
+    # to generate a new random name.
+    importlib.reload(deploy_module)
+
     print(f'---------------------- {log} ----------------------')
     print(f'Running: {cmd}', flush=True)
 
