@@ -4,6 +4,8 @@ Each test consists of deploying an application on the cloud and
 checking that it is accessible via HTTP.
 """
 import os
+import random
+import string
 import sys
 import time
 import shutil
@@ -25,12 +27,6 @@ def test(folder, cmd, log):
     Deploy application by going in the `folder` and running the `cmd`.
     Automatic delete the infrastructure at the end.
     """
-    # This module contains the deployment configuration which contains a random name
-    # used to create the infrastructure. To avoid name collisions with the
-    # infrastructures being deleted, the module is reloaded between each test
-    # to generate a new random name.
-    DeploymentConfig.items[0].default += '01'
-
     print(f'---------------------- {log} ----------------------')
     print(f'Running: {cmd}', flush=True)
 
@@ -70,4 +66,5 @@ def test(folder, cmd, log):
 # B1 SKU is used for parallel testing.
 # Azure limits the `F1` SKU to one per region and per subscription.
 test('app', 'weblodge deploy --build --sku B1', 'No parameters provided.')
-test('.', 'weblodge deploy --build --src app --sku B1', 'Specifies the source folder.')
+app = ''.join(random.choice(string.ascii_lowercase) for _ in range(20))  # pylint: disable=invalid-name
+test('.', f'weblodge deploy --build --src app --sku B1 --app {app}', 'Specifies the source folder and the app name.')
