@@ -67,4 +67,4 @@ def test(folder, cmd, log):
 # Azure limits the `F1` SKU to one per region and per subscription.
 test('app', 'weblodge deploy --build --sku B1', 'No parameters provided.')
 app = ''.join(random.choice(string.ascii_lowercase) for _ in range(20))  # pylint: disable=invalid-name
-test('.', f'weblodge deploy --build --src app --sku B1 --app {app}', 'Specifies the source folder and the app name.')
+test('.', f'weblodge deploy --build --src app --sku B1 --app-name {app}', 'Specifies the source folder and the app name.')
