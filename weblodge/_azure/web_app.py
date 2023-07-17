@@ -8,6 +8,12 @@ from .resource_group import ResourceGroupModel, ResourceGroup
 from .appservice import AppServiceModel, AppService
 
 
+class WebAppNotfound(Exception):
+    """
+    Exception raised when a WebApp is not found.
+    """
+
+
 class WebApp:
     """
     Azure Web App representation.
@@ -74,14 +80,17 @@ class WebApp:
             cls._resources = [cls(web_app['name'], cli, web_app) for web_app in web_apps]
         return cls._resources
 
-    def load(self):
+    def load(self, force_reload: bool = False, retry: int = 1) -> 'WebApp':
         """
         Load the WebApp from Azure.
         """
-        for i in self.all():
+        for i in self.all(force_reload=force_reload):
             if i == self:
                 self._from_az = i._from_az
-                break
+                return self
+        if retry:
+            return self.load(force_reload=True, retry=retry - 1)
+        raise WebAppNotfound(f'WebApp {self.name} not found.')
 
     def exists(self) -> bool:
         return bool(next((web_app for web_app in self.all() if web_app == self), False))
