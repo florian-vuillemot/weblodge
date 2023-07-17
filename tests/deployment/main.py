@@ -12,7 +12,7 @@ import importlib
 from urllib3 import Retry, request
 
 from weblodge.cli import main
-import weblodge.web_app.deploy as deploy_module
+from weblodge.web_app.deploy import DeploymentConfig
 
 
 # Tests update the application folder.
@@ -29,7 +29,7 @@ def test(folder, cmd, log):
     # used to create the infrastructure. To avoid name collisions with the
     # infrastructures being deleted, the module is reloaded between each test
     # to generate a new random name.
-    importlib.reload(deploy_module)
+    DeploymentConfig.items[0].default += '01'
 
     print(f'---------------------- {log} ----------------------')
     print(f'Running: {cmd}', flush=True)
