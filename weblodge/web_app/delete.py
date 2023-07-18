@@ -27,9 +27,4 @@ def delete(config: DeleteConfig) -> None:
     """
     Delete the application and corresponding resources.
     """
-    # Retrieve the Azure Web App.
-    web_app = AzureWebApp(config.app_name).load()
-    # Delete the Azure Web App Resource Group.
-    # It is only possible because we are putting all the application resources in the
-    # same Resource Group.
-    ResourceGroup(Cli()).delete(web_app.resource_group)
+    ResourceGroup(config.app_name).delete()

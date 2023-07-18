@@ -3,127 +3,93 @@ Azure AppService Plan abstraction.
 
 Allow to CRUD on Azure AppService Plan.
 """
-import time
-from typing import Dict, List
-from dataclasses import dataclass
+from typing import Dict
+
+from weblodge._azure.cli import Cli
 
 from .cli import Cli
-from .resource_group import ResourceGroupModel, ResourceGroup
+from .resource import Resource
+from .resource_group import ResourceGroup
+from .exceptions import AppServiceNotFound
 
 
-@dataclass(frozen=True)
-class AppServiceModel:
+class AppService(Resource):
     """
     Azure AppService Plan representation.
     """
-    id: str  # pylint: disable=invalid-name
-    name: str
-    number_of_sites: int
-    sku: str
-    location: str
-    resource_group: ResourceGroupModel
-    tags: Dict[str, str]
+    # pylint: disable=too-many-arguments
+    def __init__(
+            self,
+            name: str = None,
+            resource_group: ResourceGroup = None,
+            cli: Cli = Cli(),
+            from_az: Dict = None
+        ) -> None:
+        super().__init__(name, cli, from_az)
+        self.resource_group = resource_group
+
+    @property
+    def id_(self) -> str:
+        """
+        Return the AppService Plan ID.
+        """
+        return self._from_az['id']
 
     @property
     def always_on_supported(self) -> bool:
         """
         Return True if the AppService Plan support AlwaysOn.
         """
-        return self.sku != 'F1'
+        return self._from_az['sku']['name'] != 'F1'
 
-
-class AppService:
-    """
-    Helper class to manage Azure AppServices Plan.
-    """
-    def __init__(self, cli: Cli()) -> None:
-        self._cli = cli
-        self._resources = []
-
-    def list(self, force_reload=False) -> List[AppServiceModel]:
+    def create(self, sku: str) -> 'AppService':
         """
-        List all AppServices Plan.
+        Create a Linux AppService Plan with Python.
         """
-        if force_reload:
-            self._resources.clear()
+        tags = self.resource_group.tags
+        rg_name = self.resource_group.name
+        location = self.resource_group.location
 
-        if not self._resources:
-            appservices = self._cli.invoke('appservice plan list')
-            for asp in appservices:
-                self._resources.append(
-                    AppServiceModel(
-                        id=asp['id'],
-                        name=asp['name'],
-                        number_of_sites=int(asp['numberOfSites']),
-                        sku=asp['sku']['name'],
-                        resource_group=ResourceGroup(self._cli).get(
-                            asp['resourceGroup'],
-                            force_reload=force_reload
-                        ),
-                        location=asp['location'],
-                        tags=asp['tags']
-                    )
-                )
-
-        return self._resources
-
-    # pylint: disable=too-many-arguments
-    def get(
-            self,
-            name: str = None,
-            resource_group: ResourceGroupModel = None,
-            id_: str = None,
-            force_reload: bool = False,
-            retry: int = 10
-        ) -> AppServiceModel:
-        """
-        Return an appservice by its name or its id.
-        If resource_group is provided, it will used with the name based search.
-        """
-        for asp in self.list(force_reload=force_reload):
-            if asp.id == id_:
-                return asp
-            if asp.name == name:
-                if resource_group is None or asp.resource_group.name == resource_group.name:
-                    return asp
-
-        if retry > 0:
-            time.sleep(30)
-            return self.get(name, resource_group, id_, force_reload=True, retry=retry - 1)
-        raise Exception(f"AppService name='{name}', id='{id_}' not found.")  # pylint: disable=broad-exception-raised
-
-    def delete(self, asp: AppServiceModel) -> List[AppServiceModel]:
-        """
-        Delete an AppService Plan.
-        """
-        asp_name = asp.name
-        rg_name = asp.resource_group.name
-
-        self._cli.invoke(
-            f'appservice plan delete --name {asp_name} --resource-group {rg_name} --yes',
-            to_json=False
-        )
-
-        return self.list(force_reload=True)
-
-    # pylint: disable=too-many-arguments
-    def create(
-            self,
-            name: str,
-            sku: str,
-            resource_group: ResourceGroupModel,
-            location: str = None,
-            tags: Dict[str, str] = None
-        ) -> AppServiceModel:
-        """
-        Create a Linux AppService Plan.
-        """
-        tags = tags or resource_group.tags
-        location = location or resource_group.location
-
-        self._cli.invoke(
-            f'appservice plan create --name {name} --sku {sku} --resource-group {resource_group.name} --location {location} --is-linux',  # pylint: disable=line-too-long
+        self._from_az = self._cli.invoke(
+            f'appservice plan create --name {self.name} --sku {sku} --resource-group {rg_name} --location {location} --is-linux',  # pylint: disable=line-too-long
             tags=tags
         )
+        return self
 
-        return self.get(name=name, resource_group=resource_group, force_reload=True)
+    @classmethod
+    def from_id(cls, id_: str, cli: Cli = Cli()) -> 'AppService':
+        """
+        Return the AppService Plan from its ID.
+        """
+        asp = cls._retry(
+            fct=_from_id,
+            log_msg=f"Cannot load AppService Plan '{id_}' from Azure.",
+            exception=AppServiceNotFound,
+            cli=cli,
+            id_=id_
+        )
+
+        return cls(
+            name=asp['name'],
+            resource_group=ResourceGroup(asp['resourceGroup'], cli=cli),
+            cli=cli,
+            from_az=asp
+        )
+
+    def _load(self, force_reload: bool = False):
+        """
+        Load the AppService Plan from Azure.
+        """
+        self._from_az = self._cli.invoke(
+            f'appservice plan show --name {self.name} --resource-group {self.resource_group.name}'
+        )
+        return self
+
+
+def _from_id(cli, id_: str) -> 'AppService':
+    """
+    Return the AppService Plan from its ID.
+    """
+    return cli.invoke(
+        f'appservice plan show --id {id_}'
+    )

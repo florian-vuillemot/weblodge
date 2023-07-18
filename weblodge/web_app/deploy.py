@@ -15,7 +15,7 @@ import string
 import logging
 
 from weblodge.config import Item as ConfigItem
-from weblodge._azure import Cli, ResourceGroup, AppService, WebApp as AzureWebApp
+from weblodge._azure import ResourceGroup, AppService, WebApp as AzureWebApp
 
 
 logger = logging.getLogger('weblodge')
@@ -96,31 +96,18 @@ def deploy(config: DeploymentConfig) -> AzureWebApp:
     """
     Deploy the application to Azure and return its URL.
     """
-    default_name = f'{config.app_name}-{config.environment}-{config.location}'
+    resource_group = ResourceGroup(config.app_name)
+    asp_service = AppService(config.app_name, resource_group)
+    web_app = AzureWebApp(config.app_name, resource_group, asp_service)
 
-    web_app = AzureWebApp(config.app_name)
-
-    if web_app.exists():
-        logger.info('The infrastructure already exists.')
-        web_app.load()
-    else:
-        cli = Cli()
-
+    if not web_app.exists():
         logger.info('The infrastructure is being created...')
-        resource_group = ResourceGroup(cli).create(
-            f'rg-{default_name}',
-            config.location,
-            tags=config.tags
-        )
-        web_app.create(
-            AppService(cli).create(
-                f'asp-{default_name}',
-                config.sku,
-                resource_group
-            ),
-            resource_group
-        )
-        logger.info('The infrastructure has been created or updated.')
+        if not asp_service.exists():
+            if not resource_group.exists():
+                resource_group.create(location=config.location, tags=config.tags)
+            asp_service.create(config.sku)
+        web_app.create()
+        logger.info('The infrastructure is created.')
 
     logger.info('Uploading the application...')
     web_app.deploy(os.path.join(config.dist, config.package))

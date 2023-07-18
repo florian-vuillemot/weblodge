@@ -1,11 +1,13 @@
 """
 Azure Web App representation.
 """
-from typing import List, Dict
+from typing import Dict
+
 
 from .cli import Cli
-from .resource_group import ResourceGroupModel, ResourceGroup
-from .appservice import AppServiceModel, AppService
+from .resource import Resource
+from .resource_group import ResourceGroup
+from .appservice import AppService
 
 
 class WebAppNotfound(Exception):
@@ -14,88 +16,64 @@ class WebAppNotfound(Exception):
     """
 
 
-class WebApp:
+class WebApp(Resource):
     """
     Azure Web App representation.
     """
     _resources = []
 
-    def __init__(self, name: str, cli: Cli = Cli(), from_az: Dict = None) -> None:
-        self.cli = cli
-        self.name = name
+    # pylint: disable=too-many-arguments
+    def __init__(
+            self,
+            name: str,
+            resource_group: ResourceGroup,
+            app_service: AppService,
+            cli: Cli = Cli(),
+            from_az: Dict = None
+            ) -> None:
+        super().__init__(name=name, cli=cli, from_az=from_az)
         self.python_version = '3.10'
-
-        # Azure representation.
-        self._from_az = from_az or {}
-
-        self._asp = None
-        self._rg = None
-
-    def __eq__(self, other: object) -> bool:
-        return other.name == self.name
+        self.app_service = app_service
+        self.resource_group = resource_group
 
     @property
     def kind(self) -> str:
+        """
+        Return the WebApp kind.
+        Ex: B1, F1, D1, etc.
+        """
         return self._from_az['kind']
 
     @property
     def location(self) -> str:
+        """
+        The WebApp location.
+        Ex: northeurope, westeurope, etc.
+        """
         return self._from_az['location']
 
     @property
     def linux_fx_version(self) -> str:
+        """
+        Python version used by the WebApp.
+        """
         return self._from_az['siteConfig']['linuxFxVersion']
 
     @property
     def tags(self) -> Dict[str, str]:
+        """
+        WebApp tags.
+        """
         return self._from_az['tags']
 
     @property
     def domain(self) -> str:
+        """
+        WebApp domain.
+        """
         return self._from_az['hostNames'][0] if self._from_az['hostNames'] else None
 
-    @property
-    def app_service(self) -> AppServiceModel:
-        if not self._asp:
-            self._asp = AppService(self.cli).get(
-                id_=self._from_az['appServicePlanId'],
-            )
-        return self._asp
-
-    @property
-    def resource_group(self) -> ResourceGroupModel:
-        if not self._rg:
-            self._rg = ResourceGroup(self.cli).get(
-                self._from_az['resourceGroup']
-            )
-        return self._rg
-
-    @classmethod
-    def all(cls, cli: Cli = Cli(), force_reload: bool = False) -> List['WebApp']:
-        """
-        List all WebApps.
-        """
-        if not cls._resources or force_reload:
-            web_apps = cli.invoke('webapp list')
-            cls._resources = [cls(web_app['name'], cli, web_app) for web_app in web_apps]
-        return cls._resources
-
-    def load(self, force_reload: bool = False, retry: int = 1) -> 'WebApp':
-        """
-        Load the WebApp from Azure.
-        """
-        for i in self.all(force_reload=force_reload):
-            if i == self:
-                self._from_az = i._from_az
-                return self
-        if retry:
-            return self.load(force_reload=True, retry=retry - 1)
-        raise WebAppNotfound(f'WebApp {self.name} not found.')
-
-    def exists(self) -> bool:
-        return bool(next((web_app for web_app in self.all() if web_app == self), False))
-
-    def create(self, app_service: AppServiceModel, resource_group: ResourceGroupModel) -> 'WebApp':
+    def create(self) -> 'WebApp':
         """
         Create the WebApp infrastructure.
 
@@ -106,21 +84,23 @@ class WebApp:
         - Startup file: weblodge.startup
         """
         name = self.name
-        asp = app_service.id
-        rg_name = resource_group.name
+        asp = self.app_service.id_
+        rg_name = self.resource_group.name
         python_version = self.python_version
 
-        self._from_az = self.cli.invoke(
+        # Create the WebApp infrastructure.
+        self._from_az = self._cli.invoke(
             f'webapp create -g {rg_name} -p {asp} -n {name} --runtime PYTHON:{python_version}',
-            tags={**resource_group.tags, **app_service.tags}
+            tags={**self.resource_group.tags, **self.app_service.tags}
         )
-        self.cli.invoke(
+        # Update the WebApp settings.
+        self._cli.invoke(
             ' '.join((
                 f'webapp config set --resource-group {rg_name} --name {name}',
                 '--web-sockets-enabled true',
                 '--http20-enabled',
                 '--startup-file weblodge.startup',
-                f'--always-on {app_service.always_on_supported}',
+                f'--always-on {self.app_service.always_on_supported}',
             ))
         )
 
@@ -128,7 +108,7 @@ class WebApp:
         """
         Delete the WebApp.
         """
-        self.cli.invoke(
+        self._cli.invoke(
             f'webapp delete -g {self.resource_group.name} -n {self.name}',
             to_json=False
         )
@@ -137,7 +117,7 @@ class WebApp:
         """
         Deploy an application zipped.
         """
-        self.cli.invoke(
+        self._cli.invoke(
             ' '.join((
                 'webapp deployment source config-zip',
                 f'-g {self.resource_group.name} -n {self.name}',
@@ -150,6 +130,15 @@ class WebApp:
         Stream WebApp logs.
         This is a blocking operation. User must run CTRL+C to stop the process.
         """
-        self.cli.invoke(
-            f'webapp log tail -g {self.resource_group.name} -n {self.name}'
+        self._cli.invoke(
+            f'webapp log tail -g {self.resource_group.name} -n {self.name}',
+            log_outputs=True
+        )
+
+    def _load(self, force_reload: bool = False):
+        """
+        Load the WebApp from Azure.
+        """
+        return self._cli.invoke(
+            f'webapp show --resource-group {self.resource_group.name} --name {self.name}'
         )

@@ -71,11 +71,12 @@ def deploy(config: Dict[str, str], web_app: WebApp, parameters: Parser):
     success, config = web_app.deploy(config)
 
     if success:
-        logger.info(f"The application will soon be available on: https://{web_app.url()}")
+        print(f"The application will soon be available on: https://{web_app.url()}")
     else:
-        logger.critical(
+        print(
             'The application may not be deployed, but the infrastructure may be' \
-            f' partially created. You can delete it by running: {CLI_NAME} delete'
+            f' partially created. You can delete it by running: {CLI_NAME} delete',
+            sys=sys.stderr
         )
     return success, config
 
@@ -86,7 +87,7 @@ def delete(config: Dict[str, str], web_app: WebApp, parameters: Parser):
     """
     def _validation(config):
         if input('Are you sure you want to delete the application (yes/no.)? ') != 'yes':
-            logger.info('Aborting.')
+            print('Aborting.')
             sys.exit(0)
         return config
 
