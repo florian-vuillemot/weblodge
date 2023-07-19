@@ -39,7 +39,7 @@ def test(folder, cmd, html_expected, log):
     # Ensure the application is reachable.
     time.sleep(30)
     try:
-        res = request("GET", web_app.url(), retries=Retry(total=10, backoff_factor=5)).status
+        res = request("GET", web_app.url(), retries=Retry(total=10, backoff_factor=5))
         app_output = res.read().decode('utf-8')
         app_reached = res.status < 400
     except Exception as e: # pylint: disable=invalid-name,broad-exception-caught
