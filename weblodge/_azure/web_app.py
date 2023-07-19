@@ -37,34 +37,12 @@ class WebApp(Resource):
         self.resource_group = resource_group
 
     @property
-    def kind(self) -> str:
-        """
-        Return the WebApp kind.
-        Ex: B1, F1, D1, etc.
-        """
-        return self._from_az['kind']
-
-    @property
     def location(self) -> str:
         """
         The WebApp location.
         Ex: northeurope, westeurope, etc.
         """
         return self._from_az['location']
-
-    @property
-    def linux_fx_version(self) -> str:
-        """
-        Python version used by the WebApp.
-        """
-        return self._from_az['siteConfig']['linuxFxVersion']
-
-    @property
-    def tags(self) -> Dict[str, str]:
-        """
-        WebApp tags.
-        """
-        return self._from_az['tags']
 
     @property
     def domain(self) -> str:
@@ -104,15 +82,6 @@ class WebApp(Resource):
             ))
         )
 
-    def delete(self):
-        """
-        Delete the WebApp.
-        """
-        self._cli.invoke(
-            f'webapp delete -g {self.resource_group.name} -n {self.name}',
-            to_json=False
-        )
-
     def deploy(self, src: str) -> None:
         """
         Deploy an application zipped.
@@ -135,10 +104,13 @@ class WebApp(Resource):
             log_outputs=True
         )
 
-    def _load(self, force_reload: bool = False):
+    def _load(self):
         """
         Load the WebApp from Azure.
         """
-        return self._cli.invoke(
-            f'webapp show --resource-group {self.resource_group.name} --name {self.name}'
+        self._from_az.update(
+            self._cli.invoke(
+                f'webapp show --resource-group {self.resource_group.name} --name {self.name}'
+            )
         )
+        return self

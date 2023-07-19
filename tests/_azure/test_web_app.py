@@ -1,36 +1,49 @@
 """
 Web App Tests.
 """
+import json
+from pathlib import Path
 import unittest
 
-from weblodge._azure import WebApp
+from weblodge._azure import WebApp, ResourceGroup, AppService
 
-from .cli import cli
-from .mocks.web_apps import develop, staging, production
+from .cli import Cli
 
 
 class TestWebApp(unittest.TestCase):
     """
-    Web App CRUD Tests.
+    Web App Tests.
     """
     def setUp(self) -> None:
-        self.web_app_helper = WebApp(cli)
+        self.web_apps = json.loads(
+            Path('./tests/_azure/api_mocks/web_apps.json').read_text(encoding='utf-8')
+        )
+        self.app_service = json.loads(
+            Path('./tests/_azure/api_mocks/appservices_plan.json').read_text(encoding='utf-8')
+        )
         return super().setUp()
 
-    def test_list(self):
+    def test_create(self):
         """
-        Ensure the corresponding conversion is done by the `list` method.
+        Create a Web App.
         """
-        self.assertEqual(
-            [develop, staging, production],
-            self.web_app_helper.list()
+        expected_output = self.web_apps[0]
+
+        resource_group = ResourceGroup(name=expected_output['resourceGroup'], cli=None)
+        asp = AppService(
+            name=self.app_service[0]['name'],
+            resource_group=resource_group,
+            cli=None,
+            from_az=self.app_service[0]
         )
 
-    def test_get(self):
-        """
-        Ensure the `get` method returns the corresponding Web App.
-        """
-        self.assertEqual(
-            staging,
-            self.web_app_helper.get('staging-app-service')
+        web_app = WebApp(
+            name=expected_output['name'],
+            resource_group=resource_group,
+            app_service=asp,
+            cli=Cli(expected_output)
         )
+
+        self.assertEqual(web_app.name, expected_output['name'])
+        self.assertEqual(web_app.domain, expected_output['hostNames'][0])
+        self.assertEqual(web_app.location, expected_output['location'])

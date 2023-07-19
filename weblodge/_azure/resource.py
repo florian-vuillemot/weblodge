@@ -1,6 +1,7 @@
 """
 Abstract representation of an Azure resource.
 """
+import time
 import logging
 from typing import Dict
 from abc import abstractmethod
@@ -16,13 +17,13 @@ class _AzDict(UserDict):
     """
     Lazy loader of the Azure resource.
     """
-    def __init__(self, loader: callable, **kwargs):
+    def __init__(self, load: callable, **kwargs):
         super().__init__(**kwargs)
-        self._loader = loader
+        self._load = load
 
     def __getitem__(self, key):
         if not self.data:
-            self.data = self._loader()
+            self._load()
         return super().__getitem__(key)
 
 
@@ -33,7 +34,7 @@ class Resource:
     def __init__(self, name: str, cli: Cli = Cli(), from_az: Dict = None) -> None:
         self.name = name
         self._cli = cli
-        self._from_az = _AzDict(loader=self.load, **(from_az or {}))
+        self._from_az = _AzDict(load=self.load, **(from_az or {}))
 
     @property
     def tags(self) -> Dict[str, str]:
@@ -67,9 +68,9 @@ class Resource:
             return False
 
     @abstractmethod
-    def _load(self, force_reload: bool = False):
+    def _load(self):
         """
-        Internal method that load the resource from Azure.
+        Load the resource from Azure.
         """
 
     # pylint: disable=keyword-arg-before-vararg,too-many-arguments
@@ -80,7 +81,6 @@ class Resource:
             log_msg: str,
             exception: AzureException,
             retry: int = 10,
-            force_reload: bool = False,
             *args,
             **kwargs
         ):
@@ -88,14 +88,14 @@ class Resource:
         Try to execute the given function and retry if it fails.
         """
         try:
-            return fct(force_reload=force_reload, *args, **kwargs)
+            return fct(*args, **kwargs)
         except Exception as raised:  # pylint: disable=broad-exception-caught
             if retry > 0:
+                time.sleep(5)
                 return cls._retry(
                     fct=fct,
                     log_msg=log_msg,
                     exception=exception,
-                    force_reload=True,
                     retry=retry - 1,
                     *args,
                     **kwargs

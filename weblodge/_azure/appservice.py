@@ -10,7 +10,6 @@ from weblodge._azure.cli import Cli
 from .cli import Cli
 from .resource import Resource
 from .resource_group import ResourceGroup
-from .exceptions import AppServiceNotFound
 
 
 class AppService(Resource):
@@ -20,8 +19,8 @@ class AppService(Resource):
     # pylint: disable=too-many-arguments
     def __init__(
             self,
-            name: str = None,
-            resource_group: ResourceGroup = None,
+            name: str,
+            resource_group: ResourceGroup,
             cli: Cli = Cli(),
             from_az: Dict = None
         ) -> None:
@@ -56,40 +55,13 @@ class AppService(Resource):
         )
         return self
 
-    @classmethod
-    def from_id(cls, id_: str, cli: Cli = Cli()) -> 'AppService':
-        """
-        Return the AppService Plan from its ID.
-        """
-        asp = cls._retry(
-            fct=_from_id,
-            log_msg=f"Cannot load AppService Plan '{id_}' from Azure.",
-            exception=AppServiceNotFound,
-            cli=cli,
-            id_=id_
-        )
-
-        return cls(
-            name=asp['name'],
-            resource_group=ResourceGroup(asp['resourceGroup'], cli=cli),
-            cli=cli,
-            from_az=asp
-        )
-
-    def _load(self, force_reload: bool = False):
+    def _load(self):
         """
         Load the AppService Plan from Azure.
         """
-        self._from_az = self._cli.invoke(
-            f'appservice plan show --name {self.name} --resource-group {self.resource_group.name}'
+        self._from_az.update(
+            self._cli.invoke(
+                f'appservice plan show --name {self.name} --resource-group {self.resource_group.name}'
+            )
         )
         return self
-
-
-def _from_id(cli, id_: str) -> 'AppService':
-    """
-    Return the AppService Plan from its ID.
-    """
-    return cli.invoke(
-        f'appservice plan show --id {id_}'
-    )

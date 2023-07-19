@@ -1,43 +1,67 @@
 """
 App Service Plan Tests.
 """
+import json
+from pathlib import Path
 import unittest
 
-from weblodge._azure import AppService
+from weblodge._azure import AppService, ResourceGroup
 
-from .cli import cli
-from .mocks.app_services_plan import develop, staging, production, rg_develop, rg_staging
+from .cli import Cli
 
 
 class TestAppService(unittest.TestCase):
     """
-    App Service Plan CRUD Tests.
+    App Service tests.
     """
     def setUp(self) -> None:
-        self.app_service = AppService(cli)
+        self.app_services = json.loads(
+            Path('./tests/_azure/api_mocks/appservices_plan.json').read_text(encoding='utf-8')
+        )
         return super().setUp()
 
-    def test_list(self):
+    def test_create(self):
         """
-        Ensure the corresponding conversion is done by the list() method.
+        Test the create.
         """
-        self.assertEqual(
-            [develop, staging, production],
-            self.app_service.list()
+        expected_output = self.app_services[0]
+
+        resource_group = ResourceGroup(name=expected_output['resourceGroup'], cli=None)
+        app_service = AppService(
+            name=expected_output['name'],
+            resource_group=resource_group,
+            cli=Cli(expected_output)
         )
 
-    def test_get_without_rg(self):
-        """
-        Ensure the `get` method returns the first App Service Plan with the corresponding name
-        when the Resource Group is not specified, i.e. here the first one.
-        """
-        asp = self.app_service.get(name='app-service', resource_group=rg_develop)
-        self.assertEqual(develop, asp)
+        self.assertEqual(app_service.name, expected_output['name'])
+        self.assertEqual(app_service.id_, expected_output['id'])
 
-    def test_get_with_rg(self):
+    def test_always_on_supported(self):
         """
-        Ensure the `get` method returns the corresponding App Service Plan
-        when the Resource Group is specified.
+        Test the always_on_supported property.
         """
-        asp = self.app_service.get(name='app-service', resource_group=rg_staging)
-        self.assertEqual(staging, asp)
+        expected_output = self.app_services[0]
+
+        resource_group = ResourceGroup(name=expected_output['resourceGroup'], cli=None)
+        app_service = AppService(
+            name=expected_output['name'],
+            resource_group=resource_group,
+            cli=Cli(expected_output)
+        )
+
+        self.assertTrue(app_service.always_on_supported)
+
+    def test_always_on_not_supported(self):
+        """
+        Test the always_on_supported property.
+        """
+        expected_output = self.app_services[1]
+
+        resource_group = ResourceGroup(name=expected_output['resourceGroup'], cli=None)
+        app_service = AppService(
+            name=expected_output['name'],
+            resource_group=resource_group,
+            cli=Cli(expected_output)
+        )
+
+        self.assertFalse(app_service.always_on_supported)

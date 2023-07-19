@@ -63,10 +63,10 @@
     "sku": {
       "capabilities": null,
       "capacity": 1,
-      "family": "Pv3",
+      "family": "F1",
       "locations": null,
-      "name": "P1v3",
-      "size": "P1v3",
+      "name": "F1",
+      "size": "F1",
       "skuCapacity": null,
       "tier": "PremiumV3"
     },
