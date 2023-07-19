@@ -68,7 +68,7 @@
       "name": "F1",
       "size": "F1",
       "skuCapacity": null,
-      "tier": "PremiumV3"
+      "tier": "Free"
     },
     "spotExpirationTime": null,
     "status": "Ready",

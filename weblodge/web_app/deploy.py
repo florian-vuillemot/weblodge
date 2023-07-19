@@ -35,8 +35,8 @@ class DeploymentConfig:
     # Configurable items of the deployment.
     items = [
         ConfigItem(
-            name='app_name',
-            description='Unique name of the application within Azure. If not provide, a random name is used.',  # pylint: disable=line-too-long
+            name='subdomain',
+            description='Unique subdomain of the application within Azure. If not provide, a random subdomain is used.',  # pylint: disable=line-too-long
             default=''.join(random.choice(string.ascii_lowercase) for _ in range(20))
         ),
         ConfigItem(
@@ -64,7 +64,7 @@ class DeploymentConfig:
     # pylint: disable=too-many-arguments
     def __init__(
             self,
-            app_name,
+            subdomain,
             sku,
             location,
             environment,
@@ -72,10 +72,10 @@ class DeploymentConfig:
             *_args,
             **_kwargs
         ):
-        # Application name.
+        # Application subdomain.
         # This name must be unique across all of Azure WebApplication.
         # It will be used as the URL of the application and for created Azure resources.
-        self.app_name = app_name
+        self.subdomain = subdomain
         # Application SKU (https://azure.microsoft.com/en-us/pricing/details/app-service/linux/).
         self.sku = sku
         # Application location.
@@ -96,9 +96,9 @@ def deploy(config: DeploymentConfig) -> AzureWebApp:
     """
     Deploy the application to Azure and return its URL.
     """
-    resource_group = ResourceGroup(config.app_name)
-    asp_service = AppService(config.app_name, resource_group)
-    web_app = AzureWebApp(config.app_name, resource_group, asp_service)
+    resource_group = ResourceGroup(config.subdomain)
+    asp_service = AppService(config.subdomain, resource_group)
+    web_app = AzureWebApp(config.subdomain, resource_group, asp_service)
 
     if not web_app.exists():
         logger.info('The infrastructure is being created...')

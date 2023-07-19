@@ -9,12 +9,10 @@ import string
 import sys
 import time
 import shutil
-import importlib
 
 from urllib3 import Retry, request
 
 from weblodge.cli import main
-from weblodge.web_app.deploy import DeploymentConfig
 
 
 # Tests update the application folder.
@@ -75,10 +73,10 @@ test(
     'This is app 1.',
     'No parameters provided.'
 )
-app = ''.join(random.choice(string.ascii_lowercase) for _ in range(20))  # pylint: disable=invalid-name
+subdomain = ''.join(random.choice(string.ascii_lowercase) for _ in range(20))  # pylint: disable=invalid-name
 test(
     '.',
-    f'weblodge deploy --build --src app --sku B1 --app-name {app} --src app_2 --requirements r.txt',
+    f'weblodge deploy --build --src app --sku B1 --subdomain {subdomain} --src app_2 --requirements r.txt',
     'This is app 2.',
-    'Specifies the source folder and the app name.'
+    'Specifies the source folder and the subdomain.'
 )

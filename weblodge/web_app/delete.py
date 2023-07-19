@@ -1,8 +1,8 @@
 """
 Delete all resources associated with the application.
 """
+from weblodge._azure import ResourceGroup
 from weblodge.config import Item as ConfigItem
-from weblodge._azure import Cli, ResourceGroup, WebApp as AzureWebApp
 
 
 class DeleteConfig:
@@ -14,17 +14,17 @@ class DeleteConfig:
     """
     items = [
         ConfigItem(
-            name='app_name',
+            name='subdomain',
             description='The application name to delete.'
         )
     ]
 
-    def __init__(self, app_name: str, *_args, **_kwargs) -> None:
-        self.app_name = app_name
+    def __init__(self, subdomain: str, *_args, **_kwargs) -> None:
+        self.subdomain = subdomain
 
 
 def delete(config: DeleteConfig) -> None:
     """
     Delete the application and corresponding resources.
     """
-    ResourceGroup(config.app_name).delete()
+    ResourceGroup(config.subdomain).delete()

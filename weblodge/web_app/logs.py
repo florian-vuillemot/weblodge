@@ -1,8 +1,8 @@
 """
 Stream logs from an Azure Web App in the user console.
 """
-from weblodge._azure import WebApp as AzureWebApp, AppService as AzureAppService, ResourceGroup as AzureResourceGroup
 from weblodge.config import Item as ConfigItem
+from weblodge._azure import WebApp as AzureWebApp, AppService as AzureAppService, ResourceGroup as AzureResourceGroup
 
 
 class LogsConfig():
@@ -14,13 +14,13 @@ class LogsConfig():
     """
     items = [
         ConfigItem(
-            name='app_name',
-            description='The application name.'
+            name='subdomain',
+            description='The application subdomain.'
         )
     ]
 
-    def __init__(self, app_name: str, *_args, **_kwargs) -> None:
-        self.app_name = app_name
+    def __init__(self, subdomain: str, *_args, **_kwargs) -> None:
+        self.subdomain = subdomain
 
 
 def logs(config: LogsConfig):
@@ -29,8 +29,10 @@ def logs(config: LogsConfig):
     This function is blocking and never returns.
     User must run CTRL+C to stop the process.
     """
+    resource_group = AzureResourceGroup(config.subdomain)
+
     AzureWebApp(
-        config.app_name,
-        AzureResourceGroup(config.app_name),
-        AzureAppService(config.app_name)
+        config.subdomain,
+        resource_group,
+        AzureAppService(config.subdomain, resource_group)
     ).logs()
