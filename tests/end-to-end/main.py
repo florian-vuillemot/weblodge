@@ -40,7 +40,7 @@ def test(folder, cmd, html_expected, log):
     time.sleep(30)
     try:
         res = request("GET", web_app.url(), retries=Retry(total=10, backoff_factor=5))
-        app_output = res.read().decode('utf-8')
+        app_output = res.data().decode('utf-8')
         app_status = res.status
     except Exception as e: # pylint: disable=invalid-name,broad-exception-caught
         print(f"Test failed.\nTraceback: {e}", flush=True, file=sys.stderr)
