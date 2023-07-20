@@ -58,7 +58,7 @@ To be able to deploy the application, you must first *build* it and specify:
 - The **Flask** application: `my_app`.
 ```
 # Build the application.
-weblodge build --entry-point main.py --app my_app
+weblodge build --entry-point main.py --flask-app my_app
 # Deploy the application.
 weblodge deploy
 ```
@@ -73,7 +73,7 @@ The *build* operation can handle the following options:
 | src | Folder containing application sources. | `.` |
 | dist | Folder containing the application built. | `dist` |
 | entry-point | The application file to be executed with `python`. | `app.py` |
-| app | The Flask application object in the `entry-point` file. | `app` |
+| flask-app | The Flask application object in the `entry-point` file. | `app` |
 | requirements | The **requirements.txt** file path of the application. Ignores if a `requirements.txt` file is located at the root of the application. | `requirements.txt` |
 
 > Note: Here, the platform is implicitly [Azure App Service](https://azure.microsoft.com/en-us/products/app-service/web).

@@ -12,7 +12,8 @@ from weblodge.config import Item as ConfigItem
 from .logs import LogsConfig, logs as _logs
 from .delete import DeleteConfig, delete as _delete
 from .deploy import DeploymentConfig, deploy as _deploy
-from .build import BuildConfig, RequirementsFileNotFound, build as _build
+from .build import BuildConfig, build as _build
+from .exceptions import RequirementsFileNotFound, EntryPointFileNotFound, FlaskAppNotFound
 
 
 logger = logging.getLogger('weblodge')
@@ -38,6 +39,14 @@ class WebApp:
             _build(build_config)
         except RequirementsFileNotFound:
             logger.critical(f"Requirements file '{build_config.requirements}' not found.")
+            logger.critical('Build failed.')
+            return False, build_config
+        except EntryPointFileNotFound:
+            logger.critical(f"Entry point file '{build_config.entry_point}' not found.")
+            logger.critical('Build failed.')
+            return False, build_config
+        except FlaskAppNotFound:
+            logger.critical(f"Can not find the Flask application '{build_config.flask_app}' in the file '{build_config.entry_point}'.") # pylint: disable=line-too-long
             logger.critical('Build failed.')
             return False, build_config
 

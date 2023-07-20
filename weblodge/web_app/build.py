@@ -15,17 +15,7 @@ import zipfile
 
 from weblodge.config import Item as ConfigItem
 
-
-class BuildException(Exception):
-    """
-    Build exception.
-    """
-
-
-class RequirementsFileNotFound(BuildException):
-    """
-    The requirements file was not found.
-    """
+from .exceptions import RequirementsFileNotFound, EntryPointFileNotFound, FlaskAppNotFound
 
 
 class BuildConfig:
@@ -63,8 +53,8 @@ class BuildConfig:
             default='app.py'
         ),
         ConfigItem(
-            name='app',
-            description='Flask Application object.',
+            name='flask_app',
+            description='The Flask application object.',
             default='app'
         ),
         ConfigItem(
@@ -80,7 +70,7 @@ class BuildConfig:
         src: str,
         dist: str,
         entry_point: str,
-        app: str,
+        flask_app: str,
         requirements: str,
         *_args,
         **_kwargs
@@ -92,7 +82,7 @@ class BuildConfig:
         # Application entrypoint.
         self.entry_point = entry_point
         # Flask application object.
-        self.app = app
+        self.flask_app = flask_app
         # User requirements file.
         self.requirements = requirements
 
@@ -123,6 +113,15 @@ def _user_application(config: BuildConfig, zipf: zipfile.ZipFile):
     """
     Create the zip folder.
     """
+    # Ensure the entry point exists.
+    entry_point = Path(config.src) / config.entry_point
+    if not entry_point.exists():
+        raise EntryPointFileNotFound()
+
+    # Ensure the flask app is in the entry point file.
+    if config.flask_app not in entry_point.read_text():
+        raise FlaskAppNotFound()
+
     for root, _, files in os.walk(config.src):
         root = Path(root)
         # Skip hidden files and directories.
@@ -185,7 +184,7 @@ def _startup_file(config: BuildConfig, zipf: zipfile.ZipFile):
 
     # Add the application object if it's not already there.
     if ':' not in entrypoint:
-        entrypoint = f'{entrypoint}:{config.app}'
+        entrypoint = f'{entrypoint}:{config.flask_app}'
 
     # Default application configuration update with the user and entrypoint.
     # https://learn.microsoft.com/en-us/azure/developer/python/configure-python-web-app-on-app-service
