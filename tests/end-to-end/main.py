@@ -42,7 +42,7 @@ def test(folder, cmd, html_expected, log):
         res = request(
             "GET",
             web_app.url(),
-            retries=Retry(total=10, backoff_factor=5, status=5)
+            retries=Retry(total=10, backoff_factor=5, status=5, status_forcelist=[500, 502, 503, 504])
         )
         app_output = res.data.decode('utf-8')
         app_status = res.status
