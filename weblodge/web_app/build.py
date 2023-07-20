@@ -113,6 +113,11 @@ def _user_application(config: BuildConfig, zipf: zipfile.ZipFile):
     """
     Create the zip folder.
     """
+    # The requirements file name.
+    # It will be added to the zip folder in a dedicated function.
+    # If it is added twice, the ZIP library prints an error.
+    requirements_filename = Path(config.requirements).name
+
     # Ensure the entry point exists.
     entry_point = Path(config.src) / config.entry_point
     if not entry_point.exists():
@@ -139,7 +144,9 @@ def _user_application(config: BuildConfig, zipf: zipfile.ZipFile):
             file_path = root / file
             relative_to = os.path.relpath(file_path, config.src)
 
-            zipf.write(file_path, relative_to)
+            # Skip the requirements file.
+            if root.name != '' and file != requirements_filename:
+                zipf.write(file_path, relative_to)
 
 
 def _user_requirements(config: BuildConfig, zipf: zipfile.ZipFile):

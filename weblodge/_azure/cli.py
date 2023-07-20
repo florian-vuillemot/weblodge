@@ -66,7 +66,10 @@ class Cli:
                 out_fd = StringIO()
             # Execute the Azure CLI command.
             if self.cli.invoke(cmd, out_file=out_fd):
-                raise CLIException(f"Error during execution of the command '{command}'.")  # pylint: disable=broad-exception-raised
+                error = ''
+                if not log_outputs:
+                    error = f'\nError: {sys.stderr.getvalue()}'
+                raise CLIException(f"Error during execution of the command '{command}'.{error}")  # pylint: disable=broad-exception-raised
         except (SystemExit, Exception) as exception:
             raise CLIException(f"Error during execution of the command '{command}'.\nTraceback: {exception}") # pylint: disable=raise-missing-from
         finally:
