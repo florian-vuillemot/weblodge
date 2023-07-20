@@ -4,6 +4,7 @@ Each test consists of deploying an application on the cloud and
 checking that it is accessible via HTTP.
 """
 import os
+from pathlib import Path
 import random
 import string
 import sys
@@ -78,6 +79,10 @@ test(
     'No parameters provided.'
 )
 subdomain = ''.join(random.choice(string.ascii_lowercase) for _ in range(20))  # pylint: disable=invalid-name
+# Create a fake configuration file.
+# It will be replaced by the command line argument, otherwise the CLI will failed because
+# the subdomain will already be in use.
+Path('.welodge.json').write_text(f'{"subdomain": "replace-by-cli-arg"}', encoding='utf-8')
 test(
     '.',
     f'weblodge deploy --build --src app --sku B1 --subdomain {subdomain} --src app_2 --requirements r.txt',
