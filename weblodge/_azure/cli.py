@@ -64,11 +64,11 @@ class Cli:
                 # Redirect the standard error to avoid printing the error message.
                 sys.stderr = StringIO()
                 out_fd = StringIO()
-            # Execute the Azure CLI command and store the return code.
+            # Execute the Azure CLI command.
             if self.cli.invoke(cmd, out_file=out_fd):
                 raise CLIException(f"Error during execution of the command '{command}'.")  # pylint: disable=broad-exception-raised
-        except (SystemExit, Exception):
-            raise CLIException(f"Error during execution of the command '{command}'.") # pylint: disable=raise-missing-from
+        except (SystemExit, Exception) as exception:
+            raise CLIException(f"Error during execution of the command '{command}'.\nTraceback: {exception}") # pylint: disable=raise-missing-from
         finally:
             # Restore the standard error output.
             sys.stderr = stderr
