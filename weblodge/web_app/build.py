@@ -113,23 +113,16 @@ def build(config: BuildConfig) -> None:
 
     # Zip all required files together.
     with zipfile.ZipFile(config.package_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
-        requirements_file_included = _zip_user_application(config, zipf)
+        _user_application(config, zipf)
+        _user_requirements(config, zipf)
         _deployment_config(config, zipf)
         _startup_file(config, zipf)
 
-        # Add the requirements file if it was not included in the user application folder.
-        if not requirements_file_included:
-            _requirements(config, zipf)
 
-
-def _zip_user_application(config: BuildConfig, zipf: zipfile.ZipFile) -> bool:
+def _user_application(config: BuildConfig, zipf: zipfile.ZipFile):
     """
     Create the zip folder.
-
-    Return True if the requirements file was included at the root of the application folder.
     """
-    requirements_file_included = False
-
     for root, _, files in os.walk(config.src):
         root = Path(root)
         # Skip hidden files and directories.
@@ -149,22 +142,22 @@ def _zip_user_application(config: BuildConfig, zipf: zipfile.ZipFile) -> bool:
 
             zipf.write(file_path, relative_to)
 
-            if not requirements_file_included:
-                # If the requirements file is not already included at the root of the application
-                # folder, check if the current file is that one.
-                requirements_file_included = Path(relative_to) == Path(config.kudu_requirements_path)
 
-    return requirements_file_included
-
-
-def _requirements(config: BuildConfig, zipf: zipfile.ZipFile):
+def _user_requirements(config: BuildConfig, zipf: zipfile.ZipFile):
     """
     Add the requirements file to the zip folder from the user folder.
+    The file can be in the local folder or in the `src` folder.
     """
-    if not os.path.exists(config.requirements):
-        raise RequirementsFileNotFound()
+    if os.path.exists(config.requirements):
+        zipf.write(config.requirements, config.kudu_requirements_path)
+        return
 
-    zipf.write(config.requirements, config.kudu_requirements_path)
+    requirements_in_src = Path(config.src) / config.requirements
+    if requirements_in_src.exists():
+        zipf.write(requirements_in_src, config.kudu_requirements_path)
+        return
+
+    raise RequirementsFileNotFound()
 
 
 def _deployment_config(config: BuildConfig, zipf: zipfile.ZipFile):
