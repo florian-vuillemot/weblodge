@@ -67,7 +67,7 @@ class WebApp(Resource):
         python_version = self.python_version
 
         # Create the WebApp infrastructure.
-        self._from_az = self._cli.invoke(
+        self._cli.invoke(
             f'webapp create -g {rg_name} -p {asp} -n {name} --runtime PYTHON:{python_version}',
             tags={**self.resource_group.tags, **self.app_service.tags}
         )

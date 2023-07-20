@@ -38,7 +38,7 @@ def test(folder, cmd, html_expected, log):
     web_app = main()
 
     # Ensure the application is reachable.
-    time.sleep(180)
+    time.sleep(60*5)
     try:
         res = request(
             "GET",

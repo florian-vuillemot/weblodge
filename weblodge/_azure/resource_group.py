@@ -23,7 +23,7 @@ class ResourceGroup(Resource):
         """
         tags = tags or {}
 
-        self._from_az = self._cli.invoke(
+        self._cli.invoke(
             f'group create --name {self.name} --location {location}',
             tags=tags
         )

@@ -39,6 +39,7 @@ class AppService(Resource):
         """
         Return True if the AppService Plan support AlwaysOn.
         """
+        print(self._from_az['sku']['name'], 'F1')
         return self._from_az['sku']['name'] != 'F1'
 
     def create(self, sku: str) -> 'AppService':
@@ -49,7 +50,7 @@ class AppService(Resource):
         rg_name = self.resource_group.name
         location = self.resource_group.location
 
-        self._from_az = self._cli.invoke(
+        self._cli.invoke(
             f'appservice plan create --name {self.name} --sku {sku} --resource-group {rg_name} --location {location} --is-linux',  # pylint: disable=line-too-long
             tags=tags
         )
