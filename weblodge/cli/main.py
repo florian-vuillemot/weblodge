@@ -71,12 +71,13 @@ def deploy(config: Dict[str, str], web_app: WebApp, parameters: Parser):
     success, config = web_app.deploy(config)
 
     if success:
-        print(f"The application will soon be available on: https://{web_app.url()}")
+        print(f"The application will soon be available on: https://{web_app.url()}", flush=True)
     else:
         print(
             'The application may not be deployed, but the infrastructure may be' \
             f' partially created. You can delete it by running: {CLI_NAME} delete',
-            sys=sys.stderr
+            sys=sys.stderr,
+            flush=True
         )
     return success, config
 

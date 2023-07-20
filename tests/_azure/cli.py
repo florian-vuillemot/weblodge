@@ -1,9 +1,7 @@
 """
-CLI Mock that will return waiting output or exception for a given command using
-pre defined Mocked output.
+CLI Mock that will return waiting output or exception
+when a command is invoked.
 """
-import json
-from pathlib import Path
 from typing import Dict, Union
 
 

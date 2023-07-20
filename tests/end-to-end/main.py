@@ -28,7 +28,7 @@ def test(folder, cmd, html_expected, log):
     print(f'---------------------- {log} ----------------------')
     print(f'Running: {cmd}', flush=True)
 
-    app_reached = False
+    app_status = -1
     app_output = None
     os.chdir(folder)
 
@@ -41,7 +41,7 @@ def test(folder, cmd, html_expected, log):
     try:
         res = request("GET", web_app.url(), retries=Retry(total=10, backoff_factor=5))
         app_output = res.read().decode('utf-8')
-        app_reached = res.status < 400
+        app_status = res.status
     except Exception as e: # pylint: disable=invalid-name,broad-exception-caught
         print(f"Test failed.\nTraceback: {e}", flush=True, file=sys.stderr)
 
@@ -57,8 +57,8 @@ def test(folder, cmd, html_expected, log):
     os.chdir(current_folder)
 
     # Test the result.
-    assert app_reached
-    assert app_output == html_expected
+    assert app_status < 400, f'The application is not reachable {app_status}.'
+    assert app_output == html_expected, f'Unexpected output: {app_output}'
 
     print('-----------------------------------------------------')
     print('---------------------- Success ----------------------')
