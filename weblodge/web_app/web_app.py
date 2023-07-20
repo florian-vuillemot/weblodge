@@ -70,7 +70,7 @@ class WebApp:
         """
         Get the URL of the deployed application.
         """
-        return self._web_app.domain
+        return f'https://{self._web_app.domain}'
 
     def delete(self, config: Dict[str, str]) -> Tuple[bool, Dict[str, str]]:
         """

@@ -75,7 +75,7 @@ def deploy(config: Dict[str, str], web_app: WebApp, parameters: Parser):
     success, config = web_app.deploy(config)
 
     if success:
-        print(f"The application will soon be available at: https://{web_app.url()}", flush=True)
+        print(f"The application will soon be available at: {web_app.url()}", flush=True)
     else:
         print(
             'The application may not be deployed, but the infrastructure may be' \
