@@ -36,9 +36,9 @@ def test(folder, cmd, html_expected, log):
     # Simulate the CLI call.
     sys.argv = cmd.split()
     web_app = main()
-    return
+
     # Ensure the application is reachable.
-    time.sleep(60*5)
+    time.sleep(60*3)
     try:
         res = request(
             "GET",
@@ -51,8 +51,8 @@ def test(folder, cmd, html_expected, log):
         print(f"Test failed.\nTraceback: {e}", flush=True, file=sys.stderr)
 
     # Delete resources.
-    #sys.argv = ['weblodge', 'delete', '--yes']
-    #main()
+    # sys.argv = ['weblodge', 'delete', '--yes']
+    # main()
 
     # Delete test files.
     shutil.rmtree('dist')

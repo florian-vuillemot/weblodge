@@ -21,6 +21,9 @@ class TestWebApp(unittest.TestCase):
         self.app_service = json.loads(
             Path('./tests/_azure/api_mocks/appservices_plan.json').read_text(encoding='utf-8')
         )
+        self.resource_group = json.loads(
+            Path('./tests/_azure/api_mocks/resource_groups.json').read_text(encoding='utf-8')
+        )[0]
         return super().setUp()
 
     def test_create(self):
@@ -29,7 +32,11 @@ class TestWebApp(unittest.TestCase):
         """
         expected_output = self.web_apps[0]
 
-        resource_group = ResourceGroup(name=expected_output['resourceGroup'], cli=None)
+        resource_group = ResourceGroup(
+            name=expected_output['resourceGroup'],
+            cli=None,
+            from_az=self.resource_group
+        )
         asp = AppService(
             name=self.app_service[0]['name'],
             resource_group=resource_group,
