@@ -85,7 +85,7 @@ subdomain = ''.join(random.choice(string.ascii_lowercase) for _ in range(20))  #
 Path('.welodge.json').write_text('{"subdomain": "replace-by-cli-arg"}', encoding='utf-8')
 test(
     '.',
-    f'weblodge deploy --build --entry-point main --sku B1 --subdomain {subdomain} --src app_2 --requirements r.txt',
+    f'weblodge deploy --build --entry-point main.py --sku B1 --subdomain {subdomain} --src app_2 --requirements r.txt',
     'This is app 2.',
     'Specifies the source folder and the subdomain.'
 )
