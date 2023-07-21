@@ -48,3 +48,4 @@ jobs:
       working-directory: tests/end-to-end
       run: |
         poetry run python main.py
+        ls -al

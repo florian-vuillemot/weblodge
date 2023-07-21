@@ -26,7 +26,10 @@ class TestResourceGroup(unittest.TestCase):
         """
         expected_output = self.resource_groups[0]
 
-        resource_group = ResourceGroup(name=expected_output['name'], cli=Cli(expected_output))
+        resource_group = ResourceGroup(
+            name=expected_output['name'],
+            cli=Cli(expected_output)
+        )
 
         self.assertEqual(resource_group.name, expected_output['name'])
         self.assertEqual(resource_group.location, expected_output['location'])
