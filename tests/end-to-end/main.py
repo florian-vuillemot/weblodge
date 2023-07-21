@@ -82,7 +82,7 @@ subdomain = ''.join(random.choice(string.ascii_lowercase) for _ in range(20))  #
 # Create a fake configuration file.
 # It will be replaced by the command line argument, otherwise the CLI will failed because
 # the subdomain will already be in use.
-Path('.welodge.json').write_text(f'{"subdomain": "replace-by-cli-arg"}', encoding='utf-8')
+Path('.welodge.json').write_text('{"subdomain": "replace-by-cli-arg"}', encoding='utf-8')
 test(
     '.',
     f'weblodge deploy --build --src app --sku B1 --subdomain {subdomain} --src app_2 --requirements r.txt',
