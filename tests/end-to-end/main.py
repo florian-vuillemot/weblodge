@@ -51,8 +51,8 @@ def test(folder, cmd, html_expected, log):
         print(f"Test failed.\nTraceback: {e}", flush=True, file=sys.stderr)
 
     # Delete resources.
-    # sys.argv = ['weblodge', 'delete', '--yes']
-    # main()
+    sys.argv = ['weblodge', 'delete', '--yes']
+    main()
 
     # Delete test files.
     shutil.rmtree('dist')
@@ -78,14 +78,14 @@ test(
     'This is app 1.',
     'No parameters provided.'
 )
-#subdomain = ''.join(random.choice(string.ascii_lowercase) for _ in range(20))  # pylint: disable=invalid-name
+subdomain = ''.join(random.choice(string.ascii_lowercase) for _ in range(20))  # pylint: disable=invalid-name
 # Create a fake configuration file.
 # It will be replaced by the command line argument, otherwise the CLI will failed because
 # the subdomain will already be in use.
-# Path('.welodge.json').write_text(f'{"subdomain": "replace-by-cli-arg"}', encoding='utf-8')
-# test(
-#     '.',
-#     f'weblodge deploy --build --src app --sku B1 --subdomain {subdomain} --src app_2 --requirements r.txt',
-#     'This is app 2.',
-#     'Specifies the source folder and the subdomain.'
-# )
+Path('.welodge.json').write_text(f'{"subdomain": "replace-by-cli-arg"}', encoding='utf-8')
+test(
+    '.',
+    f'weblodge deploy --build --src app --sku B1 --subdomain {subdomain} --src app_2 --requirements r.txt',
+    'This is app 2.',
+    'Specifies the source folder and the subdomain.'
+)
