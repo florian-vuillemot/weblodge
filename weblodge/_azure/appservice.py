@@ -48,7 +48,7 @@ class AppService(Resource):
         tags = self.resource_group.tags
         rg_name = self.resource_group.name
         location = self.resource_group.location
-        print('involke')
+
         self._cli.invoke(
             f'appservice plan create --name {self.name} --sku {sku} --resource-group {rg_name} --location {location} --is-linux',  # pylint: disable=line-too-long
             tags=tags

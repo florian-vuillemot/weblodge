@@ -4,12 +4,12 @@ Each test consists of deploying an application on the cloud and
 checking that it is accessible via HTTP.
 """
 import os
-from pathlib import Path
-import random
-import string
 import sys
 import time
 import shutil
+import random
+import string
+from pathlib import Path
 
 from urllib3 import Retry, request
 

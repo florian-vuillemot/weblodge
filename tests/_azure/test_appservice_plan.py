@@ -18,6 +18,9 @@ class TestAppService(unittest.TestCase):
         self.app_services = json.loads(
             Path('./tests/_azure/api_mocks/appservices_plan.json').read_text(encoding='utf-8')
         )
+        self.resource_group = json.loads(
+            Path('./tests/_azure/api_mocks/resource_groups.json').read_text(encoding='utf-8')
+        )[0]
         return super().setUp()
 
     def test_create(self):
@@ -26,12 +29,12 @@ class TestAppService(unittest.TestCase):
         """
         expected_output = self.app_services[0]
 
-        resource_group = ResourceGroup(name=expected_output['resourceGroup'], cli=None)
+        resource_group = ResourceGroup(name=expected_output['resourceGroup'], cli=None, from_az=self.resource_group)
         app_service = AppService(
             name=expected_output['name'],
             resource_group=resource_group,
-            cli=Cli(expected_output)
-        )
+            cli=Cli([expected_output, expected_output])
+        ).create('B1')
 
         self.assertEqual(app_service.name, expected_output['name'])
         self.assertEqual(app_service.id_, expected_output['id'])
