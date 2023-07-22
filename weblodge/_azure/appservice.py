@@ -16,6 +16,8 @@ class AppService(Resource):
     """
     Azure AppService Plan representation.
     """
+    _cli_prefix = 'appservice plan'
+
     # pylint: disable=too-many-arguments
     def __init__(
             self,
@@ -55,13 +57,33 @@ class AppService(Resource):
         )
         return self
 
+    @classmethod
+    def from_id(cls, id_: str, cli: Cli) -> 'AppService':
+        """
+        Return an App Service from an Azure App Service Plan ID.
+        """
+        from_az = cli.invoke(f'{cls._cli_prefix} show --ids {id_}')
+        return cls.from_az(from_az['name'], cli, from_az)
+
+    @classmethod
+    def from_az(cls, name: str, cli: Cli, from_az: Dict):
+        """
+        Return an App Service from Azure AppService result.
+        """
+        return cls(
+            name=name,
+            resource_group=ResourceGroup(from_az['resourceGroup'], cli),
+            cli=cli,
+            from_az=from_az
+        )
+
     def _load(self):
         """
         Load the AppService Plan from Azure.
         """
         self._from_az.update(
             self._cli.invoke(
-                f'appservice plan show --name {self.name} --resource-group {self.resource_group.name}'
+                f'{self._cli_prefix} show --name {self.name} --resource-group {self.resource_group.name}'
             )
         )
         return self

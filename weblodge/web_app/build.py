@@ -145,7 +145,7 @@ def _user_application(config: BuildConfig, zipf: zipfile.ZipFile):
             relative_to = os.path.relpath(file_path, config.src)
 
             # Skip the requirements file.
-            if root.name == '' and file == requirements_filename:
+            if relative_to == requirements_filename:
                 continue
 
             zipf.write(file_path, relative_to)

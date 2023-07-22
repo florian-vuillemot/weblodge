@@ -5,6 +5,7 @@ import sys
 import json
 import logging
 from io import StringIO
+import time
 from typing import Dict, Union
 
 from azure.cli.core import get_default_cli
@@ -53,25 +54,35 @@ class Cli:
         cmd = command.split()
         # Create a file-like object to store the output.
         out_fd = None
-        stderr = sys.stderr
+        #stderr = sys.stderr
 
         if tags:
             cmd.append('--tags')
             cmd.extend(f'{k}={v}' for k, v in tags.items())
 
-        try:
-            if not log_outputs:
-                # Redirect the standard error to avoid printing the error message.
-                sys.stderr = StringIO()
-                out_fd = StringIO()
-            # Execute the Azure CLI command.
-            if self.cli.invoke(cmd, out_file=out_fd):
-                raise CLIException(f"Error during execution of the command '{command}'.")  # pylint: disable=broad-exception-raised
-        except (SystemExit, Exception) as exception:
-            raise CLIException(f"Error during execution of the command '{command}'.\nTraceback: {exception}") # pylint: disable=raise-missing-from
-        finally:
-            # Restore the standard error output.
-            sys.stderr = stderr
+        exception = None
+        for _ in range(10):
+            try:
+                if not log_outputs:
+                    # Redirect the standard error to avoid printing the error message.
+                    #sys.stderr = StringIO()
+                    out_fd = StringIO()
+                # Execute the Azure CLI command.
+                if self.cli.invoke(cmd, out_file=out_fd):
+                    exception = CLIException(f"Error during execution of the command '{command}'.")  # pylint: disable=broad-exception-raised
+                else:
+                    exception = None
+                    break
+            except (SystemExit, Exception) as exception: # pylint: disable=broad-exception-caught
+                exception = CLIException(f"Error during execution of the command '{command}'.\nTraceback: {exception}") # pylint: disable=raise-missing-from
+            finally:
+                # Restore the standard error output.
+                #sys.stderr = stderr
+                ...
+            time.sleep(30)
+
+        if exception:
+            raise exception
 
         # No output to return.
         if log_outputs:

@@ -10,6 +10,8 @@ class ResourceGroup(Resource):
     """
     Azure Resource Group representation.
     """
+    _cli_prefix = 'group'
+
     @property
     def location(self) -> str:
         """
@@ -21,7 +23,11 @@ class ResourceGroup(Resource):
         """
         Create a new Resource Group and return it.
         """
-        tags = tags or {}
+        # Tags are merged with the internal tags.
+        tags = {
+            **(tags or {}),
+            **self._internal_tags
+        }
 
         self._cli.invoke(
             f'group create --name {self.name} --location {location}',

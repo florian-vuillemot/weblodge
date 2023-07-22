@@ -31,6 +31,13 @@ class Resource:
     """
     Abstract representation of an Azure resource.
     """
+    # Prefix used with the Azure CLI.
+    # Ex:
+    # - 'webapp' for Azure WebApp.
+    # - 'appservice plan' for Azure AppService Plan.
+    _cli_prefix = None
+    _internal_tags = {'managedby': 'weblodge'}
+
     def __init__(self, name: str, cli: Cli = Cli(), from_az: Dict = None) -> None:
         self.name = name
         self._cli = cli
@@ -60,12 +67,36 @@ class Resource:
     def exists(self) -> bool:
         """
         Return True if the resource exists.
+        Load the resource from Azure if found.
         """
-        try:
-            self._load()
-            return True
-        except Exception:  # pylint: disable=broad-exception-caught
-            return False
+        for resource in self.all(self._cli):
+            if resource == self:
+                self._from_az.update(resource._from_az) # pylint: disable=protected-access
+                return True
+        return False
+
+    @classmethod
+    def all(cls, cli = Cli()):
+        """
+        Return all resources managed by WebLodge.
+        """
+        resources = cli.invoke(
+            f'{cls._cli_prefix} list'
+        )
+
+        # Tags must be present and not None.
+        ressources_with_tags = (_r for _r in resources if _r.get('tags'))
+        weblodges_resources = (_r for _r in ressources_with_tags if _r['tags'].get('managedby') == 'weblodge')
+        yield from (
+            cls.from_az(_r['name'], cli, _r) for _r in weblodges_resources
+        )
+
+    @classmethod
+    def from_az(cls, name: str, cli: Cli, from_az: Dict):
+        """
+        Create a resource from Azure.
+        """
+        return cls(name, cli, from_az)
 
     @abstractmethod
     def _load(self):

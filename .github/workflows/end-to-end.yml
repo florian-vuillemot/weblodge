@@ -15,7 +15,7 @@ jobs:
       # Testing removes the infrastructure and must not be interrupted.
       fail-fast: false
       # Limit the number of call to Azure.
-      max-parallel: 3
+      #max-parallel: 3
 
       matrix:
         python-version: ["3.8", "3.9", "3.10", "3.11"]

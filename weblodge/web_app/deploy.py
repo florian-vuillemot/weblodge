@@ -87,8 +87,7 @@ class DeploymentConfig:
 
         # Infrastructure tags.
         self.tags = {
-            'environment': self.environment,
-            'managed-by': 'weblodge'
+            'environment': self.environment
         }
 
 

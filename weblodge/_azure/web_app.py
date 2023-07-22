@@ -20,7 +20,7 @@ class WebApp(Resource):
     """
     Azure Web App representation.
     """
-    _resources = []
+    _cli_prefix = 'webapp'
 
     # pylint: disable=too-many-arguments
     def __init__(
@@ -102,6 +102,19 @@ class WebApp(Resource):
         self._cli.invoke(
             f'webapp log tail -g {self.resource_group.name} -n {self.name}',
             log_outputs=True
+        )
+
+    @classmethod
+    def from_az(cls, name: str, cli: Cli, from_az: Dict) -> 'WebApp':
+        """
+        Create a WebApp from Azure result.
+        """
+        return cls(
+            name,
+            ResourceGroup(from_az['resourceGroup'], cli=cli),
+            AppService.from_id(from_az['appServicePlanId'], cli=cli),
+            cli=cli,
+            from_az=from_az
         )
 
     def _load(self):
