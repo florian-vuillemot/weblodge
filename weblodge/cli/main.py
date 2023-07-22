@@ -26,11 +26,11 @@ logger.addHandler(logging.StreamHandler())
 def main():
     success = False
     parameters = Parser()
-    action, config_filename = get_cli_args()
+    action, config_file = get_cli_args()
     web_app = WebApp(parameters.load)
 
     try:
-        config = state.load(config_filename)
+        config = state.load(config_file)
         if action == 'build':
             success, config = web_app.build(config)
         elif action == 'deploy':
@@ -44,7 +44,7 @@ def main():
         print('Command failed with the following error:', exception, file=sys.stderr, flush=True)
 
     if success:
-        state.dump(config_filename, config)
+        state.dump(config_file, config)
         return web_app
 
     sys.exit(1)

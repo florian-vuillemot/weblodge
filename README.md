@@ -31,7 +31,7 @@ Behind the scene, **WebLodge** *build* then *deploy* your application.
 
 Here is an example of the standard pattern deployable without configuration:
 ```
-$ cat app.py  # The application filename entry point.
+$ cat app.py  # The application entry point.
 from flask import Flask
 
 app = Flask(__name__)  # The Flask application.
@@ -44,7 +44,7 @@ It can be deployed with `weblodge deploy --build`.
 
 Here is a non-standard example:
 ```
-$ cat main.py  # The application filename entry point.
+$ cat main.py  # The application entry point.
 from flask import Flask
 
 my_app = Flask(__name__)  # The Flask application.
@@ -156,11 +156,11 @@ If you use the [logging](https://docs.python.org/3/library/logging.html) module,
 At the end of a deployment, **WebLodge** creates a file named `.weblodge.json` by default.
 This file contains the previous configuration, enabling **WebLodge** to update your application with the same parameters. This file can be version-controlled and used in your Continuous Deployment.
 
-You can change the name of this file with the `--config-filename` option.
+You can change the name of this file with the `--config-file` option.
 
 Example:
 ```
-weblodge build --config-filename myconfigfile.json
+weblodge build --config-file myconfigfile.json
 ```
 
 ## Manage your WebLodge-deployed application
