@@ -29,19 +29,19 @@ def main():
     action, config_filename = get_cli_args()
     web_app = WebApp(parameters.load)
 
-    #try:
-    config = state.load(config_filename)
-    if action == 'build':
-        success, config = web_app.build(config)
-    elif action == 'deploy':
-        success, config = deploy(config, web_app, parameters)
-    elif action == 'delete':
-        success, config = delete(config, web_app, parameters)
-    elif action == 'logs':
-        print('Logs will be stream, execute CTRL+C to stop the application.', flush=True)
-        web_app.print_logs(config)
-    #except Exception as exception: # pylint: disable=broad-exception-caught
-    #    print('Command failed with the following error:', exception, file=sys.stderr, flush=True)
+    try:
+        config = state.load(config_filename)
+        if action == 'build':
+            success, config = web_app.build(config)
+        elif action == 'deploy':
+            success, config = deploy(config, web_app, parameters)
+        elif action == 'delete':
+            success, config = delete(config, web_app, parameters)
+        elif action == 'logs':
+            print('Logs will be stream, execute CTRL+C to stop the application.', flush=True)
+            web_app.print_logs(config)
+    except Exception as exception: # pylint: disable=broad-exception-caught
+        print('Command failed with the following error:', exception, file=sys.stderr, flush=True)
 
     if success:
         state.dump(config_filename, config)
