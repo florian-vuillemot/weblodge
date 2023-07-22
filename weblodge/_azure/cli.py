@@ -52,9 +52,8 @@ class Cli:
     def _invoke(self, command: str, to_json: bool, tags: Dict[str, str], log_outputs: bool) -> Union[str, Dict]:
         # Convert the string command to a array of arguments.
         cmd = command.split()
-        # Create a file-like object to store the output.
-        out_fd = None
-        #stderr = sys.stderr
+        # Redirect the output to a file if the log output is not asked.
+        out_fd = None if log_outputs else StringIO()
 
         if tags:
             cmd.append('--tags')
@@ -63,10 +62,6 @@ class Cli:
         exception = None
         for _ in range(10):
             try:
-                if not log_outputs:
-                    # Redirect the standard error to avoid printing the error message.
-                    #sys.stderr = StringIO()
-                    out_fd = StringIO()
                 # Execute the Azure CLI command.
                 if self.cli.invoke(cmd, out_file=out_fd):
                     exception = CLIException(f"Error during execution of the command '{command}'.")  # pylint: disable=broad-exception-raised
@@ -75,10 +70,6 @@ class Cli:
                     break
             except (SystemExit, Exception) as exception: # pylint: disable=broad-exception-caught
                 exception = CLIException(f"Error during execution of the command '{command}'.\nTraceback: {exception}") # pylint: disable=raise-missing-from
-            finally:
-                # Restore the standard error output.
-                #sys.stderr = stderr
-                ...
             time.sleep(30)
 
         if exception:
