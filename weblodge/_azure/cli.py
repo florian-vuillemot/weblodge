@@ -1,7 +1,6 @@
 """
 Interface to the Azure CLI.
 """
-import sys
 import json
 import logging
 from io import StringIO
