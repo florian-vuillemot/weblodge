@@ -52,7 +52,7 @@ class AppService(Resource):
         location = self.resource_group.location
 
         self._cli.invoke(
-            f'appservice plan create --name {self.name} --sku {sku} --resource-group {rg_name} --location {location} --is-linux',  # pylint: disable=line-too-long
+            f'{self._cli_prefix} create --name {self.name} --sku {sku} --resource-group {rg_name} --location {location} --is-linux',  # pylint: disable=line-too-long
             tags=tags
         )
         return self

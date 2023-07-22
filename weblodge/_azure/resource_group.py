@@ -30,7 +30,7 @@ class ResourceGroup(Resource):
         }
 
         self._cli.invoke(
-            f'group create --name {self.name} --location {location}',
+            f'{self._cli_prefix} create --name {self.name} --location {location}',
             tags=tags
         )
         return self
@@ -39,13 +39,13 @@ class ResourceGroup(Resource):
         """
         Delete the resource group.
         """
-        self._cli.invoke(f'group delete --name {self.name} --yes', to_json=False)
+        self._cli.invoke(f'{self._cli_prefix} delete --name {self.name} --yes', to_json=False)
 
     def _load(self):
         """
         Load the Resource Group from Azure.
         """
         self._from_az.update(
-            self._cli.invoke(f'group show --name {self.name}')
+            self._cli.invoke(f'{self._cli_prefix} show --name {self.name}')
         )
         return self

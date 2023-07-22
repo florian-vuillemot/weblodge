@@ -68,13 +68,13 @@ class WebApp(Resource):
 
         # Create the WebApp infrastructure.
         self._cli.invoke(
-            f'webapp create -g {rg_name} -p {asp} -n {name} --runtime PYTHON:{python_version}',
+            f'{self._cli_prefix} create -g {rg_name} -p {asp} -n {name} --runtime PYTHON:{python_version}',
             tags={**self.resource_group.tags, **self.app_service.tags}
         )
         # Update the WebApp settings.
         self._cli.invoke(
             ' '.join((
-                f'webapp config set --resource-group {rg_name} --name {name}',
+                f'{self._cli_prefix} config set --resource-group {rg_name} --name {name}',
                 '--web-sockets-enabled true',
                 '--http20-enabled',
                 '--startup-file weblodge.startup',
@@ -88,7 +88,7 @@ class WebApp(Resource):
         """
         self._cli.invoke(
             ' '.join((
-                'webapp deployment source config-zip',
+                '{self._cli_prefix} deployment source config-zip',
                 f'-g {self.resource_group.name} -n {self.name}',
                 f'--src {src}'
             ))
@@ -100,7 +100,7 @@ class WebApp(Resource):
         This is a blocking operation. User must run CTRL+C to stop the process.
         """
         self._cli.invoke(
-            f'webapp log tail -g {self.resource_group.name} -n {self.name}',
+            f'{self._cli_prefix} log tail -g {self.resource_group.name} -n {self.name}',
             log_outputs=True
         )
 
@@ -123,7 +123,7 @@ class WebApp(Resource):
         """
         self._from_az.update(
             self._cli.invoke(
-                f'webapp show --resource-group {self.resource_group.name} --name {self.name}'
+                f'{self._cli_prefix} show --resource-group {self.resource_group.name} --name {self.name}'
             )
         )
         return self
