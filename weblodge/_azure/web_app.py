@@ -88,7 +88,7 @@ class WebApp(Resource):
         """
         self._cli.invoke(
             ' '.join((
-                '{self._cli_prefix} deployment source config-zip',
+                f'{self._cli_prefix} deployment source config-zip',
                 f'-g {self.resource_group.name} -n {self.name}',
                 f'--src {src}'
             ))
