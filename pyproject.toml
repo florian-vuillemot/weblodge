@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "weblodge"
-version = "0.1.5"
+version = "0.2.0"
 description = "A simple command line aiming to provide anyone with deployment and cloud management capabilities."
 authors = ["Vuillemot Florian <vuillemot.florian@outlook.fr>"]
 
@@ -15,7 +15,9 @@ weblodge = "weblodge.cli:main"
 
 [tool.poetry.dependencies]
 python = ">=3.8,<3.12"
-azure-cli = "2.50.0"
+azure-cli = ">=2.40.0"
+
+[tool.poetry.group.tests.dependencies]
 urllib3 = "^2.0.3"
 
 [tool.poetry.group.linter.dependencies]

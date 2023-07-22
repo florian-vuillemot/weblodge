@@ -1,49 +1,35 @@
 """
 Resource Group Tests.
 """
+import json
+from pathlib import Path
 import unittest
 
 from weblodge._azure import ResourceGroup
 
-from .cli import cli
-from .mocks.resource_group import develop, staging, production
+from .cli import Cli
 
 
 class TestResourceGroup(unittest.TestCase):
     """
-    Resource Group CRUD Tests.
+    Resource Group tests.
     """
     def setUp(self) -> None:
-        self.resource_group = ResourceGroup(cli)
-
+        self.resource_groups = json.loads(
+            Path('./tests/_azure/api_mocks/resource_groups.json').read_text(encoding='utf-8')
+        )
         return super().setUp()
-
-    def test_list(self):
-        """
-        Ensure the corresponding conversion is done by the `list` method.
-        """
-        self.assertEqual(
-            [develop, staging, production],
-            self.resource_group.list()
-        )
-
-    def test_get(self):
-        """
-        Ensure the `get` method returns the corresponding Resource Group.
-        """
-        self.assertEqual(
-            staging,
-            self.resource_group.get(name=staging.name)
-        )
 
     def test_create(self):
         """
-        Ensure the `create` method returns the corresponding Resource Group.
+        Test the create.
         """
-        self.assertEqual(
-            staging,
-            self.resource_group.create(
-                name=staging.name,
-                location=staging.location
-            )
+        expected_output = self.resource_groups[0]
+
+        resource_group = ResourceGroup(
+            name=expected_output['name'],
+            cli=Cli(expected_output)
         )
+
+        self.assertEqual(resource_group.name, expected_output['name'])
+        self.assertEqual(resource_group.location, expected_output['location'])

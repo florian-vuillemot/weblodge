@@ -6,130 +6,101 @@ Entry point for the CLI.
 This module is the entry point for the CLI. It parses the command line arguments
 and calls the appropriate functions.
 """
+import sys
 import logging
+
 from typing import Dict
 
 import weblodge.state as state
-import weblodge.web_app as web_app
-import weblodge.parameters as parameters
-from weblodge.config import Item as ConfigItem
+from weblodge.web_app import WebApp
+from weblodge.parameters import Parser, ConfigIsNotDefined, ConfigIsDefined
+
+from .args import get_cli_args, CLI_NAME
 
 
 logger = logging.getLogger('weblodge')
 logger.setLevel(logging.INFO)
 logger.addHandler(logging.StreamHandler())
 
-
 # pylint: disable=missing-function-docstring
 def main():
-    weblodge = parameters.weblodge()
-    config_filename = weblodge.config_filename
-
-    config = state.load(config_filename)
-    if weblodge.action == 'build':
-        config = build(config)
-    elif weblodge.action == 'deploy':
-        config = deploy(config)
-    elif weblodge.action == 'delete':
-        config = delete(config)
-    elif weblodge.action == 'logs':
-        logs(config)
-
-    state.dump(config_filename, config)
-
-
-def build(config: Dict[str, str]) -> Dict[str, str]:
-    """
-    Build the application.
-    """
-    config = parameters.load(
-        web_app.BuildConfig.items,
-        config
-    )
-
-    logger.info('Building...')
-    build_config = web_app.BuildConfig(**config)
+    success = False
+    parameters = Parser()
+    action, config_filename = get_cli_args()
+    web_app = WebApp(parameters.load)
 
     try:
-        web_app.build(build_config)
-    except web_app.RequirementsFileNotFound:
-        logger.critical(f"Requirements file '{build_config.requirements}' not found.")
-        logger.critical('Build failed.')
-        return config
+        config = state.load(config_filename)
+        if action == 'build':
+            success, config = web_app.build(config)
+        elif action == 'deploy':
+            success, config = deploy(config, web_app, parameters)
+        elif action == 'delete':
+            success, config = delete(config, web_app, parameters)
+        elif action == 'logs':
+            print('Logs will be stream, execute CTRL+C to stop the application.', flush=True)
+            web_app.print_logs(config)
+    except Exception as exception: # pylint: disable=broad-exception-caught
+        print('Command failed with the following error:', exception, file=sys.stderr, flush=True)
 
-    logger.info('Successfully built.')
-    return config
+    if success:
+        state.dump(config_filename, config)
+        return web_app
+
+    sys.exit(1)
 
 
-def deploy(config: Dict[str, str]) -> Dict[str, str]:
+def deploy(config: Dict[str, str], web_app: WebApp, parameters: Parser):
     """
     Deploy the application.
     """
     # The application can be built before being deployed.
-    build_too = [
-        ConfigItem(
-            name='build',
-            description='Build then deploy the application. Parameters are the same as for the `build` command.',
-            attending_value=False
-        )
-    ]
+    def _build(config):
+        success, config = web_app.build(config)
 
-    config = parameters.load(
-        web_app.deploy_config() + build_too,
-        config
+        if not success:
+            logger.critical('Deployment failed.')
+            sys.exit(1)
+        return config
+
+    build_too = ConfigIsDefined(
+        name='build',
+        description='Build then deploy the application. Parameters are the same as for the `build` command.',
+        attending_value=False,
+        trigger=_build
     )
 
-    if config['build']:
-        build(config)
+    parameters.trigger_once(build_too)
+    success, config = web_app.deploy(config)
 
-    logger.info('Deploying...')
-    if webapp_url := web_app.deploy(config):
-        logger.info(f"The application will soon be available on: https://{webapp_url}")
+    if success:
+        print(f"The application will soon be available at: {web_app.url()}", flush=True)
     else:
-        logger.critical(
+        print(
             'The application may not be deployed, but the infrastructure may be' \
-            f' partially created. You can delete it by running: {parameters.CLI_NAME} delete'
+            f' partially created. You can delete it by running: {CLI_NAME} delete',
+            sys=sys.stderr,
+            flush=True
         )
-    return config
+    return success, config
 
 
-def delete(config: Dict[str, str]) -> Dict[str, str]:
+def delete(config: Dict[str, str], web_app: WebApp, parameters: Parser):
     """
     Delete the application.
     """
-    do_not_prompt = parameters.load([
-        ConfigItem(
-            name='yes',
-            description='Delete without user input.',
-            attending_value=False
-        )],
-        config
-    )
-
-    if not do_not_prompt.get('yes'):
+    def _validation(config):
         if input('Are you sure you want to delete the application (yes/no.)? ') != 'yes':
-            logger.info('Aborting.')
-            return config
+            print('Aborting.')
+            sys.exit(0)
+        return config
 
-    config = parameters.load(
-        web_app.delete_config(),
-        config
+    prompt = ConfigIsNotDefined(
+        name='yes',
+        description='Delete without user input.',
+        trigger=_validation,
+        attending_value=False
     )
-    logger.info('Deleting...')
-    web_app.delete(config)
-    logger.info('Successfully deleted.')
 
-    return config
-
-
-def logs(config: Dict[str, str]) -> None:
-    """
-    Stream application logs.
-    """
-    config = parameters.load(
-        web_app.logs_config(),
-        config
-    )
-    logger.warning('Logs will be stream, execute CTRL+C to stop the application.')
-    logger.info('Recovering logs...')
-    web_app.logs(config)
+    parameters.trigger_once(prompt)
+    return web_app.delete(config)

@@ -1,9 +1,7 @@
 """
-CLI Mock that will return waiting output or exception for a given command using
-pre defined Mocked output.
+CLI Mock that will return waiting output or exception
+when a command is invoked.
 """
-import json
-from pathlib import Path
 from typing import Dict, Union
 
 
@@ -11,51 +9,25 @@ class Cli:
     """
     Azure CLI Mock wrapper.
     Return waiting output or exception for a given command.
+    The output can be a list of output, the next one will be returned.
     """
-    def __init__(self):
-        self._commands = {}
-
-    def add_command(self, command: str, output = Union[Dict, str]):
-        """
-        Add new command to the mock that will return the given output.
-        """
-        self._commands[command] = output
-
-    def add_exception(self, command: str):
-        """
-        Raised an exception when the given command is invoked.
-        """
-        self._commands[command] = Exception
+    def __init__(self, output):
+        self.output = output
 
     def invoke(self, command: str, *_args, **_kwargs) -> Union[str, Dict]:
         """
-        Invoke the given command and return pre defined output.
+        Invoke the given command and return the expected output.
         """
-        output = self._commands[command]
-        if isinstance(output, Exception):
-            raise output
-        return output
+        assert command is not None, 'No command set.'
+        assert self.output, 'No expected output set.'
 
-# Create a default instance of the CLI that return working output.
-cli = Cli()
+        if isinstance(self.output, list):
+            expected_output = self.output.pop(0)
+        else:
+            expected_output = self.output
+            # Can only be called once.
+            self.output = None
 
-resource_groups_json = json.loads(
-    Path('./tests/_azure/mocks/resource_groups.json').read_text(encoding='utf-8')
-)
-cli.add_command('group list', resource_groups_json)
-cli.add_command('group create --name staging --location northeurope', resource_groups_json[1])
-
-appservices_json = json.loads(
-    Path('./tests/_azure/mocks/appservices_plan.json').read_text(encoding='utf-8')
-)
-cli.add_command('appservice plan list', appservices_json)
-
-subscriptions_json = json.loads(
-    Path('./tests/_azure/mocks/subscriptions.json').read_text(encoding='utf-8')
-)
-cli.add_command('account list', subscriptions_json)
-
-web_apps_json = json.loads(
-    Path('./tests/_azure/mocks/web_apps.json').read_text(encoding='utf-8')
-)
-cli.add_command('webapp list', web_apps_json)
+        if isinstance(expected_output, Exception):
+            raise expected_output
+        return expected_output

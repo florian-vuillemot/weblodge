@@ -11,22 +11,11 @@ This package is ready to be deployed on an Azure Web App.
 """
 import os
 from pathlib import Path
-from typing import List
 import zipfile
 
 from weblodge.config import Item as ConfigItem
 
-
-class BuildException(Exception):
-    """
-    Build exception.
-    """
-
-
-class RequirementsFileNotFound(BuildException):
-    """
-    The requirements file was not found.
-    """
+from .exceptions import RequirementsFileNotFound, EntryPointFileNotFound, FlaskAppNotFound
 
 
 class BuildConfig:
@@ -46,13 +35,42 @@ class BuildConfig:
     # Kudu needs a requirements file at the root of the zip.
     kudu_requirements_path = 'requirements.txt'
 
+    # Configurable items of the build.
+    items = [
+        ConfigItem(
+            name='src',
+            description='Application folder.',
+            default='.'
+        ),
+        ConfigItem(
+            name='dist',
+            description='Build destination.',
+            default='dist'
+        ),
+        ConfigItem(
+            name='entry_point',
+            description='Application entry point.',
+            default='app.py'
+        ),
+        ConfigItem(
+            name='flask_app',
+            description='The Flask application object.',
+            default='app'
+        ),
+        ConfigItem(
+            name='requirements',
+            description='Requirements.txt file path.',
+            default='requirements.txt'
+        )
+    ]
+
     # pylint: disable=too-many-arguments
     def __init__(
         self,
         src: str,
         dist: str,
         entry_point: str,
-        app: str,
+        flask_app: str,
         requirements: str,
         *_args,
         **_kwargs
@@ -64,7 +82,7 @@ class BuildConfig:
         # Application entrypoint.
         self.entry_point = entry_point
         # Flask application object.
-        self.app = app
+        self.flask_app = flask_app
         # User requirements file.
         self.requirements = requirements
 
@@ -74,40 +92,6 @@ class BuildConfig:
         Return the package path.
         """
         return os.path.join(self.dist, self.package)
-
-    @classmethod
-    @property
-    def items(cls) -> List[ConfigItem]:
-        """
-        Items that can be configured.
-        """
-        return [
-            ConfigItem(
-                name='src',
-                description='Application folder.',
-                default='.'
-            ),
-            ConfigItem(
-                name='dist',
-                description='Build destination.',
-                default='dist'
-            ),
-            ConfigItem(
-                name='entry_point',
-                description='Application entry point.',
-                default='app.py'
-            ),
-            ConfigItem(
-                name='app',
-                description='Flask Application object.',
-                default='app'
-            ),
-            ConfigItem(
-                name='requirements',
-                description='Requirements.txt file path.',
-                default='requirements.txt'
-            )
-        ]
 
 
 def build(config: BuildConfig) -> None:
@@ -119,22 +103,29 @@ def build(config: BuildConfig) -> None:
 
     # Zip all required files together.
     with zipfile.ZipFile(config.package_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
-        requirements_file_included = _zip_user_application(config, zipf)
+        _user_application(config, zipf)
+        _user_requirements(config, zipf)
         _deployment_config(config, zipf)
         _startup_file(config, zipf)
 
-        # Add the requirements file if it was not included in the user application folder.
-        if not requirements_file_included:
-            _requirements(config, zipf)
 
-
-def _zip_user_application(config: BuildConfig, zipf: zipfile.ZipFile) -> bool:
+def _user_application(config: BuildConfig, zipf: zipfile.ZipFile):
     """
     Create the zip folder.
-
-    Return True if the requirements file was included at the root of the application folder.
     """
-    requirements_file_included = False
+    # The requirements file name.
+    # It will be added to the zip folder in a dedicated function.
+    # If it is added twice, the ZIP library prints an error.
+    requirements_filename = Path(config.requirements).name
+
+    # Ensure the entry point exists.
+    entry_point = Path(config.src) / config.entry_point
+    if not entry_point.exists():
+        raise EntryPointFileNotFound()
+
+    # Ensure the flask app is in the entry point file.
+    if config.flask_app not in entry_point.read_text():
+        raise FlaskAppNotFound()
 
     for root, _, files in os.walk(config.src):
         root = Path(root)
@@ -153,24 +144,28 @@ def _zip_user_application(config: BuildConfig, zipf: zipfile.ZipFile) -> bool:
             file_path = root / file
             relative_to = os.path.relpath(file_path, config.src)
 
+            # Skip the requirements file.
+            if relative_to == requirements_filename:
+                continue
+
             zipf.write(file_path, relative_to)
 
-            if not requirements_file_included:
-                # If the requirements file is not already included at the root of the application
-                # folder, check if the current file is that one.
-                requirements_file_included = Path(relative_to) == Path(config.kudu_requirements_path)
 
-    return requirements_file_included
-
-
-def _requirements(config: BuildConfig, zipf: zipfile.ZipFile):
+def _user_requirements(config: BuildConfig, zipf: zipfile.ZipFile):
     """
     Add the requirements file to the zip folder from the user folder.
+    The file can be in the local folder or in the `src` folder.
     """
-    if not os.path.exists(config.requirements):
-        raise RequirementsFileNotFound()
+    if os.path.exists(config.requirements):
+        zipf.write(config.requirements, config.kudu_requirements_path)
+        return
 
-    zipf.write(config.requirements, config.kudu_requirements_path)
+    requirements_in_src = Path(config.src) / config.requirements
+    if requirements_in_src.exists():
+        zipf.write(requirements_in_src, config.kudu_requirements_path)
+        return
+
+    raise RequirementsFileNotFound()
 
 
 def _deployment_config(config: BuildConfig, zipf: zipfile.ZipFile):
@@ -198,7 +193,7 @@ def _startup_file(config: BuildConfig, zipf: zipfile.ZipFile):
 
     # Add the application object if it's not already there.
     if ':' not in entrypoint:
-        entrypoint = f'{entrypoint}:{config.app}'
+        entrypoint = f'{entrypoint}:{config.flask_app}'
 
     # Default application configuration update with the user and entrypoint.
     # https://learn.microsoft.com/en-us/azure/developer/python/configure-python-web-app-on-app-service

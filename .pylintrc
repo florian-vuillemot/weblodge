@@ -6,5 +6,7 @@ disable =
     consider-using-from-import,
     duplicate-code
 
+ignore-paths=^tests/end-to-end*
+
 [FORMAT]
 max-line-length=120

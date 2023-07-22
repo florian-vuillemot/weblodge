@@ -1,30 +1,38 @@
 """
 Stream logs from an Azure Web App in the user console.
 """
-from typing import List, Dict
-
 from weblodge.config import Item as ConfigItem
-from weblodge._azure import Cli, WebApp
+from weblodge._azure import WebApp as AzureWebApp, AppService as AzureAppService, ResourceGroup as AzureResourceGroup
 
 
-def config() -> List[ConfigItem]:
+class LogsConfig():
     """
-    Getting logs from the application configuration.
+    Logs configuration.
+
+    Azure Web App names are unique across the entire Azure platform. Therefore, simply providing
+    the name is enough to retrieve the application logs.
     """
-    return [
+    items = [
         ConfigItem(
-            name='app_name',
-            description='The application name.'
+            name='subdomain',
+            description='The application subdomain.'
         )
     ]
 
-def logs(config_: Dict[str, str]):
+    def __init__(self, subdomain: str, *_args, **_kwargs) -> None:
+        self.subdomain = subdomain
+
+
+def logs(config: LogsConfig):
     """
     Stream logs from the application.
     This function is blocking and never returns.
     User must run CTRL+C to stop the process.
     """
-    web_app = WebApp(Cli())
+    resource_group = AzureResourceGroup(config.subdomain)
 
-    # Stream logs.
-    web_app.logs(web_app.get(config_['app_name']))
+    AzureWebApp(
+        config.subdomain,
+        resource_group,
+        AzureAppService(config.subdomain, resource_group)
+    ).logs()

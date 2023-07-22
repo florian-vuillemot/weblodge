@@ -58,7 +58,7 @@ To be able to deploy the application, you must first *build* it and specify:
 - The **Flask** application: `my_app`.
 ```
 # Build the application.
-weblodge build --entry-point main.py --app my_app
+weblodge build --entry-point main.py --flask-app my_app
 # Deploy the application.
 weblodge deploy
 ```
@@ -73,7 +73,7 @@ The *build* operation can handle the following options:
 | src | Folder containing application sources. | `.` |
 | dist | Folder containing the application built. | `dist` |
 | entry-point | The application file to be executed with `python`. | `app.py` |
-| app | The Flask application object in the `entry-point` file. | `app` |
+| flask-app | The Flask application object in the `entry-point` file. | `app` |
 | requirements | The **requirements.txt** file path of the application. Ignores if a `requirements.txt` file is located at the root of the application. | `requirements.txt` |
 
 > Note: Here, the platform is implicitly [Azure App Service](https://azure.microsoft.com/en-us/products/app-service/web).
@@ -93,7 +93,7 @@ The *deploy* operation creates the necessary infrastructure and uploads the buil
 
 | Option name | Description | Default value |
 |-|-|-|
-| app-name | The unique name of the application on the Internet. It will be included in the application URL. | `<randomly generated>` |
+| subdomain | The subdomain of the application on the Internet: `<subdomain>.azurewebsites.net`. Randomly generated if not provided. | `<randomly generated>` |
 | sku | The application [computational power](https://azure.microsoft.com/en-us/pricing/details/app-service/linux/). | `F1` |
 | location | The physical application location. | `northeurope` |
 | environment | The environment of your application. | `development` |
@@ -104,9 +104,13 @@ Example:
 # Deploy the local application.
 weblodge deploy
 
-# Deploy the local application with a custom name.
-weblodge deploy --app-name myapp
+# Deploy the local application with a custom subdomain.
+weblodge deploy --subdomain myapp
 ```
+
+> **ℹ️ Note**
+>
+> WebLodge considers the `subdomain` as the application name.
 
 ## Delete
 
@@ -114,7 +118,7 @@ The *delete* operation deletes the infrastructure deployed but keeps the build.
 
 | Option name | Description | Default value |
 |-|-|-|
-| app-name | The name of the application to be deleted. | `<my-app>` |
+| subdomain | The subdomain of the application to be deleted. | `<my-subdomain>` |
 | yes | Do not prompt a validation message before deletion. | `false` |
 
 
@@ -131,13 +135,21 @@ The *logs* operation streams your application logs. Because it is a stream, logs
 
 | Option name | Description | Default value |
 |-|-|-|
-| app-name | The name of the application. | `<my-app>` |
+| subdomain | The subdomain of the application. | `<my-subdomain>` |
 
 Example:
 ```
 # Print logs of the application previously created.
 weblodge logs
 ```
+
+*** Log buffering ***
+
+Logs can be buffered and never appear in the stream.
+
+If you use the [print](https://docs.python.org/3/library/functions.html#print) method, you can force logs to be written to the console by sending them to the [stderr](https://docs.python.org/3/library/sys.html#sys.stderr) output or by using the `flush` option.
+
+If you use the [logging](https://docs.python.org/3/library/logging.html) module, only logs starting at the `WARNING` level will be displayed by default. Otherwise, update the [logging level](https://docs.python.org/3/library/logging.html#logging.Logger.setLevel) module to the required level.
 
 ## Configuration file: `.weblodge.json`
 

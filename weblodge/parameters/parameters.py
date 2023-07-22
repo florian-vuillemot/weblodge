@@ -1,105 +1,130 @@
 """
-User inputs can be provided by command line.
-This package contains the logic to parse the command line arguments for internal
-components based on the configuration items. but also the global arguments that are
-hard coded.
+Retrieve parameters of the application.
 
-The help method must be adapted to the action to be carried out.
-Examples:
-    `python weblodge.py -h` must print the `help` message of **WebLodge**.
-    `python weblodge.py build -h` must print the `help` message for the `build` action.
+Currently, the parameters are retrieved from the command line.
 """
-import sys
 import argparse
+
 from dataclasses import dataclass
-from typing import Dict, List
+from typing import Callable, Dict, List
 
 from weblodge.config import Item as ConfigItem
 
 
-# Command Line Interface name.
-CLI_NAME = sys.argv[0]
-
-
-@dataclass(frozen=True)
-class Global:
+@dataclass(frozen=True, eq=False)
+class _ConfigTrigger(ConfigItem):
     """
-    Global and pre defined configuration.
+    Configuration Item with a function to trigger.
+    Can only be defined in the meta configuration.
     """
-    # The action to perform.
-    action: str
-    # The configuration file name containing the deployment state.
-    config_filename: str = '.weblodge.json'
+    # Function to call.
+    trigger: Callable[[Dict[str, str]], Dict[str, str]] = None
 
 
-def weblodge() -> str:
+@dataclass(frozen=True, eq=False)
+class ConfigIsDefined(_ConfigTrigger):
     """
-    Return the action to perform.
+    Call the trigger if the user provides the parameter.
     """
-    # If run user run: `python weblodge.py -h` or `python weblodge.py --help`
-    # then we want to display the **WebLodge** `help` message.
-    # Otherwise, we want to parse the arguments and better scope the help message.
-    # Example: `python weblodge.py build -h` must print the `help` message for the `build` action.
-    asking_global_help = len(sys.argv) == 2 and '-h' in sys.argv[1]
 
-    parser = argparse.ArgumentParser(
-        description='Deploy a Python Flask-based application to Azure.',
-        add_help=asking_global_help
+
+@dataclass(frozen=True, eq=False)
+class ConfigIsNotDefined(_ConfigTrigger):
+    """
+    Call the trigger if the user does not provide the parameter.
+    """
+
+
+class Parser:
+    """
+    Parse the command line arguments.
+
+    Function(s) can be triggered if the user provides the right arguments.
+    They will run only onces and their config will not be added to the global config.
+    Example:
+    ```
+    def _build(config):
+        print('Build the application.')
+        return config
+    parser = Parser()
+    parser.trigger_once(
+        ConfigTrigger(name='build', description='Build the application.', trigger=_build)
     )
-    parser.add_argument(
-        'action',
-        type=str,
-        help='Action to perform.',
-        choices=['build', 'deploy', 'delete', 'logs']
-    )
-    parser.add_argument(
-        '--config-filename',
-        type=str,
-        help='File containing the deployment configuration.',
-        default=Global.config_filename,
-        required=False
-    )
-    args, _ = parser.parse_known_args()
-
-    return Global(
-        action=args.action,
-        config_filename=args.config_filename
-    )
-
-
-def load(fields: List[ConfigItem], existing_parameters: Dict[str, str] = None) -> Dict[str, str]:
+    # If the user runs: `python weblodge.py build -h` then the help message will contain
+    # the `build` option.
+    # If the user runs: `python weblodge.py build` then the `_build` function will be called
+    # but the config will not contains the 'build' item.
+    parser.load(config)
+    ```
     """
-    Load the configuration from the parser.
-    Override the current config with the new values.
-    """
-    existing_parameters = existing_parameters or {}
+    def __init__(self) -> None:
+        self._triggers: List[_ConfigTrigger] = []
 
-    # Create and configure a parser for the fields.
-    parser = argparse.ArgumentParser()
-    for field in fields:
-        argument = {
-            'help': field.description,
-        }
+    def load(self, fields: List[ConfigItem], existing_parameters: Dict[str, str] = None) -> Dict[str, str]:
+        """
+        Load the configuration from the parser.
+        Override the current config with the new values.
+        """
+        existing_parameters = existing_parameters or {}
 
-        default_value = existing_parameters.get(field.name, field.default)
-
-        if not field.attending_value:
-            argument['action'] = 'store_true'
-        else:
+        # Create and configure a parser for the fields.
+        parser = argparse.ArgumentParser()
+        for field in fields + self._triggers:
             argument = {
-                **argument,
-                'type': str,
-                'required': default_value is None,
-                'default': default_value,
+                'help': field.description,
             }
 
-        parser.add_argument(
-            f'--{_to_display(field.name)}',
-            **argument
-        )
-    args_parsed, _ = parser.parse_known_args()
+            default_value = existing_parameters.get(field.name, field.default)
 
-    return {**existing_parameters, **vars(args_parsed)}
+            if not field.attending_value:
+                argument['action'] = 'store_true'
+            else:
+                argument = {
+                    **argument,
+                    'type': str,
+                    'required': default_value is None,
+                    'default': default_value,
+                }
+
+            parser.add_argument(
+                f'--{_to_display(field.name)}',
+                **argument
+            )
+        args_parsed, _ = parser.parse_known_args()
+        new_config = vars(args_parsed)
+
+        # Expected configuration must not contains configuration used for intermediate
+        # operations.
+        _complete_config = {**existing_parameters, **new_config}
+        config = {k: v for k, v in _complete_config.items() if k not in self._triggers}
+
+        # Trigger meta configs functions.
+        while self._triggers:
+            # Trigger are removes from the list as they are called
+            # to avoid infinite recursion.
+            _config = self._triggers.pop()
+            if _config.attending_value:
+                # If a value is expected, check if the user provided it.
+                is_defined = _config.name in new_config
+            else:
+                # If no value is expected, the attending value will create
+                # fill the config with False.
+                is_defined = new_config[_config.name]
+
+            if is_defined and isinstance(_config, ConfigIsDefined):
+                config = _config.trigger(config)
+            elif not is_defined and isinstance(_config, ConfigIsNotDefined):
+                config = _config.trigger(config)
+
+        return config
+
+    def trigger_once(self, trigger: _ConfigTrigger) -> 'Parser':
+        """
+        Add configuration trigger.
+        Configuration defined will not be added to the config.
+        This trigger will be analyse only once then remove from triggers.
+        """
+        self._triggers.append(trigger)
 
 
 def _to_display(name: str) -> str:

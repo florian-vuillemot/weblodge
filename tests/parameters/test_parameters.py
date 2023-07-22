@@ -6,41 +6,8 @@ Ensure CLI parsing of parameters is done correctly.
 import sys
 import unittest
 
-import weblodge.parameters as parameters
 from weblodge.config import Item as ConfigItem
-
-
-class TestGlobalParameters(unittest.TestCase):
-    """
-    Test global parameters parsing.
-    """
-    def test_action(self):
-        """
-        The action parameter is required and must be parsed.
-        """
-        sys.argv = [sys.argv[0], 'build']
-
-        self.assertEqual(parameters.weblodge().action, 'build')
-
-    def test_failed_when_action_is_missing(self):
-        """
-        The action parameter is required, if not provided, error must be returned.
-        """
-        sys.argv = [sys.argv[0]]
-
-        with self.assertRaises(SystemExit):
-            parameters.weblodge()
-
-    def test_config_file(self):
-        """
-        The config file can be provided.
-        """
-        filename = 'my-config-file'
-
-        sys.argv = [sys.argv[0], 'deploy', '--config-file', filename]
-
-        self.assertEqual(parameters.weblodge().action, 'deploy')
-        self.assertEqual(parameters.weblodge().config_filename, filename)
+from weblodge.parameters import Parser, ConfigIsDefined, ConfigIsNotDefined
 
 
 class TestConfigBasedParameters(unittest.TestCase):
@@ -77,7 +44,7 @@ class TestConfigBasedParameters(unittest.TestCase):
         sys.argv = [sys.argv[0]]
 
         with self.assertRaises(SystemExit):
-            parameters.load(self.config_fields)
+            Parser().load(self.config_fields)
 
     def test_default_values(self):
         """
@@ -86,7 +53,7 @@ class TestConfigBasedParameters(unittest.TestCase):
         app_name = 'foo'
         sys.argv = [sys.argv[0], 'deploy', '--app-name', app_name]
 
-        params = parameters.load(self.config_fields)
+        params = Parser().load(self.config_fields)
 
         self.assertEqual(params['app_name'], app_name)
         self.assertEqual(params['dist'], self.config_fields[1].default)
@@ -102,7 +69,7 @@ class TestConfigBasedParameters(unittest.TestCase):
 
         sys.argv = [sys.argv[0], 'build', '--app-name', app_name, '--dist', dist, '--src',  src]
 
-        params = parameters.load(self.config_fields)
+        params = Parser().load(self.config_fields)
         self.assertEqual(params['src'], src)
         self.assertEqual(params['dist'], dist)
         self.assertEqual(params['app_name'], app_name)
@@ -126,11 +93,11 @@ class TestConfigBasedParameters(unittest.TestCase):
         # First set of parameters loaded.
         # `dist` is loaded as a default value.
         sys.argv = [sys.argv[0], 'build', '--app-name', app_name]
-        params = parameters.load(self.config_fields)
+        params = Parser().load(self.config_fields)
 
         # Second set of parameters loaded that must override the first one.
         sys.argv = [sys.argv[0], 'build', '--dist', dist]
-        params = parameters.load(override, params)
+        params = Parser().load(override, params)
 
         self.assertEqual(params['dist'], dist)
         self.assertEqual(params['app_name'], app_name)
@@ -148,7 +115,89 @@ class TestConfigBasedParameters(unittest.TestCase):
 
         sys.argv = [sys.argv[0], 'build']
 
-        params = parameters.load(self.config_fields, params)
+        params = Parser().load(self.config_fields, params)
         self.assertEqual(params['app_name'], app_name)
         self.assertEqual(params['src'], self.config_fields[2].default)
         self.assertEqual(params['dist'], self.config_fields[1].default)
+
+    def test_trigger_is_defined(self):
+        """
+        Ensure trigger is call when defined.
+        """
+        def _must_be_called(_config):
+            self.assertNotIn('yes', _config)
+            return {
+                **_config,
+                'called': True
+            }
+
+        def _must_not_be_called(_config):
+            self.assertRaises('Must not be called.')
+
+        yes_trigger = ConfigIsDefined(
+            name='yes',
+            description='Do not prompt validation.',
+            trigger=_must_be_called,
+            attending_value=False
+        )
+        no_trigger = ConfigIsDefined(
+            name='no',
+            description='Do not prompt validation.',
+            trigger=_must_not_be_called,
+            attending_value=False
+        )
+
+        # First set of parameters loaded.
+        # `dist` is loaded as a default value.
+        sys.argv = [sys.argv[0], 'build', '--yes', '--app-name', 'foo']
+        parser = Parser()
+        parser.trigger_once(yes_trigger)
+        parser.trigger_once(no_trigger)
+        config = parser.load(self.config_fields)
+
+        # Ensure the trigger was called.
+        self.assertIn('called', config)
+        # Ensure the config is not polluted by triggers.
+        self.assertNotIn('yes', config)
+        self.assertNotIn('no', config)
+
+    def test_trigger_is_not_defined(self):
+        """
+        Ensure trigger is call when not defined.
+        """
+        def _must_be_called(_config):
+            self.assertNotIn('yes', _config)
+            return {
+                **_config,
+                'called': True
+            }
+
+        def _must_not_be_called(_config):
+            self.assertRaises('Must not be called.')
+
+        yes_trigger = ConfigIsNotDefined(
+            name='yes',
+            description='Do not prompt validation.',
+            trigger=_must_be_called,
+            attending_value=False
+        )
+        no_trigger = ConfigIsNotDefined(
+            name='no',
+            description='Do not prompt validation.',
+            trigger=_must_not_be_called,
+            attending_value=False
+        )
+
+        # First set of parameters loaded.
+        # `dist` is loaded as a default value.
+        sys.argv = [sys.argv[0], 'build', '--no', '--app-name', 'foo']
+        parser = Parser()
+        parser.trigger_once(yes_trigger)
+        parser.trigger_once(no_trigger)
+        config = parser.load(self.config_fields)
+
+        # Ensure the trigger was called.
+        self.assertIn('called', config)
+        # Ensure the config is not polluted by triggers.
+        self.assertNotIn('yes', config)
+        self.assertNotIn('no', config)
