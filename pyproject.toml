@@ -15,7 +15,9 @@ weblodge = "weblodge.cli:main"
 
 [tool.poetry.dependencies]
 python = ">=3.8,<3.12"
-azure-cli = "2.50.0"
+azure-cli = ">=2.40.0"
+
+[tool.poetry.group.tests.dependencies]
 urllib3 = "^2.0.3"
 
 [tool.poetry.group.linter.dependencies]
