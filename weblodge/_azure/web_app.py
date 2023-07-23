@@ -1,6 +1,8 @@
 """
 Azure Web App representation.
 """
+import json
+import tempfile
 from typing import Dict
 
 
@@ -102,6 +104,24 @@ class WebApp(Resource):
         self._cli.invoke(
             f'{self._cli_prefix} log tail -g {self.resource_group.name} -n {self.name}',
             log_outputs=True
+        )
+
+    def update_environment(self, env: Dict) -> None:
+        """
+        Update the WebApp environment variables.
+        """
+        # Web App App settings format.
+        env_formatted = ' '.join(f'{k}={v}' for k, v in env.items())
+
+        # Update the WebApp environment variables.
+        self._cli.invoke(
+            ' '.join((
+                f'{self._cli_prefix} config appsettings set',
+                f'--name {self.name}',
+                f'--resource-group {self.resource_group.name}',
+                f'--settings {env_formatted}'
+            )),
+            to_json=False
         )
 
     @classmethod

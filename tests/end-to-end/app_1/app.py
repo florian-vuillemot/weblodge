@@ -1,6 +1,8 @@
 """
 Basic application for deployment testing.
+If "result" is set as an environment variable, it will be returned.
 """
+import os
 import sys
 from flask import Flask
 import logging
@@ -18,4 +20,4 @@ def hello_world():
     logging.info('Log info.')
     logging.warning('Log warm.')
     logging.critical('Log critical.')
-    return "This is app 1."
+    return os.environ.get('RESULT', "This is app 1.")
