@@ -1,13 +1,14 @@
 """
 Azure Web App representation.
 """
-from typing import Dict
+import string
+from typing import Dict, List
 
 
 from .cli import Cli
 from .resource import Resource
-from .resource_group import ResourceGroup
 from .appservice import AppService
+from .resource_group import ResourceGroup
 
 
 class WebAppNotfound(Exception):
@@ -109,17 +110,18 @@ class WebApp(Resource):
         Update the WebApp environment variables.
         """
         # Web App App settings format.
-        env_formatted = ' '.join(f'{k}={v}' for k, v in env.items())
+        env_formatted = [f'{k}={v}' for k, v in env.items()]
 
         # Update the WebApp environment variables.
         self._cli.invoke(
             ' '.join((
                 f'{self._cli_prefix} config appsettings set',
                 f'--name {self.name}',
-                f'--resource-group {self.resource_group.name}',
-                f'--settings {env_formatted}'
+                f'--resource-group {self.resource_group.name}'
             )),
-            to_json=False
+            to_json=False,
+            # Provide as independent arguments to avoid shell escaping issues.
+            command_args=['--settings', *env_formatted]
         )
 
     @classmethod
