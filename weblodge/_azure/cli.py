@@ -30,7 +30,7 @@ class Cli:
             to_json=True,
             tags: Dict[str, str] = None,
             log_outputs: bool = False,
-            command_args: List[str] = []
+            command_args: List[str] = None
         ) -> Union[str, Dict]:
         """
         Execute an Azure CLI command and return its output.
@@ -38,6 +38,8 @@ class Cli:
         If `log_outputs` is True, the output is not returned but logged instead.
         `command_args` contains the arguments to add to the command as is without split.
         """
+        command_args = command_args or []
+
         if self._first_invoke:
             self._first_invoke = False
 

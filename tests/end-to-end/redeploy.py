@@ -32,18 +32,23 @@ def test(cmd, html_expected, log) -> str:
     sys.argv = cmd.split()
     web_app = main()
 
-    # Ensure the application is reachable.
-    time.sleep(60)
-    try:
-        res = request(
-            "GET",
-            web_app.url(),
-            retries=Retry(total=10, backoff_factor=5, status=5, status_forcelist=[500, 502, 503, 504])
-        )
-        app_output = res.data.decode('utf-8')
-        app_status = res.status
-    except Exception as e: # pylint: disable=invalid-name,broad-exception-caught
-        print(f"Test failed.\nTraceback: {e}", flush=True, file=sys.stderr)
+    for _ in range(3):
+        # Ensure the application is reachable.
+        time.sleep(60)
+        try:
+            res = request(
+                "GET",
+                web_app.url(),
+                retries=Retry(total=10, backoff_factor=5, status=5, status_forcelist=[500, 502, 503, 504])
+            )
+            app_output = res.data.decode('utf-8')
+            app_status = res.status
+        except Exception as e: # pylint: disable=invalid-name,broad-exception-caught
+            print(f"Test failed.\nTraceback: {e}", flush=True, file=sys.stderr)
+
+        if app_status < 400 and app_output == html_expected:
+            # Setting env variable can take time.
+            break
 
     # Test the result.
     assert app_status < 400, f'The application is not reachable {app_status}.'

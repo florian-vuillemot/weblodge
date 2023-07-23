@@ -1,8 +1,7 @@
 """
 Azure Web App representation.
 """
-import string
-from typing import Dict, List
+from typing import Dict
 
 
 from .cli import Cli
