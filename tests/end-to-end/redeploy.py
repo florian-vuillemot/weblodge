@@ -62,7 +62,7 @@ try:
     # Azure limits the `F1` SKU to one per region and per subscription.
     # Create the infrastructure and deploy the standard application with env variable.
     test(
-        'weblodge deploy --build --sku B1',
+        'weblodge deploy --src app_1 --build --sku B1',
         'TEST env var.',
         'Test env variable.'
     )
