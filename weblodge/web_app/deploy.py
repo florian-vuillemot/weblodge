@@ -15,7 +15,7 @@ import string
 import logging
 
 from weblodge.config import Item as ConfigItem
-from weblodge._azure import ResourceGroup, AppService, WebApp as AzureWebApp
+from weblodge._azure import WebApp as AzureWebApp
 
 from .utils import get_webapp, set_webapp_env_var
 

@@ -1,8 +1,6 @@
 """
 Azure Web App representation.
 """
-import json
-import tempfile
 from typing import Dict
 
 
