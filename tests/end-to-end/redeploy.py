@@ -69,7 +69,7 @@ try:
     # Deploy the same application with a different env variable.
     Path('.foo').write_text('RESULT="From foo."', encoding='utf-8')
     test(
-        'weblodge deploy --build --sku B1 --env-file .foo',
+        'weblodge deploy --src app_1 --build --sku B1 --env-file .foo',
         'From foo.',
         'Test specify env var variable.'
     )
