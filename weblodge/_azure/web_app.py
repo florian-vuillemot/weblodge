@@ -10,12 +10,6 @@ from .appservice import AppService
 from .resource_group import ResourceGroup
 
 
-class WebAppNotfound(Exception):
-    """
-    Exception raised when a WebApp is not found.
-    """
-
-
 class WebApp(Resource):
     """
     Azure Web App representation.
