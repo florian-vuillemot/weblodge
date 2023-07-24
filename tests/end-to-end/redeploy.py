@@ -62,7 +62,7 @@ def test(cmd, html_expected, log) -> str:
 
 try:
     # Create an env var file.
-    Path('.env').write_text('RESULT="TEST env var."', encoding='utf-8')
+    Path('.env').write_text('RESULT=TEST env var.', encoding='utf-8')
     # B1 SKU is used for parallel testing.
     # Azure limits the `F1` SKU to one per region and per subscription.
     # Create the infrastructure and deploy the standard application with env variable.
