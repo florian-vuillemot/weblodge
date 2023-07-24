@@ -96,7 +96,7 @@ The *deploy* operation creates the necessary infrastructure and uploads the buil
 | subdomain | The subdomain of the application on the Internet: `<subdomain>.azurewebsites.net`. Randomly generated if not provided. | `<randomly generated>` |
 | sku | The application [computational power](https://azure.microsoft.com/en-us/pricing/details/app-service/linux/). | `F1` |
 | location | The physical application location. | `northeurope` |
-| environment | The environment of your application. | `development` |
+| environment | The environment of your application. | `production` |
 | dist | Folder containing the application built. | `dist` |
 
 Example:
