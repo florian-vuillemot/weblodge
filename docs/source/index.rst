@@ -3,15 +3,23 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to WebLodge's documentation!
-====================================
+WebLodge
+========
 
-**WebLodge** is a command line aiming to provide anyone with deployment and cloud management capabilities.
+**WebLodge** is a command line aiming to provide anyone with deployment and cloud
+management capabilities. Userfriendly, it allows you to focus on your
+application development and lets the adage “you build it, you run it” comes true.
 
-Disclaimer
-----------
 
-Today, **WebLodge** works only with **Azure** and **Python Flask** applications.
+Table of contents
+#################
+
+.. toctree::
+   :maxdepth: 1
+
+   commands/index
+   lifecycle
+   config_file
 
 
 Install
@@ -38,9 +46,10 @@ In that case, **WebLodge** will assume that your application entry point is name
    :width: 600
 
 
-.. toctree::
+Disclaimer
+----------
 
-   commands
+Today, **WebLodge** works only with **Azure** and **Python Flask** applications.
 
 
 Feedbacks

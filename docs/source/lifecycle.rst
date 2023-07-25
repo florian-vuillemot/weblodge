@@ -1,5 +1,5 @@
-Manage your WebLodge-deployed application
-#########################################
+Lifecycle
+#########
 
 Managing and updating is a daily infrastructure task with no visible value for the end user.
 **WebLodge** uses an Azure `Platform as a Service`_ resource named `Azure App Service`_

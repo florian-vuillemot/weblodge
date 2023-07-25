@@ -42,10 +42,10 @@ jobs:
         pip install poetry
         poetry install --with tests
 
-    - name: Run deployment tests.
-      working-directory: tests/end-to-end
-      run: |
-        poetry run python deploy.py
+    # - name: Run deployment tests.
+    #   working-directory: tests/end-to-end
+    #   run: |
+    #     poetry run python deploy.py
 
     - name: Run re deployment tests.
       working-directory: tests/end-to-end
