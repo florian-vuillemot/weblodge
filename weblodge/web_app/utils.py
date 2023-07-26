@@ -2,6 +2,7 @@
 Internal utility functions for the web app.
 """
 import os
+import time
 import logging
 
 from dotenv import dotenv_values
@@ -35,6 +36,8 @@ def set_webapp_env_var(webapp: AzureWebApp, env_file: str) -> bool:
         env = dotenv_values(env_file)
         webapp.update_environment(env)
         logger.info('Environment variable updated.')
+        logger.info('Waiting the application to restart...')
+        time.sleep(60)
         return
 
     logger.info('No environment file found.')
