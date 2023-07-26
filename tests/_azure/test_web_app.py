@@ -52,10 +52,10 @@ class TestWebApp(unittest.TestCase):
         """
         Return a pre defined WebApp.
         """
-        wp = self.web_apps[idx]
+        wp_data = self.web_apps[idx]
 
         resource_group = ResourceGroup(
-            name=wp['resourceGroup'],
+            name=wp_data['resourceGroup'],
             cli=None,
             from_az=self.resource_groups[idx]
         )
@@ -66,10 +66,10 @@ class TestWebApp(unittest.TestCase):
             from_az=self.app_services[idx]
         )
         web_app = WebApp(
-            name=wp['name'],
+            name=wp_data['name'],
             resource_group=resource_group,
             app_service=asp,
-            cli=cli if cli else Cli(wp)
+            cli=cli if cli else Cli(wp_data)
         )
 
         return web_app

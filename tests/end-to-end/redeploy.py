@@ -49,6 +49,8 @@ def test(cmd, html_expected, log) -> str:
         if app_status < 400 and app_output == html_expected:
             # Setting env variable can take time.
             break
+        else:
+            print('Retrying...', flush=True)
 
     # Test the result.
     assert app_status < 400, f'The application is not reachable {app_status}.'

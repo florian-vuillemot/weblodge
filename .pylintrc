@@ -6,10 +6,7 @@ disable =
     consider-using-from-import,
     duplicate-code
 
-ignore-paths=^tests/end-to-end*,^docs/*
+ignore-paths=^tests/end-to-end*
 
 [FORMAT]
 max-line-length=120
-
-
-az webapp log deployment show -n bplaoxkmiyhnvcgowmgn -g bplaoxkmiyhnvcgowmgn

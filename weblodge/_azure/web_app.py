@@ -128,10 +128,18 @@ class WebApp(Resource):
                 f'--resource-group {self.resource_group.name}'
             ))
         )
-        print(deployments)
         return any(
             'Deployment successful' in d.get('message')
             for d in deployments
+        )
+
+    def restart(self) -> None:
+        """
+        Restart the WebApp.
+        """
+        self._cli.invoke(
+            f'{self._cli_prefix} restart -g {self.resource_group.name} -n {self.name}',
+            to_json=False
         )
 
     @classmethod
