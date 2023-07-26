@@ -117,6 +117,23 @@ class WebApp(Resource):
             command_args=['--settings', *env_formatted]
         )
 
+    def deployment_in_progress(self) -> bool:
+        """
+        True if the WebApp is deploying.
+        """
+        deployments = self._cli.invoke(
+            ' '.join((
+                f'{self._cli_prefix} log deployment show',
+                f'--name {self.name}',
+                f'--resource-group {self.resource_group.name}'
+            ))
+        )
+        print(deployments)
+        return any(
+            'Deployment successful' in d.get('message')
+            for d in deployments
+        )
+
     @classmethod
     def from_az(cls, name: str, cli: Cli, from_az: Dict) -> 'WebApp':
         """

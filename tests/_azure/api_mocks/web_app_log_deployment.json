@@ -1,0 +1,135 @@
+[
+    {
+        "details_url": null,
+        "id": "bd2b3497-bf04-4847-ab86-8d61402a919c",
+        "log_time": "2023-07-26T06:11:52.1572349Z",
+        "message": "Updating submodules.",
+        "type": 0
+    },
+    {
+        "details_url": null,
+        "id": "72a14e5b-d557-4b76-b5f3-13318c59e3d2",
+        "log_time": "2023-07-26T06:11:53.5550209Z",
+        "message": "Preparing deployment for commit id '7afe750b-4'.",
+        "type": 0
+    },
+    {
+        "details_url": null,
+        "id": "6218ce11-85ea-4026-9fcd-017bedd45644",
+        "log_time": "2023-07-26T06:11:54.1722604Z",
+        "message": "PreDeployment: context.CleanOutputPath False",
+        "type": 0
+    },
+    {
+        "details_url": null,
+        "id": "6498878e-ee54-4cfa-aa91-be3d07950a33",
+        "log_time": "2023-07-26T06:11:54.4261191Z",
+        "message": "PreDeployment: context.OutputPath /home/site/wwwroot",
+        "type": 0
+    },
+    {
+        "details_url": null,
+        "id": "4c7da6f8-0376-48f7-86fa-1078c82dcab1",
+        "log_time": "2023-07-26T06:11:54.7202657Z",
+        "message": "Repository path is /tmp/zipdeploy/extracted",
+        "type": 0
+    },
+    {
+        "details_url": "https://etqslytaycnjdxlcurga.scm.azurewebsites.net/api/deployments/7afe750b-4304-4423-a347-3f0b56b2fde9/log/bb9be9f3-111d-4414-a569-a7298efe1281",
+        "id": "bb9be9f3-111d-4414-a569-a7298efe1281",
+        "log_time": "2023-07-26T06:11:55.0981884Z",
+        "message": "Running oryx build...",
+        "type": 0
+    },
+    {
+        "details_url": null,
+        "id": "18d0f11c-abbb-410c-90be-0144a7ce3e47",
+        "log_time": "2023-07-26T06:13:37.7620239Z",
+        "message": "Running post deployment command(s)...",
+        "type": 0
+    },
+    {
+        "details_url": null,
+        "id": "93fa53e7-f2f8-4f2a-8b44-8c7a5091e10c",
+        "log_time": "2023-07-26T06:13:37.882769Z",
+        "message": "",
+        "type": 0
+    },
+    {
+        "details_url": null,
+        "id": "f36baf83-2fd5-44ec-bd59-1dbc67f7b171",
+        "log_time": "2023-07-26T06:13:38.0072651Z",
+        "message": "Generating summary of Oryx build",
+        "type": 0
+    },
+    {
+        "details_url": null,
+        "id": "441d7d22-4046-4cd0-9c3a-743120296abe",
+        "log_time": "2023-07-26T06:13:38.2334078Z",
+        "message": "Parsing the build logs",
+        "type": 0
+    },
+    {
+        "details_url": null,
+        "id": "57f3ff2d-5e8f-445c-8782-802b60d38bc2",
+        "log_time": "2023-07-26T06:13:38.4012Z",
+        "message": "Found 0 issue(s)",
+        "type": 0
+    },
+    {
+        "details_url": null,
+        "id": "06fa7af1-b2ca-4ab8-aa56-45e0624b81a2",
+        "log_time": "2023-07-26T06:13:38.5376298Z",
+        "message": "",
+        "type": 0
+    },
+    {
+        "details_url": null,
+        "id": "0d2c1c00-507a-4d90-8d01-5b024e2cc40b",
+        "log_time": "2023-07-26T06:13:38.7150732Z",
+        "message": "Build Summary :",
+        "type": 0
+    },
+    {
+        "details_url": null,
+        "id": "f832f854-ce08-4a54-910d-c554be013637",
+        "log_time": "2023-07-26T06:13:38.8600682Z",
+        "message": "===============",
+        "type": 0
+    },
+    {
+        "details_url": null,
+        "id": "18f4e855-10c4-4378-8030-84e07d438800",
+        "log_time": "2023-07-26T06:13:38.9964132Z",
+        "message": "Errors (0)",
+        "type": 0
+    },
+    {
+        "details_url": null,
+        "id": "bc692042-8276-488b-9fc4-7b2ea977e34f",
+        "log_time": "2023-07-26T06:13:39.1152251Z",
+        "message": "Warnings (0)",
+        "type": 0
+    },
+    {
+        "details_url": null,
+        "id": "48c03d95-e164-4140-a8da-0c264d9d12a0",
+        "log_time": "2023-07-26T06:13:39.290474Z",
+        "message": "",
+        "type": 0
+    },
+    {
+        "details_url": null,
+        "id": "1b1bf57e-7658-4041-8032-cc59fe9485cb",
+        "log_time": "2023-07-26T06:13:39.6333247Z",
+        "message": "Triggering recycle (preview mode disabled).",
+        "type": 0
+    },
+    {
+        "details_url": null,
+        "id": "02208294-1f7b-46ab-85cf-a00c35225123",
+        "log_time": "2023-07-26T06:13:39.9707492Z",
+        "message": "Deployment successful. deployer = Push-Deployer deploymentPath = ZipDeploy. Extract zip.",
+        "type": 0
+    }
+]

@@ -116,10 +116,12 @@ def deploy(config: DeploymentConfig) -> AzureWebApp:
         web_app.create()
         logger.info('The infrastructure is created.')
 
-    set_webapp_env_var(web_app, config.env_file)
     logger.info('Uploading the application...')
     web_app.deploy(os.path.join(config.dist, config.package))
     logger.info('The application has been uploaded.')
 
+    import time
+    time.sleep(30)
+    set_webapp_env_var(web_app, config.env_file)
 
     return web_app
