@@ -17,6 +17,7 @@ Table of contents
 .. toctree::
    :maxdepth: 1
 
+   tutorial
    commands/index
    lifecycle
    config_file

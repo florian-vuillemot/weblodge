@@ -1,5 +1,7 @@
+.. _build:
+
 Build
-##############
+#####
 
 The *build* operation collects and prepares the application for deployment on a specific platform.
 
