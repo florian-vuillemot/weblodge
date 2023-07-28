@@ -1,5 +1,5 @@
 Clean
-######
+#####
 
 The *clean* operation deletes all infrastructure deployed by **WebLodge**.
 The user is asked to confirm before deleting.

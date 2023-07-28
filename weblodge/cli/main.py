@@ -22,6 +22,7 @@ logger = logging.getLogger('weblodge')
 logger.setLevel(logging.INFO)
 logger.addHandler(logging.StreamHandler())
 
+
 # pylint: disable=missing-function-docstring
 def main():
     success = False
@@ -33,12 +34,14 @@ def main():
         config = state.load(config_file)
         if action == 'build':
             success, config = web_app.build(config)
+        elif action == 'clean':
+            clean(parameters)
         elif action == 'deploy':
             success, config = deploy(config, web_app, parameters)
         elif action == 'delete':
-            success, config = delete(config, web_app, parameters)
-        elif action == 'clean':
-            success, config = clean(config, web_app, parameters)
+            delete(config, web_app, parameters)
+        elif action == 'list':
+            list_(parameters.load)
         elif action == 'logs':
             print('Logs will be stream, execute CTRL+C to stop the application.', flush=True)
             web_app.print_logs(config)
@@ -99,10 +102,10 @@ def delete(config: Dict[str, str], web_app: WebApp, parameters: Parser):
     )
 
     parameters.trigger_once(prompt)
-    return web_app.delete(config)
+    web_app.delete(config)
 
 
-def clean(config: Dict[str, str], web_app: WebApp, parameters: Parser):
+def clean(parameters: Parser):
     """
     Iterate over all resources and ask the user if he want to delete them.
     The parameter 'yes' is too risquy to be accepted and will be ignored.
@@ -114,15 +117,40 @@ def clean(config: Dict[str, str], web_app: WebApp, parameters: Parser):
         attending_value=False
     )
 
-    for name in web_app.all():
+    for web_app in WebApp.all(parameters.load):
         try:
             parameters.trigger_once(prompt)
-            web_app.delete({'subdomain': name})
+            web_app.delete()
         except SystemExit:
             # User aborted the deletion.
             continue
 
-    return True, config
+
+def list_(parameter_loader):
+    """
+    Print all the deployed applications.
+    Warm the user if some infrastructure is not used.
+    """
+    unused_apps = []
+    no_application_deployed = True
+
+    for _wapp in WebApp.all(parameter_loader):
+        no_application_deployed = False
+        if _wapp.exists():
+            print(f"Application: {_wapp.url()}")
+        else:
+            unused_apps.append(_wapp.name)
+
+    if no_application_deployed:
+        print('No application deployed.')
+        return
+
+    if unused_apps:
+        print(f'''
+We found the following infrastructure without application deployed.
+This can be costly.''')
+        for name in unused_apps:
+            print(f"Application '{name}', can be deleted by running: `{CLI_NAME} delete --subdomain {name}`")
 
 
 def _validation_before_deletion(config):

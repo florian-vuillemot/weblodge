@@ -10,4 +10,5 @@ your application from your computer or your CI/CD to the cloud.
    clean
    delete
    deploy
+   list
    logs
