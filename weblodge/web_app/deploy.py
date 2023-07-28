@@ -17,6 +17,7 @@ import logging
 from weblodge.config import Item as ConfigItem
 from weblodge._azure import WebApp as AzureWebApp
 
+from .shared import WEBAPP_TAGS
 from .utils import get_webapp, set_webapp_env_var
 
 
@@ -111,7 +112,13 @@ def deploy(config: DeploymentConfig) -> AzureWebApp:
         logger.info('The infrastructure is being created...')
         if not web_app.app_service.exists():
             if not web_app.resource_group.exists():
-                web_app.resource_group.create(location=config.location, tags=config.tags)
+                web_app.resource_group.create(
+                    location=config.location,
+                    tags={
+                        **config.tags,
+                        **WEBAPP_TAGS
+                    }
+                )
             web_app.app_service.create(config.sku)
         web_app.create()
         logger.info('The infrastructure is created.')

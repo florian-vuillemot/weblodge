@@ -9,4 +9,4 @@ Examples:
     `python weblodge.py -h` must print the `help` message of **WebLodge**.
     `python weblodge.py build -h` must print the `help` message for the `build` action.
 """
-from .parameters import Parser, ConfigIsDefined, ConfigIsNotDefined
+from .parameters import Parser, ConfigTrigger, ConfigIsDefined, ConfigIsNotDefined

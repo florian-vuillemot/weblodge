@@ -7,7 +7,7 @@ import sys
 import unittest
 
 from weblodge.config import Item as ConfigItem
-from weblodge.parameters import Parser, ConfigIsDefined, ConfigIsNotDefined
+from weblodge.parameters import Parser, ConfigIsDefined, ConfigIsNotDefined, ConfigTrigger
 
 
 class TestConfigBasedParameters(unittest.TestCase):
@@ -201,3 +201,45 @@ class TestConfigBasedParameters(unittest.TestCase):
         # Ensure the config is not polluted by triggers.
         self.assertNotIn('yes', config)
         self.assertNotIn('no', config)
+
+    def test_trigger_everytime(self):
+        """
+        Ensure trigger is call if defined or not.
+        """
+        def _defined(_config):
+            self.assertNotIn('yes', _config)
+            return {
+                **_config,
+                'defined_called': True
+            }
+        def _not_defined(_config):
+            self.assertNotIn('no', _config)
+            return {
+                **_config,
+                'not_defined_called': True
+            }
+
+        defined_trigger = ConfigTrigger(
+            name='yes',
+            description='Validation.',
+            trigger=_defined,
+            attending_value=False
+        )
+        not_defined_trigger = ConfigTrigger(
+            name='no',
+            description='No validation.',
+            trigger=_not_defined,
+            attending_value=False
+        )
+
+        # First set of parameters loaded.
+        # `dist` is loaded as a default value.
+        sys.argv = [sys.argv[0], 'build', '--yes', '--app-name', 'foo']
+        parser = Parser()
+        parser.trigger_once(defined_trigger)
+        parser.trigger_once(not_defined_trigger)
+        config = parser.load(self.config_fields)
+
+        # Ensure the trigger was called.
+        self.assertIn('defined_called', config)
+        self.assertIn('not_defined_called', config)

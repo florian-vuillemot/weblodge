@@ -5,16 +5,16 @@ Wrapp all actions related to the Azure Web App.
 """
 import logging
 
-from typing import Callable, List, Dict, Tuple
+from typing import Callable, Iterable, List, Dict, Tuple
 
 from weblodge.config import Item as ConfigItem
 
+from ._all import _all
 from .logs import LogsConfig, logs as _logs
 from .delete import DeleteConfig, delete as _delete
 from .deploy import DeploymentConfig, deploy as _deploy
 from .build import BuildConfig, build as _build
 from .exceptions import RequirementsFileNotFound, EntryPointFileNotFound, FlaskAppNotFound
-
 
 logger = logging.getLogger('weblodge')
 
@@ -26,6 +26,12 @@ class WebApp:
     def __init__(self, config_loader: Callable[[List[ConfigItem]], Dict[str, str]]):
         self.config_loader = config_loader
         self._web_app = None
+
+    def all(self) -> Iterable[str]:
+        """
+        List all Web Apps.
+        """
+        yield from (rg.name for rg in _all())
 
     def build(self, config: Dict[str, str]) -> Tuple[bool, Dict[str, str]]:
         """

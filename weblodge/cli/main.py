@@ -13,7 +13,7 @@ from typing import Dict
 
 import weblodge.state as state
 from weblodge.web_app import WebApp
-from weblodge.parameters import Parser, ConfigIsNotDefined, ConfigIsDefined
+from weblodge.parameters import Parser, ConfigIsNotDefined, ConfigIsDefined, ConfigTrigger
 
 from .args import get_cli_args, CLI_NAME
 
@@ -37,6 +37,8 @@ def main():
             success, config = deploy(config, web_app, parameters)
         elif action == 'delete':
             success, config = delete(config, web_app, parameters)
+        elif action == 'clean':
+            success, config = clean(config, web_app, parameters)
         elif action == 'logs':
             print('Logs will be stream, execute CTRL+C to stop the application.', flush=True)
             web_app.print_logs(config)
@@ -89,18 +91,42 @@ def delete(config: Dict[str, str], web_app: WebApp, parameters: Parser):
     """
     Delete the application.
     """
-    def _validation(config):
-        if input('Are you sure you want to delete the application (yes/no.)? ') != 'yes':
-            print('Aborting.')
-            sys.exit(0)
-        return config
-
     prompt = ConfigIsNotDefined(
         name='yes',
         description='Delete without user input.',
-        trigger=_validation,
+        trigger=_validation_before_deletion,
         attending_value=False
     )
 
     parameters.trigger_once(prompt)
     return web_app.delete(config)
+
+
+def clean(config: Dict[str, str], web_app: WebApp, parameters: Parser):
+    """
+    Iterate over all resources and ask the user if he want to delete them.
+    The parameter 'yes' is too risquy to be accepted and will be ignored.
+    """
+    prompt = ConfigTrigger(
+        name='yes',
+        description='The user input will always be asked',
+        trigger=_validation_before_deletion,
+        attending_value=False
+    )
+
+    for name in web_app.all():
+        try:
+            parameters.trigger_once(prompt)
+            web_app.delete({'subdomain': name})
+        except SystemExit:
+            # User aborted the deletion.
+            continue
+
+    return True, config
+
+
+def _validation_before_deletion(config):
+    if input(f"Are you sure you want to delete the application '{config['subdomain']}' (yes/no.)? ") != 'yes':
+        print('Aborting.')
+        sys.exit(0)
+    return config
