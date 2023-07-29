@@ -111,10 +111,12 @@ class Parser:
                 # fill the config with False.
                 is_defined = new_config[_config.name]
 
-            if is_defined and isinstance(_config, ConfigIsDefined):
-                config = _config.trigger(config)
-            elif not is_defined and isinstance(_config, ConfigIsNotDefined):
-                config = _config.trigger(config)
+            if isinstance(_config, ConfigIsDefined):
+                if is_defined:
+                    config = _config.trigger(config)
+            elif isinstance(_config, ConfigIsNotDefined):
+                if not is_defined:
+                    config = _config.trigger(config)
             elif isinstance(_config, ConfigTrigger):
                 config = _config.trigger(config)
 

@@ -146,7 +146,7 @@ def list_(parameter_loader):
         return
 
     if unused_apps:
-        print(f'''
+        print('''
 We found the following infrastructure without application deployed.
 This can be costly.''')
         for name in unused_apps:
