@@ -13,8 +13,7 @@ Usage
    Application: https://in-use-app.azurewebsites.net
    Application: https://other-in-use-app.azurewebsites.net
 
-   We found the following infrastructure without application deployed.
-   This can be costly.
+   We found the following infrastructure without application deployed. This can be costly.
    Application 'unused-app', can be deleted by running: `weblodge delete --subdomain unused-app`
 
 
