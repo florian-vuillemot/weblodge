@@ -15,7 +15,8 @@ from .logs import LogsConfig, logs as _logs
 from .delete import DeleteConfig, delete as _delete
 from .deploy import DeploymentConfig, deploy as _deploy
 from .build import BuildConfig, build as _build
-from .exceptions import RequirementsFileNotFound, EntryPointFileNotFound, FlaskAppNotFound
+from .exceptions import RequirementsFileNotFound, EntryPointFileNotFound, FlaskAppNotFound, \
+                        FreeApplicationAlreadyDeployed
 
 logger = logging.getLogger('weblodge')
 

@@ -43,6 +43,13 @@ class AppService(Resource):
         """
         return self._from_az['sku']['name'] != 'F1'
 
+    @property
+    def is_free(self) -> bool:
+        """
+        Return True if the AppService Plan is Free.
+        """
+        return self._from_az['sku']['name'] == 'F1'
+
     def create(self, sku: str) -> 'AppService':
         """
         Create a Linux AppService Plan with Python.

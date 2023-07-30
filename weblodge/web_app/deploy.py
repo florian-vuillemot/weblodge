@@ -18,7 +18,8 @@ from weblodge.config import Item as ConfigItem
 from weblodge._azure import WebApp as AzureWebApp
 
 from .shared import WEBAPP_TAGS
-from .utils import get_webapp, set_webapp_env_var
+from .exceptions import FreeApplicationAlreadyDeployed
+from .utils import get_webapp, set_webapp_env_var, get_free_web_app_name
 
 
 logger = logging.getLogger('weblodge')
@@ -111,6 +112,12 @@ def deploy(config: DeploymentConfig) -> AzureWebApp:
     if not web_app.exists():
         logger.info('The infrastructure is being created...')
         if not web_app.app_service.exists():
+            if config.sku == 'F1':
+                # Only one free AppService Plan is allowed per Azure subscription and location.
+                # Check if a free AppService Plan already exists.
+                if free_web_app_name := get_free_web_app_name():
+                    logger.info('Stopping the deployment. No infrastructure created.')
+                    raise FreeApplicationAlreadyDeployed(free_web_app_name)
             if not web_app.resource_group.exists():
                 web_app.resource_group.create(
                     location=config.location,

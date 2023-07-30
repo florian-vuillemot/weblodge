@@ -4,6 +4,7 @@ Internal utility functions for the web app.
 import os
 import time
 import logging
+from typing import Optional
 
 from dotenv import dotenv_values
 
@@ -41,3 +42,13 @@ def set_webapp_env_var(webapp: AzureWebApp, env_file: str) -> bool:
         return
 
     logger.info('No environment file found.')
+
+
+def get_free_web_app_name() -> Optional[str]:
+    """
+    Return the free name of the existing Azure Web App if exists. None otherwise.
+    """
+    return next(
+        (app.name for app in AzureAppService.all() if app.is_free),
+        None
+    )

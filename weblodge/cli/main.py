@@ -12,7 +12,7 @@ import logging
 from typing import Dict
 
 import weblodge.state as state
-from weblodge.web_app import WebApp
+from weblodge.web_app import WebApp, FreeApplicationAlreadyDeployed
 from weblodge.parameters import Parser, ConfigIsNotDefined, ConfigIsDefined, ConfigTrigger
 
 from .args import get_cli_args, CLI_NAME
@@ -35,11 +35,11 @@ def main():
         if action == 'build':
             success, config = web_app.build(config)
         elif action == 'clean':
-            clean(parameters)
+            success = clean(parameters)
         elif action == 'deploy':
             success, config = deploy(config, web_app, parameters)
         elif action == 'delete':
-            delete(config, web_app, parameters)
+            success = delete(config, web_app, parameters)
         elif action == 'list':
             list_(parameters.load)
         elif action == 'logs':
@@ -76,7 +76,17 @@ def deploy(config: Dict[str, str], web_app: WebApp, parameters: Parser):
     )
 
     parameters.trigger_once(build_too)
-    success, config = web_app.deploy(config)
+    try:
+        success, config = web_app.deploy(config)
+    except FreeApplicationAlreadyDeployed as free_app_name:
+        print(
+            'Can not create the infrastrucutre. Azure support only one Free application by location.',
+            'Please, change the deployment location or the application sku.',
+            f"The already existing free application is this location is '{free_app_name}'.",
+            file=sys.stderr,
+            flush=True
+        )
+        return False, config
 
     if success:
         print(f"The application will soon be available at: {web_app.url()}", flush=True)
@@ -102,7 +112,8 @@ def delete(config: Dict[str, str], web_app: WebApp, parameters: Parser):
     )
 
     parameters.trigger_once(prompt)
-    web_app.delete(config)
+    res, _ = web_app.delete(config)
+    return res
 
 
 def clean(parameters: Parser):
@@ -125,6 +136,8 @@ def clean(parameters: Parser):
             # User aborted the deletion.
             continue
 
+    return True
+
 
 def list_(parameter_loader):
     """
@@ -146,9 +159,7 @@ def list_(parameter_loader):
         return
 
     if unused_apps:
-        print('''
-We found the following infrastructure without application deployed.
-This can be costly.''')
+        print('We found the following infrastructure without application deployed. This can be costly.')
         for name in unused_apps:
             print(f"Application '{name}', can be deleted by running: `{CLI_NAME} delete --subdomain {name}`")
 

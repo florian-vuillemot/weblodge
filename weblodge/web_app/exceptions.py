@@ -3,7 +3,7 @@ Web App exceptions.
 """
 class BuildException(Exception):
     """
-    Build exception.
+    Exception relative to the build.
     """
 
 
@@ -22,4 +22,17 @@ class EntryPointFileNotFound(BuildException):
 class FlaskAppNotFound(BuildException):
     """
     Can not find the Flask application object in the entry point file.
+    """
+
+
+class DeploymentException(Exception):
+    """
+    Exception relative to the deployment.
+    """
+
+
+class FreeApplicationAlreadyDeployed(DeploymentException):
+    """
+    A free application is already deployed.
+    Contains the name of the free application.
     """
