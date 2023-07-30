@@ -122,7 +122,7 @@ You can delete the previously deployed infrastructure by doing:
 
     $ # With the validation prompt.
     $ weblodge delete
-    Are you sure you want to delete the application (yes/no.)?
+    Do you want to delete the application 'weblodge-tutorial' (yes/no.)?
 
     $ # Without the validation prompt.
     $ weblodge delete --yes

@@ -10,9 +10,9 @@ Usage
 .. code-block:: console
 
    $ weblodge clean
-   Are you sure you want to delete the application 'my-weblodge-app' (yes/no.)? no
+   Do you want to delete the application 'my-weblodge-app' (yes/no.)? no
    Aborting.
-   Are you sure you want to delete the application 'my-other-weblodge-app' (yes/no.)? yes
+   Do you want to delete the application 'my-other-weblodge-app' (yes/no.)? yes
    Deleting...
    Successfully deleted
 
