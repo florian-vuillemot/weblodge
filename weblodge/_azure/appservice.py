@@ -50,6 +50,13 @@ class AppService(Resource):
         """
         return self._from_az['sku']['name'] == 'F1'
 
+    @property
+    def location(self) -> str:
+        """
+        Return the AppService Plan location.
+        """
+        return self.resource_group.location
+
     def create(self, sku: str) -> 'AppService':
         """
         Create a Linux AppService Plan with Python.

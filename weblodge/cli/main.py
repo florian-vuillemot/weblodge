@@ -165,7 +165,7 @@ def list_(parameter_loader):
 
 
 def _validation_before_deletion(config):
-    if input(f"Are you sure you want to delete the application '{config['subdomain']}' (yes/no.)? ") != 'yes':
+    if input(f"Do you want to delete the application '{config['subdomain']}' (yes/no.)? ") != 'yes':
         print('Aborting.')
         sys.exit(0)
     return config

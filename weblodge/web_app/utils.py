@@ -44,11 +44,10 @@ def set_webapp_env_var(webapp: AzureWebApp, env_file: str) -> bool:
     logger.info('No environment file found.')
 
 
-def get_free_web_app_name() -> Optional[str]:
+def get_free_web_app(location: str) -> Optional[AzureWebApp]:
     """
-    Return the free name of the existing Azure Web App if exists. None otherwise.
+    Return the free existing Azure Web App if exists in that location. None otherwise.
     """
-    return next(
-        (app.name for app in AzureAppService.all() if app.is_free),
-        None
-    )
+    free_asps = filter(lambda asp: asp.is_free, AzureAppService.all())
+    with_same_location = filter(lambda asp: asp.location == location, free_asps)
+    return next(with_same_location, None)
