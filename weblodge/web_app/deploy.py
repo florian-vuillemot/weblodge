@@ -25,6 +25,7 @@ from .utils import get_webapp, set_webapp_env_var, get_free_web_app
 logger = logging.getLogger('weblodge')
 
 
+# pylint: disable=too-many-instance-attributes
 class DeploymentConfig:
     """
     Deployment configuration.
