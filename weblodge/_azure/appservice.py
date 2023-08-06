@@ -3,13 +3,12 @@ Azure AppService Plan abstraction.
 
 Allow to CRUD on Azure AppService Plan.
 """
-from typing import Dict
-
-from weblodge._azure.cli import Cli
+from typing import Dict, List
 
 from .cli import Cli
 from .resource import Resource
 from .resource_group import ResourceGroup
+from .exceptions import InvalidSku
 
 
 class AppService(Resource):
@@ -61,6 +60,9 @@ class AppService(Resource):
         """
         Create a Linux AppService Plan with Python.
         """
+        if sku not in self.sku():
+            raise InvalidSku(sku)
+
         tags = self.resource_group.tags
         rg_name = self.resource_group.name
         location = self.resource_group.location
@@ -90,6 +92,18 @@ class AppService(Resource):
             cli=cli,
             from_az=from_az
         )
+
+    @staticmethod
+    def sku() -> List[str]:
+        """
+        Return list of supported SKU.
+        """
+        return [
+            'F1', 
+            'B1', 'B2', 'B3',
+            'P0V3', 'P1MV3', 'P1V2', 'P1V3', 'P2MV3', 'P2V2', 'P2V3', 'P3MV3', 'P3V2', 'P3V3', 'P4MV3', 'P5MV3',
+            'S1', 'S2', 'S3'
+        ]
 
     def _load(self):
         """

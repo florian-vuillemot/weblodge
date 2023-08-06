@@ -8,3 +8,4 @@ from .appservice import AppService
 from .resource_group import ResourceGroup
 from .web_app import WebApp
 from .log_level import LogLevels
+from .exceptions import InvalidSku

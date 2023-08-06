@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 import unittest
 
-from weblodge._azure import AppService, ResourceGroup
+from weblodge._azure import AppService, ResourceGroup, InvalidSku
 
 from .cli import Cli
 
@@ -68,3 +68,12 @@ class TestAppService(unittest.TestCase):
         )
 
         self.assertFalse(app_service.always_on_supported)
+
+    def test_invalid_sku(self):
+        """
+        Can not handle invalid SKU.
+        """
+        asp = AppService(name='test', resource_group=None, cli=None)
+
+        with self.assertRaises(InvalidSku):
+            asp.create('invalid sku')

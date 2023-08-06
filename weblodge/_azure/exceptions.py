@@ -31,3 +31,8 @@ class CLIException(AzureException):
     """
     Raise when an error occurs while executing an Azure CLI command.
     """
+
+class InvalidSku(AzureException):
+    """
+    Raise when an invalid SKU is provided.
+    """
