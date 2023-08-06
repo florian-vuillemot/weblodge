@@ -15,10 +15,10 @@ import string
 import logging
 
 from weblodge.config import Item as ConfigItem
-from weblodge._azure import WebApp as AzureWebApp
+from weblodge._azure import WebApp as AzureWebApp, LogLevels as AzureLogLevels
 
 from .shared import WEBAPP_TAGS
-from .exceptions import FreeApplicationAlreadyDeployed
+from .exceptions import NoMoreFreeApplicationAvailable
 from .utils import get_webapp, set_webapp_env_var, get_free_web_app
 
 
@@ -68,6 +68,12 @@ class DeploymentConfig:
             description='The file containing the environment variable.',
             default='.env'
         ),
+        ConfigItem(
+            name='log_level',
+            description='The log level of the application infrastructure.',
+            default='error',
+            values_allowed=['error', 'info', 'verbose', 'warning']
+        ),
     ]
 
     # pylint: disable=too-many-arguments
@@ -79,6 +85,7 @@ class DeploymentConfig:
             environment,
             dist,
             env_file,
+            log_level,
             *_args,
             **_kwargs
         ):
@@ -96,6 +103,8 @@ class DeploymentConfig:
         self.dist = dist
         # File containing environment variables.
         self.env_file = env_file
+        # Application log level.
+        self.log_level = log_level
 
         # Infrastructure tags.
         self.tags = {
@@ -117,7 +126,7 @@ def deploy(config: DeploymentConfig) -> AzureWebApp:
                 # Check if a free AppService Plan already exists.
                 if free_web_app := get_free_web_app(config.location):
                     logger.info('Stopping the deployment. No infrastructure created.')
-                    raise FreeApplicationAlreadyDeployed(free_web_app.name)
+                    raise NoMoreFreeApplicationAvailable(free_web_app.name)
             if not web_app.resource_group.exists():
                 web_app.resource_group.create(
                     location=config.location,
@@ -130,6 +139,10 @@ def deploy(config: DeploymentConfig) -> AzureWebApp:
         web_app.create()
         logger.info('The infrastructure is created.')
 
+    logger.info('Setting the log level...')
+    _set_log_level(config, web_app)
+    logger.info('The log level has been set.')
+
     set_webapp_env_var(web_app, config.env_file)
 
     logger.info('Uploading the application...')
@@ -137,3 +150,21 @@ def deploy(config: DeploymentConfig) -> AzureWebApp:
     logger.info('The application has been uploaded.')
 
     return web_app
+
+
+def _set_log_level(config: DeploymentConfig, web_app: AzureWebApp = None) -> None:
+    """
+    Set the application log level.
+    """
+    log_level = AzureLogLevels()
+
+    if config.log_level == 'error':
+        log_level.error()
+    elif config.log_level == 'info':
+        log_level.information()
+    elif config.log_level == 'verbose':
+        log_level.verbose()
+    elif config.log_level == 'warning':
+        log_level.warning()
+
+    web_app.set_log_level(log_level)

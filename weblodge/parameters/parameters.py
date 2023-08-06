@@ -85,6 +85,8 @@ class Parser:
                     'required': default_value is None,
                     'default': default_value,
                 }
+                if field.values_allowed:
+                    argument['choices'] = field.values_allowed
 
             parser.add_argument(
                 f'--{_to_display(field.name)}',

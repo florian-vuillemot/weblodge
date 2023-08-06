@@ -12,7 +12,7 @@ import logging
 from typing import Dict
 
 import weblodge.state as state
-from weblodge.web_app import WebApp, FreeApplicationAlreadyDeployed
+from weblodge.web_app import WebApp, NoMoreFreeApplicationAvailable
 from weblodge.parameters import Parser, ConfigIsNotDefined, ConfigIsDefined, ConfigTrigger
 
 from .args import get_cli_args, CLI_NAME
@@ -78,7 +78,7 @@ def deploy(config: Dict[str, str], web_app: WebApp, parameters: Parser):
     parameters.trigger_once(build_too)
     try:
         success, config = web_app.deploy(config)
-    except FreeApplicationAlreadyDeployed as free_app_name:
+    except NoMoreFreeApplicationAvailable as free_app_name:
         print(
             'Can not create the infrastrucutre. Azure support only one Free application by location.',
             'Please, change the deployment location or the application sku.',

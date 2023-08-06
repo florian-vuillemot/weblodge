@@ -31,7 +31,7 @@ class DeploymentException(Exception):
     """
 
 
-class FreeApplicationAlreadyDeployed(DeploymentException):
+class NoMoreFreeApplicationAvailable(DeploymentException):
     """
     A free application is already deployed.
     Contains the name of the free application.

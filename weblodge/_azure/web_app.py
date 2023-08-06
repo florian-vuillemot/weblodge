@@ -6,6 +6,7 @@ from typing import Dict
 
 from .cli import Cli
 from .resource import Resource
+from .log_level import LogLevels
 from .appservice import AppService
 from .resource_group import ResourceGroup
 
@@ -73,6 +74,23 @@ class WebApp(Resource):
                 '--http20-enabled',
                 '--startup-file weblodge.startup',
                 f'--always-on {self.app_service.always_on_supported}',
+            ))
+        )
+
+    def set_log_level(self, log_level: LogLevels) -> None:
+        """
+        Update the log level of the WebApp.
+        """
+        self._cli.invoke(
+            ' '.join((
+                'webapp log config',
+                f'--name {self.name}',
+                f'--resource-group {self.resource_group.name}',
+                '--application-logging filesystem',
+                '--docker-container-logging filesystem',
+                '--detailed-error-messages true',
+                '--failed-request-tracing true',
+                f'--level {log_level.to_azure()}'
             ))
         )
 
