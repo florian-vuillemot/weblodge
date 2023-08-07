@@ -61,7 +61,7 @@ class AppService(Resource):
         Create a Linux AppService Plan with Python.
         """
         if sku not in self.sku():
-            raise InvalidSku(sku)
+            raise InvalidSku(f"Invalid SKU: '{sku}'")
 
         tags = self.resource_group.tags
         rg_name = self.resource_group.name
