@@ -2,8 +2,10 @@
 Log levels set to the Azure WebApp.
 """
 
+from .interfaces import AzureLogLevel
 
-class LogLevels:
+
+class LogLevel(AzureLogLevel):
     """
     Log levels.
     By default, the log level is set to Warning.

@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 import unittest
 
-from weblodge._azure import ResourceGroup
+from weblodge._azure.resource_group import ResourceGroup
 
 from .cli import Cli
 
@@ -28,8 +28,8 @@ class TestResourceGroup(unittest.TestCase):
 
         resource_group = ResourceGroup(
             name=expected_output['name'],
-            cli=Cli(expected_output)
         )
+        resource_group.set_cli(Cli(expected_output))
 
         self.assertEqual(resource_group.name, expected_output['name'])
         self.assertEqual(resource_group.location, expected_output['location'])

@@ -4,9 +4,10 @@ Azure Resource Group interface.
 from typing import Dict
 
 from .resource import Resource
+from .interfaces import AzureResourceGroup
 
 
-class ResourceGroup(Resource):
+class ResourceGroup(Resource, AzureResourceGroup):
     """
     Azure Resource Group representation.
     """
@@ -29,7 +30,7 @@ class ResourceGroup(Resource):
             **self._internal_tags
         }
 
-        self._cli.invoke(
+        self._invoke(
             f'{self._cli_prefix} create --name {self.name} --location {location}',
             tags=tags
         )
@@ -39,13 +40,13 @@ class ResourceGroup(Resource):
         """
         Delete the resource group.
         """
-        self._cli.invoke(f'{self._cli_prefix} delete --name {self.name} --yes', to_json=False)
+        self._invoke(f'{self._cli_prefix} delete --name {self.name} --yes', to_json=False)
 
     def _load(self):
         """
         Load the Resource Group from Azure.
         """
         self._from_az.update(
-            self._cli.invoke(f'{self._cli_prefix} show --name {self.name}')
+            self._invoke(f'{self._cli_prefix} show --name {self.name}')
         )
         return self

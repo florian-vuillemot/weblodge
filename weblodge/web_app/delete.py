@@ -1,7 +1,7 @@
 """
 Delete all resources associated with the application.
 """
-from weblodge._azure import ResourceGroup
+from weblodge._azure import AzureService
 from weblodge.config import Item as ConfigItem
 
 
@@ -23,8 +23,8 @@ class DeleteConfig:
         self.subdomain = subdomain
 
 
-def delete(config: DeleteConfig) -> None:
+def delete(azure_service: AzureService, config: DeleteConfig) -> None:
     """
     Delete the application and corresponding resources.
     """
-    ResourceGroup(config.subdomain).delete()
+    azure_service.resource_groups(config.subdomain).delete()

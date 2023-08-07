@@ -8,22 +8,22 @@ from typing import Optional
 
 from dotenv import dotenv_values
 
-from weblodge._azure import WebApp as AzureWebApp, AppService as AzureAppService, ResourceGroup as AzureResourceGroup
+from weblodge._azure import AzureWebApp, AzureService
 
 
 logger = logging.getLogger('weblodge')
 
 
-def get_webapp(subdomain: str) -> AzureWebApp:
+def get_webapp(azure_service: AzureService, subdomain: str) -> AzureWebApp:
     """
     Return a Azure Web App based on the subdomain.
     The Web App may not exists.
     """
-    resource_group = AzureResourceGroup(subdomain)
-    return AzureWebApp(
+    resource_group = azure_service.resource_groups(subdomain)
+    return azure_service.web_apps(
         subdomain,
         resource_group=resource_group,
-        app_service=AzureAppService(subdomain, resource_group)
+        app_service=azure_service.app_services(subdomain, resource_group)
     )
 
 
@@ -42,12 +42,3 @@ def set_webapp_env_var(webapp: AzureWebApp, env_file: str) -> bool:
         return
 
     logger.info('No environment file found.')
-
-
-def get_free_web_app(location: str) -> Optional[AzureWebApp]:
-    """
-    Return the free existing Azure Web App if exists in that location. None otherwise.
-    """
-    free_asps = filter(lambda asp: asp.is_free, AzureAppService.all())
-    with_same_location = filter(lambda asp: asp.location == location, free_asps)
-    return next(with_same_location, None)

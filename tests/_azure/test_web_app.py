@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 import unittest
 
-from weblodge._azure import WebApp, ResourceGroup, AppService
+from weblodge._azure.web_app import WebApp, ResourceGroup, AppService
 
 from .cli import Cli
 
@@ -56,20 +56,18 @@ class TestWebApp(unittest.TestCase):
 
         resource_group = ResourceGroup(
             name=wp_data['resourceGroup'],
-            cli=None,
             from_az=self.resource_groups[idx]
         )
         asp = AppService(
             name=self.app_services[idx]['name'],
             resource_group=resource_group,
-            cli=None,
             from_az=self.app_services[idx]
         )
         web_app = WebApp(
             name=wp_data['name'],
             resource_group=resource_group,
             app_service=asp,
-            cli=cli if cli else Cli(wp_data)
         )
+        web_app.set_cli(cli or Cli(wp_data))
 
         return web_app

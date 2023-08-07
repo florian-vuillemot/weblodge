@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 import unittest
 
-from weblodge._azure import AppService, ResourceGroup, InvalidSku
+from weblodge._azure.appservice import AppService, ResourceGroup, InvalidSku
 
 from .cli import Cli
 
@@ -29,12 +29,13 @@ class TestAppService(unittest.TestCase):
         """
         expected_output = self.app_services[0]
 
-        resource_group = ResourceGroup(name=expected_output['resourceGroup'], cli=None, from_az=self.resource_group)
+        resource_group = ResourceGroup(name=expected_output['resourceGroup'], from_az=self.resource_group)
         app_service = AppService(
             name=expected_output['name'],
-            resource_group=resource_group,
-            cli=Cli([expected_output, expected_output])
-        ).create('B1')
+            resource_group=resource_group
+        )
+        app_service.set_cli(Cli([expected_output, expected_output]))
+        app_service = app_service.create('B1')
 
         self.assertEqual(app_service.name, expected_output['name'])
         self.assertEqual(app_service.id_, expected_output['id'])
@@ -45,12 +46,12 @@ class TestAppService(unittest.TestCase):
         """
         expected_output = self.app_services[0]
 
-        resource_group = ResourceGroup(name=expected_output['resourceGroup'], cli=None)
+        resource_group = ResourceGroup(name=expected_output['resourceGroup'])
         app_service = AppService(
             name=expected_output['name'],
-            resource_group=resource_group,
-            cli=Cli(expected_output)
+            resource_group=resource_group
         )
+        app_service.set_cli(Cli(expected_output))
 
         self.assertTrue(app_service.always_on_supported)
 
@@ -60,12 +61,12 @@ class TestAppService(unittest.TestCase):
         """
         expected_output = self.app_services[1]
 
-        resource_group = ResourceGroup(name=expected_output['resourceGroup'], cli=None)
+        resource_group = ResourceGroup(name=expected_output['resourceGroup'])
         app_service = AppService(
             name=expected_output['name'],
             resource_group=resource_group,
-            cli=Cli(expected_output)
         )
+        app_service.set_cli(Cli(expected_output))
 
         self.assertFalse(app_service.always_on_supported)
 
@@ -73,7 +74,7 @@ class TestAppService(unittest.TestCase):
         """
         Can not handle invalid SKU.
         """
-        asp = AppService(name='test', resource_group=None, cli=None)
+        asp = AppService(name='test', resource_group=None)
 
         with self.assertRaises(InvalidSku):
             asp.create('invalid sku')

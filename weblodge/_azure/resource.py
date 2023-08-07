@@ -35,14 +35,14 @@ class Resource:
     # Ex:
     # - 'webapp' for Azure WebApp.
     # - 'appservice plan' for Azure AppService Plan.
+    _cli = None
     _cli_prefix = None
     _internal_tags = {'managedby': 'weblodge'}
 
-    def __init__(self, name: str, cli: Cli = Cli(), from_az: Dict = None) -> None:
+    def __init__(self, name: str, from_az: Dict = None) -> None:
         self.name = name
-        self._cli = cli
         self._from_az = _AzDict(load=self.load, **(from_az or {}))
-
+    
     @property
     def tags(self) -> Dict[str, str]:
         """
@@ -69,18 +69,18 @@ class Resource:
         Return True if the resource exists.
         Load the resource from Azure if found.
         """
-        for resource in self.all(self._cli):
+        for resource in self.all():
             if resource == self:
                 self._from_az.update(resource._from_az) # pylint: disable=protected-access
                 return True
         return False
 
     @classmethod
-    def all(cls, cli = Cli()):
+    def all(cls):
         """
         Return all resources managed by WebLodge.
         """
-        resources = cli.invoke(
+        resources = cls._invoke(
             f'{cls._cli_prefix} list'
         )
 
@@ -88,15 +88,32 @@ class Resource:
         ressources_with_tags = (_r for _r in resources if _r.get('tags'))
         weblodges_resources = (_r for _r in ressources_with_tags if _r['tags'].get('managedby') == 'weblodge')
         yield from (
-            cls.from_az(_r['name'], cli, _r) for _r in weblodges_resources
+            cls.from_az(_r['name'], _r) for _r in weblodges_resources
         )
 
     @classmethod
-    def from_az(cls, name: str, cli: Cli, from_az: Dict):
+    def from_az(cls, name: str, from_az: Dict):
         """
         Create a resource from Azure.
         """
-        return cls(name, cli, from_az)
+        return cls(name, from_az)
+
+    @classmethod
+    def set_cli(cls, cli: Cli):
+        """
+        Set the Azure CLI.
+        """
+        cls._cli = cli
+
+    @classmethod
+    def _invoke(cls, *args, **kwargs):
+        """
+        Return the Azure CLI invoke method.
+        Can be transform in operator when support of python3.8 is dropped.
+        """
+        if cls._cli is None:
+            cls._cli = Cli()
+        return cls._cli.invoke(*args, **kwargs)
 
     @abstractmethod
     def _load(self):

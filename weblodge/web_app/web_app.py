@@ -7,8 +7,8 @@ import logging
 
 from typing import Callable, Iterable, List, Dict, Optional, Tuple
 
+from weblodge._azure import AzureService, AzureWebApp
 from weblodge.config import Item as ConfigItem
-from weblodge._azure import WebApp as AzureWebApp
 
 from ._all import _all as _all_az_web_app
 from .logs import LogsConfig, logs as _logs
@@ -28,10 +28,12 @@ class WebApp:
     def __init__(
         self,
         config_loader: Callable[[List[ConfigItem]], Dict[str, str]],
+        azure_service: AzureService,
         web_app: AzureWebApp = None
     ):
         self.config_loader = config_loader
         self._web_app = web_app
+        self.azure_service = azure_service
 
     @property
     def name(self) -> Optional[str]:
@@ -74,7 +76,7 @@ class WebApp:
         deployment_config = DeploymentConfig(**config)
 
         logger.info('Deploying...')
-        self._web_app = _deploy(deployment_config)
+        self._web_app = _deploy(self.azure_service, deployment_config)
         logger.info('Successfully deployed.')
 
         return True, config
@@ -124,9 +126,8 @@ class WebApp:
         """
         return self._web_app.resource_group.exists()
 
-    @classmethod
-    def all(cls, config_loader: Callable[[List[ConfigItem]], Dict[str, str]] = None) -> Iterable['WebApp']:
+    def all(self, config_loader: Callable[[List[ConfigItem]], Dict[str, str]] = None) -> Iterable['WebApp']:
         """
         Return all WebApp created by WebLodge.
         """
-        yield from (cls(config_loader, web_app) for web_app in _all_az_web_app())
+        yield from (WebApp(config_loader, self.azure_service, web_app) for web_app in _all_az_web_app(self.azure_service))
