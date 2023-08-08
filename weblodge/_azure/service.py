@@ -18,7 +18,7 @@ class Service(AzureService):
     resource_groups: AzureResourceGroup
     app_services: AzureAppService
     web_apps: AzureWebApp
-    log_levels: LogLevel
+    log_levels: AzureLogLevel
 
     def __init__(self):
         self.cli = Cli()

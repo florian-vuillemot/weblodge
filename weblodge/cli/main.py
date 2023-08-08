@@ -12,6 +12,7 @@ import logging
 from typing import Dict
 
 import weblodge.state as state
+from weblodge._azure import Service
 from weblodge.web_app import WebApp, NoMoreFreeApplicationAvailable
 from weblodge.parameters import Parser, ConfigIsNotDefined, ConfigIsDefined, ConfigTrigger
 
@@ -28,20 +29,20 @@ def main():
     success = False
     parameters = Parser()
     action, config_file = get_cli_args()
-    web_app = WebApp(parameters.load)
+    web_app = WebApp(parameters.load, azure_service=Service())
 
     try:
         config = state.load(config_file)
         if action == 'build':
             success, config = web_app.build(config)
         elif action == 'clean':
-            success = clean(parameters)
+            success = clean(parameters, web_app)
         elif action == 'deploy':
             success, config = deploy(config, web_app, parameters)
         elif action == 'delete':
             success = delete(config, web_app, parameters)
         elif action == 'list':
-            list_(parameters.load)
+            list_(parameters.load, web_app)
         elif action == 'logs':
             print('Logs will be stream, execute CTRL+C to stop the application.', flush=True)
             web_app.print_logs(config)
@@ -116,7 +117,7 @@ def delete(config: Dict[str, str], web_app: WebApp, parameters: Parser):
     return res
 
 
-def clean(parameters: Parser):
+def clean(parameters: Parser, web_app: WebApp):
     """
     Iterate over all resources and ask the user if he want to delete them.
     The parameter 'yes' is too risquy to be accepted and will be ignored.
@@ -128,7 +129,7 @@ def clean(parameters: Parser):
         attending_value=False
     )
 
-    for web_app in WebApp.all(parameters.load):
+    for web_app in web_app.all(parameters.load):
         try:
             parameters.trigger_once(prompt)
             web_app.delete()
@@ -139,7 +140,7 @@ def clean(parameters: Parser):
     return True
 
 
-def list_(parameter_loader):
+def list_(parameter_loader, web_app: WebApp):
     """
     Print all the deployed applications.
     Warm the user if some infrastructure is not used.
@@ -147,7 +148,7 @@ def list_(parameter_loader):
     unused_apps = []
     no_application_deployed = True
 
-    for _wapp in WebApp.all(parameter_loader):
+    for _wapp in web_app.all(parameter_loader):
         no_application_deployed = False
         if _wapp.exists():
             print(f"Application: {_wapp.url()}")

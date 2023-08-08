@@ -98,7 +98,7 @@ class WebApp:
         delete_config = DeleteConfig(**config)
 
         logger.info('Deleting...')
-        _delete(delete_config)
+        _delete(self.azure_service, delete_config)
         self._web_app = None
         logger.info('Successfully deleted.')
 
@@ -112,7 +112,7 @@ class WebApp:
         logs_config = LogsConfig(
             **self.config_loader(LogsConfig.items, config)
         )
-        _logs(logs_config)
+        _logs(self.azure_service, logs_config)
 
     def exists(self) -> bool:
         """
@@ -130,4 +130,7 @@ class WebApp:
         """
         Return all WebApp created by WebLodge.
         """
-        yield from (WebApp(config_loader, self.azure_service, web_app) for web_app in _all_az_web_app(self.azure_service))
+        yield from (
+            WebApp(config_loader, self.azure_service, web_app)
+            for web_app in _all_az_web_app(self.azure_service)
+        )
