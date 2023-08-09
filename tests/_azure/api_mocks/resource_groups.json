@@ -7,7 +7,7 @@
     "properties": {
       "provisioningState": "Succeeded"
     },
-    "tags": {},
+    "tags": {"managedby": "weblodge"},
     "type": "Microsoft.Resources/resourceGroups"
   },
   {
@@ -18,7 +18,7 @@
     "properties": {
       "provisioningState": "Succeeded"
     },
-    "tags": {},
+    "tags": {"managedby": "weblodge"},
     "type": "Microsoft.Resources/resourceGroups"
   },
   {
@@ -29,7 +29,7 @@
     "properties": {
       "provisioningState": "Succeeded"
     },
-    "tags": {},
+    "tags": {"managedby": "weblodge"},
     "type": "Microsoft.Resources/resourceGroups"
   }
 ]
