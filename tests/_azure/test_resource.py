@@ -104,3 +104,15 @@ class TestResource(unittest.TestCase):
         self.assertEqual(production_resource_group.id_, resources[2].id_)
         self.assertEqual(production_resource_group.tags, resources[2].tags)
         self.assertEqual(production_resource_group.name, resources[2].name)
+
+    def test_exists(self):
+        """
+        Test exists.
+        """
+        MockResourceGroup.set_cli(Cli([self.resources]))
+
+        staging = self.resources[1]
+        staging_resource_group = MockResourceGroup(
+            name=staging['name']
+        )
+        self.assertTrue(staging_resource_group.exists())
