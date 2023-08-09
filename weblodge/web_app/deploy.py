@@ -36,6 +36,8 @@ class DeploymentConfig:
     """
     # Zip file that contains the user application code.
     package: str = 'azwebapp.zip'
+    # Time wait after updating the environment variable.
+    env_update_waiting_time: int = 60
 
     # Configurable items of the deployment.
     items = [
@@ -146,7 +148,7 @@ def deploy(azure_service: AzureService, config: DeploymentConfig) -> AzureWebApp
     web_app.set_log_level(log_level)
     logger.info('The log level has been set.')
 
-    set_webapp_env_var(web_app, config.env_file)
+    set_webapp_env_var(web_app, config.env_file, config.env_update_waiting_time)
 
     logger.info('Uploading the application...')
     web_app.deploy(os.path.join(config.dist, config.package))
