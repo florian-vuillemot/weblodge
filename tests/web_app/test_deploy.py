@@ -31,7 +31,7 @@ class TestDeploy(unittest.TestCase):
             location='westeurope',
             environment='test',
             dist='dist',
-            env_file='.env',
+            env_file='.donotexist',
             log_level='info',
         )
         deployment_config.env_update_waiting_time = 0
@@ -43,7 +43,7 @@ class TestDeploy(unittest.TestCase):
             os.path.join(deployment_config.dist, deployment_config.package)
         )
         log_level.information.assert_called_once()
-        web_app.update_environment.assert_called_once()
+        web_app.update_environment.assert_not_called()
 
     def test_no_more_free_app(self):
         """
