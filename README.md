@@ -2,6 +2,9 @@
 
 **WebLodge** is a command line aiming to provide anyone with deployment and cloud management capabilities.
 
+> Full documentation [here](https://weblodge.readthedocs.io/en/latest/).
+
+
 ## Prerequisites
 
 - Install the command line with `pip install weblodge`.
