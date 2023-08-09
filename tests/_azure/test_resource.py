@@ -1,5 +1,5 @@
 """
-Resource Group Tests.
+Resource Tests.
 """
 import json
 from pathlib import Path
