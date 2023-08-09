@@ -47,7 +47,7 @@ class TestResource(unittest.TestCase):
         """
         Test standard properties.
         """
-        expected_output = self.resources[0]
+        expected_output = self.resources[1]
 
         resource_group = MockResourceGroup(
             name=expected_output['name']
