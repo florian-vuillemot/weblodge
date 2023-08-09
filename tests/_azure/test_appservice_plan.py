@@ -78,3 +78,45 @@ class TestAppService(unittest.TestCase):
 
         with self.assertRaises(InvalidSku):
             asp.create('invalid sku')
+
+    def test_is_free(self):
+        """
+        Test if AppService is free.
+        """
+        is_not_free = AppService(
+            name='app_service',
+            resource_group=ResourceGroup(name='rg'),
+            from_az={
+                "sku": {
+                    "capabilities": None,
+                    "capacity": 1,
+                    "family": "Pv3",
+                    "locations": None,
+                    "name": "P1v3",
+                    "size": "P1v3",
+                    "skuCapacity": None,
+                    "tier": "PremiumV3"
+                },
+            }
+        )
+
+        self.assertFalse(is_not_free.is_free)
+
+        is_free = AppService(
+            name='app_service',
+            resource_group=ResourceGroup(name='rg'),
+            from_az={
+                "sku": {
+                    "capabilities": None,
+                    "capacity": 1,
+                    "family": "Shared",
+                    "locations": None,
+                    "name": "F1",
+                    "size": "F2",
+                    "skuCapacity": None,
+                    "tier": "Shared"
+                },
+            }
+        )
+
+        self.assertTrue(is_free.is_free)
