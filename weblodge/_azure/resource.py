@@ -42,7 +42,7 @@ class Resource:
     def __init__(self, name: str, from_az: Dict = None) -> None:
         self.name = name
         self._from_az = _AzDict(load=self.load, **(from_az or {}))
-    
+
     @property
     def tags(self) -> Dict[str, str]:
         """

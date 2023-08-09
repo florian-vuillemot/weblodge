@@ -129,10 +129,10 @@ def clean(parameters: Parser, web_app: WebApp):
         attending_value=False
     )
 
-    for web_app in web_app.all(parameters.load):
+    for _wa in web_app.all(parameters.load):
         try:
             parameters.trigger_once(prompt)
-            web_app.delete()
+            _wa.delete()
         except SystemExit:
             # User aborted the deletion.
             continue

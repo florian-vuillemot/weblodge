@@ -12,15 +12,10 @@ class TestDeploy(unittest.TestCase):
     """
     Test state module.
     """
-    @patch('weblodge._azure.WebApp')
-    @patch('weblodge._azure.AppService')
-    def no_more_free_app(self, webapp, app_services):
+    def no_more_free_app(self):
         """
         Ensure a cli exception is raised when no more free app is available.
         """
-        webapp = MagicMock()
-        webapp.return_value = None
-
         deployment_config = DeploymentConfig(
             subdomain='test',
             sku='F1',

@@ -4,7 +4,6 @@ Internal utility functions for the web app.
 import os
 import time
 import logging
-from typing import Optional
 
 from dotenv import dotenv_values
 

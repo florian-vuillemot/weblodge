@@ -3,8 +3,6 @@ Azure Web App representation.
 """
 from typing import Dict
 
-
-from .cli import Cli
 from .resource import Resource
 from .log_level import LogLevel
 from .appservice import AppService
