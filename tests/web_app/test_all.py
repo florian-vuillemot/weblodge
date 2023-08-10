@@ -1,5 +1,5 @@
 """
-Test the all fonction.
+Test the all command.
 """
 import unittest
 from unittest.mock import MagicMock

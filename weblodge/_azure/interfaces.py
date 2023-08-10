@@ -195,6 +195,42 @@ class AzureWebApp:
         """
 
 
+class MicrosoftEntraApplication:
+    """
+    Azure Application registered on the Entra platform.
+    """
+    client_id: str
+    tenant_id: str
+    subscription_id: str
+
+
+class MicrosoftEntra:
+    """
+    Allow to create Azure Entra Applications.
+    """
+    # pylint: disable=too-many-arguments
+    @abstractmethod
+    def github_application(
+        self,
+        name: str,
+        username: str,
+        repository: str,
+        branch: str,
+        resource_group: str
+    ) -> MicrosoftEntraApplication:
+        """
+        Return a Azure Entra Application for a GitHub Account.
+        Credentials are federated based.
+
+        :param name: The name of the GitHub Application.
+        :param branch: The branch of the repository that will trigger the GitHub Action.
+        :param username: The username/organisation of the repository owner.
+        :param repository: The name of the GitHub repository.
+        :param resource_group: The resource group where the application will be deployed.
+        :return: The Microsoft Entra representation.
+        """
+
+
 class AzureService:
     """
     Allow to instanciate Azure components.
@@ -203,3 +239,4 @@ class AzureService:
     app_services: AzureAppService
     web_apps: AzureWebApp
     log_levels: AzureLogLevel
+    entra: MicrosoftEntra
