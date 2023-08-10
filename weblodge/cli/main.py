@@ -43,6 +43,7 @@ def main():
             success = delete(config, web_app, parameters)
         elif action == 'list':
             list_(parameters.load, web_app)
+            success = True
         elif action == 'logs':
             print('Logs will be stream, execute CTRL+C to stop the application.', flush=True)
             web_app.print_logs(config)
@@ -51,6 +52,8 @@ def main():
 
     if success:
         state.dump(config_file, config)
+        if __name__ == '__main__':
+            sys.exit(0)
         return web_app
 
     sys.exit(1)
