@@ -30,7 +30,7 @@ def test(cmd, html_expected, log) -> str:
 
     # Simulate the CLI call.
     sys.argv = cmd.split()
-    web_app = main()
+    web_app = main(return_web_app=True)
 
     for _ in range(3):
         # Ensure the application is reachable.
