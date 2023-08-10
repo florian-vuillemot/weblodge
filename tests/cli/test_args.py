@@ -4,7 +4,7 @@ Test CLI arguments parsing.
 import sys
 import unittest
 
-from weblodge.cli.args import get_cli_args, DEFAULT_CONFIG_FILENAME
+from weblodge.cli.args import get_cli_args, DEFAULT_CONFIG_FILE
 
 
 class TestCliArgs(unittest.TestCase):
@@ -19,7 +19,7 @@ class TestCliArgs(unittest.TestCase):
 
         action, config_filename = get_cli_args()
         self.assertEqual(action, 'build')
-        self.assertEqual(config_filename, DEFAULT_CONFIG_FILENAME)
+        self.assertEqual(config_filename, DEFAULT_CONFIG_FILE)
 
     def test_failed_when_action_is_missing(self):
         """

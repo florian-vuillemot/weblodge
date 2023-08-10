@@ -5,10 +5,12 @@ Wrapp all actions related to the Azure Web App.
 """
 import logging
 
-from typing import Callable, List, Dict, Tuple
+from typing import Callable, Iterable, List, Dict, Optional, Tuple
 
+from weblodge._azure import AzureService, AzureWebApp
 from weblodge.config import Item as ConfigItem
 
+from ._all import _all as _all_az_web_app
 from .logs import LogsConfig, logs as _logs
 from .delete import DeleteConfig, delete as _delete
 from .deploy import DeploymentConfig, deploy as _deploy
@@ -23,9 +25,22 @@ class WebApp:
     """
     Represent a Flask Web Application deploy on Azure.
     """
-    def __init__(self, config_loader: Callable[[List[ConfigItem]], Dict[str, str]]):
+    def __init__(
+        self,
+        config_loader: Callable[[List[ConfigItem]], Dict[str, str]],
+        azure_service: AzureService,
+        web_app: AzureWebApp = None
+    ):
         self.config_loader = config_loader
-        self._web_app = None
+        self._web_app = web_app
+        self.azure_service = azure_service
+
+    @property
+    def name(self) -> Optional[str]:
+        """
+        Return the name of the WebApp if exists, None otherwise.
+        """
+        return self._web_app.name if self._web_app else None
 
     def build(self, config: Dict[str, str]) -> Tuple[bool, Dict[str, str]]:
         """
@@ -61,26 +76,29 @@ class WebApp:
         deployment_config = DeploymentConfig(**config)
 
         logger.info('Deploying...')
-        self._web_app = _deploy(deployment_config)
+        self._web_app = _deploy(self.azure_service, deployment_config)
         logger.info('Successfully deployed.')
 
         return True, config
 
-    def url(self):
+    def url(self) -> str:
         """
         Get the URL of the deployed application.
         """
         return f'https://{self._web_app.domain}'
 
-    def delete(self, config: Dict[str, str]) -> Tuple[bool, Dict[str, str]]:
+    def delete(self, config: Dict[str, str] = None) -> Tuple[bool, Dict[str, str]]:
         """
         Delete the application.
         """
+        if config is None:
+            config = {'subdomain': self._web_app.name}
+
         config = self.config_loader(DeleteConfig.items, config)
         delete_config = DeleteConfig(**config)
 
         logger.info('Deleting...')
-        _delete(delete_config)
+        _delete(self.azure_service, delete_config)
         self._web_app = None
         logger.info('Successfully deleted.')
 
@@ -94,4 +112,25 @@ class WebApp:
         logs_config = LogsConfig(
             **self.config_loader(LogsConfig.items, config)
         )
-        _logs(logs_config)
+        _logs(self.azure_service, logs_config)
+
+    def exists(self) -> bool:
+        """
+        Return True if the application exists, False otherwise.
+        """
+        return self._web_app.exists()
+
+    def infrastruture_exists(self) -> bool:
+        """
+        Return True if the application infrastructure exists, False otherwise.
+        """
+        return self._web_app.resource_group.exists()
+
+    def all(self, config_loader: Callable[[List[ConfigItem]], Dict[str, str]] = None) -> Iterable['WebApp']:
+        """
+        Return all WebApp created by WebLodge.
+        """
+        yield from (
+            WebApp(config_loader, self.azure_service, web_app)
+            for web_app in _all_az_web_app(self.azure_service)
+        )

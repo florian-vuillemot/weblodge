@@ -15,12 +15,17 @@ import string
 import logging
 
 from weblodge.config import Item as ConfigItem
-from weblodge._azure import ResourceGroup, AppService, WebApp as AzureWebApp
+from weblodge._azure import AzureService, AzureWebApp, AzureLogLevel
+
+from .shared import WEBAPP_TAGS
+from .exceptions import NoMoreFreeApplicationAvailable
+from .utils import get_webapp, set_webapp_env_var
 
 
 logger = logging.getLogger('weblodge')
 
 
+# pylint: disable=too-many-instance-attributes
 class DeploymentConfig:
     """
     Deployment configuration.
@@ -31,6 +36,8 @@ class DeploymentConfig:
     """
     # Zip file that contains the user application code.
     package: str = 'azwebapp.zip'
+    # Time wait after updating the environment variable.
+    env_update_waiting_time: int = 60
 
     # Configurable items of the deployment.
     items = [
@@ -59,6 +66,17 @@ class DeploymentConfig:
             description='Folder containing the application zipped.',
             default='dist'
         ),
+        ConfigItem(
+            name='env_file',
+            description='The file containing the environment variable.',
+            default='.env'
+        ),
+        ConfigItem(
+            name='log_level',
+            description='The log level of the application infrastructure.',
+            default='error',
+            values_allowed=['error', 'info', 'verbose', 'warning']
+        ),
     ]
 
     # pylint: disable=too-many-arguments
@@ -69,6 +87,8 @@ class DeploymentConfig:
             location,
             environment,
             dist,
+            env_file,
+            log_level,
             *_args,
             **_kwargs
         ):
@@ -84,6 +104,10 @@ class DeploymentConfig:
         self.environment = environment
         # Dist directory containing the application zipped.
         self.dist = dist
+        # File containing environment variables.
+        self.env_file = env_file
+        # Application log level.
+        self.log_level = log_level
 
         # Infrastructure tags.
         self.tags = {
@@ -91,25 +115,57 @@ class DeploymentConfig:
         }
 
 
-def deploy(config: DeploymentConfig) -> AzureWebApp:
+def deploy(azure_service: AzureService, config: DeploymentConfig) -> AzureWebApp:
     """
     Deploy the application to Azure and return its URL.
     """
-    resource_group = ResourceGroup(config.subdomain)
-    asp_service = AppService(config.subdomain, resource_group)
-    web_app = AzureWebApp(config.subdomain, resource_group, asp_service)
+    web_app = get_webapp(azure_service, config.subdomain)
 
     if not web_app.exists():
         logger.info('The infrastructure is being created...')
-        if not asp_service.exists():
-            if not resource_group.exists():
-                resource_group.create(location=config.location, tags=config.tags)
-            asp_service.create(config.sku)
+        if not web_app.app_service.exists():
+            if config.sku == 'F1':
+                # Only one free AppService Plan is allowed per Azure subscription and location.
+                # Check if a free AppService Plan already exists.
+                if free_web_app := azure_service.app_services.get_existing_free(config.location):
+                    logger.info('Stopping the deployment. No infrastructure created.')
+                    raise NoMoreFreeApplicationAvailable(free_web_app.name)
+            if not web_app.resource_group.exists():
+                web_app.resource_group.create(
+                    location=config.location,
+                    tags={
+                        **config.tags,
+                        **WEBAPP_TAGS
+                    }
+                )
+            web_app.app_service.create(config.sku)
         web_app.create()
         logger.info('The infrastructure is created.')
+
+    logger.info('Setting the log level...')
+    log_level = azure_service.log_levels()
+    _set_log_level(config, log_level)
+    web_app.set_log_level(log_level)
+    logger.info('The log level has been set.')
+
+    set_webapp_env_var(web_app, config.env_file, config.env_update_waiting_time)
 
     logger.info('Uploading the application...')
     web_app.deploy(os.path.join(config.dist, config.package))
     logger.info('The application has been uploaded.')
 
     return web_app
+
+
+def _set_log_level(config: DeploymentConfig, log_level: AzureLogLevel) -> None:
+    """
+    Set the application log level.
+    """
+    if config.log_level == 'error':
+        log_level.error()
+    elif config.log_level == 'info':
+        log_level.information()
+    elif config.log_level == 'verbose':
+        log_level.verbose()
+    elif config.log_level == 'warning':
+        log_level.warning()

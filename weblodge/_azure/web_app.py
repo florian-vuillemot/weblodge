@@ -3,20 +3,14 @@ Azure Web App representation.
 """
 from typing import Dict
 
-
-from .cli import Cli
 from .resource import Resource
-from .resource_group import ResourceGroup
+from .log_level import LogLevel
 from .appservice import AppService
+from .resource_group import ResourceGroup
+from .interfaces import AzureWebApp
 
 
-class WebAppNotfound(Exception):
-    """
-    Exception raised when a WebApp is not found.
-    """
-
-
-class WebApp(Resource):
+class WebApp(Resource, AzureWebApp):
     """
     Azure Web App representation.
     """
@@ -28,10 +22,9 @@ class WebApp(Resource):
             name: str,
             resource_group: ResourceGroup,
             app_service: AppService,
-            cli: Cli = Cli(),
             from_az: Dict = None
             ) -> None:
-        super().__init__(name=name, cli=cli, from_az=from_az)
+        super().__init__(name=name, from_az=from_az)
         self.python_version = '3.10'
         self.app_service = app_service
         self.resource_group = resource_group
@@ -51,7 +44,7 @@ class WebApp(Resource):
         """
         return self._from_az['hostNames'][0] if self._from_az['hostNames'] else None
 
-    def create(self) -> 'WebApp':
+    def create(self) -> 'AzureWebApp':
         """
         Create the WebApp infrastructure.
 
@@ -67,12 +60,12 @@ class WebApp(Resource):
         python_version = self.python_version
 
         # Create the WebApp infrastructure.
-        self._cli.invoke(
+        self._invoke(
             f'{self._cli_prefix} create -g {rg_name} -p {asp} -n {name} --runtime PYTHON:{python_version}',
             tags={**self.resource_group.tags, **self.app_service.tags}
         )
         # Update the WebApp settings.
-        self._cli.invoke(
+        self._invoke(
             ' '.join((
                 f'{self._cli_prefix} config set --resource-group {rg_name} --name {name}',
                 '--web-sockets-enabled true',
@@ -82,11 +75,28 @@ class WebApp(Resource):
             ))
         )
 
+    def set_log_level(self, log_level: LogLevel) -> None:
+        """
+        Update the log level of the WebApp.
+        """
+        self._invoke(
+            ' '.join((
+                'webapp log config',
+                f'--name {self.name}',
+                f'--resource-group {self.resource_group.name}',
+                '--application-logging filesystem',
+                '--docker-container-logging filesystem',
+                '--detailed-error-messages true',
+                '--failed-request-tracing true',
+                f'--level {log_level.to_azure()}'
+            ))
+        )
+
     def deploy(self, src: str) -> None:
         """
         Deploy an application zipped.
         """
-        self._cli.invoke(
+        self._invoke(
             ' '.join((
                 f'{self._cli_prefix} deployment source config-zip',
                 f'-g {self.resource_group.name} -n {self.name}',
@@ -99,21 +109,64 @@ class WebApp(Resource):
         Stream WebApp logs.
         This is a blocking operation. User must run CTRL+C to stop the process.
         """
-        self._cli.invoke(
+        self._invoke(
             f'{self._cli_prefix} log tail -g {self.resource_group.name} -n {self.name}',
             log_outputs=True
         )
 
+    def update_environment(self, env: Dict) -> None:
+        """
+        Update the WebApp environment variables.
+        """
+        # Web App App settings format.
+        env_formatted = [f'{k}={v}' for k, v in env.items()]
+
+        # Update the WebApp environment variables.
+        self._invoke(
+            ' '.join((
+                f'{self._cli_prefix} config appsettings set',
+                f'--name {self.name}',
+                f'--resource-group {self.resource_group.name}'
+            )),
+            to_json=False,
+            # Provide as independent arguments to avoid shell escaping issues.
+            command_args=['--settings', *env_formatted]
+        )
+
+    def deployment_in_progress(self) -> bool:
+        """
+        True if the WebApp is deploying.
+        """
+        deployments = self._invoke(
+            ' '.join((
+                f'{self._cli_prefix} log deployment show',
+                f'--name {self.name}',
+                f'--resource-group {self.resource_group.name}'
+            ))
+        )
+        return any(
+            'Deployment successful' in d.get('message')
+            for d in deployments
+        )
+
+    def restart(self) -> None:
+        """
+        Restart the WebApp.
+        """
+        self._invoke(
+            f'{self._cli_prefix} restart -g {self.resource_group.name} -n {self.name}',
+            to_json=False
+        )
+
     @classmethod
-    def from_az(cls, name: str, cli: Cli, from_az: Dict) -> 'WebApp':
+    def from_az(cls, name: str, from_az: Dict) -> 'AzureWebApp':
         """
         Create a WebApp from Azure result.
         """
         return cls(
             name,
-            ResourceGroup(from_az['resourceGroup'], cli=cli),
-            AppService.from_id(from_az['appServicePlanId'], cli=cli),
-            cli=cli,
+            ResourceGroup(from_az['resourceGroup']),
+            AppService.from_id(from_az['appServicePlanId']),
             from_az=from_az
         )
 
@@ -122,7 +175,7 @@ class WebApp(Resource):
         Load the WebApp from Azure.
         """
         self._from_az.update(
-            self._cli.invoke(
+            self._invoke(
                 f'{self._cli_prefix} show --resource-group {self.resource_group.name} --name {self.name}'
             )
         )

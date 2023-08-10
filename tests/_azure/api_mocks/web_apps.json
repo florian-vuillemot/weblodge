@@ -170,7 +170,8 @@
     "suspendedTill": null,
     "tags": {
       "environment": "develop",
-      "usage": "monitor"
+      "usage": "monitor",
+      "managedby": "weblodge"
     },
     "targetSwapSlot": null,
     "trafficManagerHostNames": null,
@@ -352,7 +353,8 @@
     "suspendedTill": null,
     "tags": {
       "environment": "staging",
-      "usage": "monitor"
+      "usage": "monitor",
+      "managedby": "weblodge"
     },
     "targetSwapSlot": null,
     "trafficManagerHostNames": null,
@@ -534,7 +536,8 @@
     "suspendedTill": null,
     "tags": {
       "environment": "production",
-      "usage": "monitor"
+      "usage": "monitor",
+      "managedby": "weblodge"
     },
     "targetSwapSlot": null,
     "trafficManagerHostNames": null,

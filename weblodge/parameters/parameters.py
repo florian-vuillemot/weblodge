@@ -12,24 +12,24 @@ from weblodge.config import Item as ConfigItem
 
 
 @dataclass(frozen=True, eq=False)
-class _ConfigTrigger(ConfigItem):
+class ConfigTrigger(ConfigItem):
     """
     Configuration Item with a function to trigger.
-    Can only be defined in the meta configuration.
+    Call the trigger whatever the config is defined or not.
     """
     # Function to call.
     trigger: Callable[[Dict[str, str]], Dict[str, str]] = None
 
 
 @dataclass(frozen=True, eq=False)
-class ConfigIsDefined(_ConfigTrigger):
+class ConfigIsDefined(ConfigTrigger):
     """
     Call the trigger if the user provides the parameter.
     """
 
 
 @dataclass(frozen=True, eq=False)
-class ConfigIsNotDefined(_ConfigTrigger):
+class ConfigIsNotDefined(ConfigTrigger):
     """
     Call the trigger if the user does not provide the parameter.
     """
@@ -58,7 +58,7 @@ class Parser:
     ```
     """
     def __init__(self) -> None:
-        self._triggers: List[_ConfigTrigger] = []
+        self._triggers: List[ConfigTrigger] = []
 
     def load(self, fields: List[ConfigItem], existing_parameters: Dict[str, str] = None) -> Dict[str, str]:
         """
@@ -85,6 +85,8 @@ class Parser:
                     'required': default_value is None,
                     'default': default_value,
                 }
+                if field.values_allowed:
+                    argument['choices'] = field.values_allowed
 
             parser.add_argument(
                 f'--{_to_display(field.name)}',
@@ -111,14 +113,18 @@ class Parser:
                 # fill the config with False.
                 is_defined = new_config[_config.name]
 
-            if is_defined and isinstance(_config, ConfigIsDefined):
-                config = _config.trigger(config)
-            elif not is_defined and isinstance(_config, ConfigIsNotDefined):
+            if isinstance(_config, ConfigIsDefined):
+                if is_defined:
+                    config = _config.trigger(config)
+            elif isinstance(_config, ConfigIsNotDefined):
+                if not is_defined:
+                    config = _config.trigger(config)
+            elif isinstance(_config, ConfigTrigger):
                 config = _config.trigger(config)
 
         return config
 
-    def trigger_once(self, trigger: _ConfigTrigger) -> 'Parser':
+    def trigger_once(self, trigger: ConfigTrigger) -> 'Parser':
         """
         Add configuration trigger.
         Configuration defined will not be added to the config.

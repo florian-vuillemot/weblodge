@@ -12,8 +12,9 @@ import logging
 from typing import Dict
 
 import weblodge.state as state
-from weblodge.web_app import WebApp
-from weblodge.parameters import Parser, ConfigIsNotDefined, ConfigIsDefined
+from weblodge._azure import Service
+from weblodge.web_app import WebApp, NoMoreFreeApplicationAvailable
+from weblodge.parameters import Parser, ConfigIsNotDefined, ConfigIsDefined, ConfigTrigger
 
 from .args import get_cli_args, CLI_NAME
 
@@ -22,21 +23,27 @@ logger = logging.getLogger('weblodge')
 logger.setLevel(logging.INFO)
 logger.addHandler(logging.StreamHandler())
 
+
 # pylint: disable=missing-function-docstring
-def main():
+def main(return_web_app=False):
     success = False
     parameters = Parser()
-    action, config_filename = get_cli_args()
-    web_app = WebApp(parameters.load)
+    action, config_file = get_cli_args()
+    web_app = WebApp(parameters.load, azure_service=Service())
 
     try:
-        config = state.load(config_filename)
+        config = state.load(config_file)
         if action == 'build':
             success, config = web_app.build(config)
+        elif action == 'clean':
+            success = clean(parameters, web_app)
         elif action == 'deploy':
             success, config = deploy(config, web_app, parameters)
         elif action == 'delete':
-            success, config = delete(config, web_app, parameters)
+            success = delete(config, web_app, parameters)
+        elif action == 'list':
+            list_(parameters.load, web_app)
+            success = True
         elif action == 'logs':
             print('Logs will be stream, execute CTRL+C to stop the application.', flush=True)
             web_app.print_logs(config)
@@ -44,8 +51,10 @@ def main():
         print('Command failed with the following error:', exception, file=sys.stderr, flush=True)
 
     if success:
-        state.dump(config_filename, config)
-        return web_app
+        state.dump(config_file, config)
+        if return_web_app:
+            return web_app
+        return 0
 
     sys.exit(1)
 
@@ -71,7 +80,17 @@ def deploy(config: Dict[str, str], web_app: WebApp, parameters: Parser):
     )
 
     parameters.trigger_once(build_too)
-    success, config = web_app.deploy(config)
+    try:
+        success, config = web_app.deploy(config)
+    except NoMoreFreeApplicationAvailable as free_app_name:
+        print(
+            'Can not create the infrastrucutre. Azure support only one Free application by location.',
+            'Please, change the deployment location or the application sku.',
+            f"The already existing free application is this location is '{free_app_name}'.",
+            file=sys.stderr,
+            flush=True
+        )
+        return False, config
 
     if success:
         print(f"The application will soon be available at: {web_app.url()}", flush=True)
@@ -89,18 +108,68 @@ def delete(config: Dict[str, str], web_app: WebApp, parameters: Parser):
     """
     Delete the application.
     """
-    def _validation(config):
-        if input('Are you sure you want to delete the application (yes/no.)? ') != 'yes':
-            print('Aborting.')
-            sys.exit(0)
-        return config
-
     prompt = ConfigIsNotDefined(
         name='yes',
         description='Delete without user input.',
-        trigger=_validation,
+        trigger=_validation_before_deletion,
         attending_value=False
     )
 
     parameters.trigger_once(prompt)
-    return web_app.delete(config)
+    res, _ = web_app.delete(config)
+    return res
+
+
+def clean(parameters: Parser, web_app: WebApp):
+    """
+    Iterate over all resources and ask the user if he want to delete them.
+    The parameter 'yes' is too risquy to be accepted and will be ignored.
+    """
+    prompt = ConfigTrigger(
+        name='yes',
+        description='The user input will always be asked',
+        trigger=_validation_before_deletion,
+        attending_value=False
+    )
+
+    for _wa in web_app.all(parameters.load):
+        try:
+            parameters.trigger_once(prompt)
+            _wa.delete()
+        except SystemExit:
+            # User aborted the deletion.
+            continue
+
+    return True
+
+
+def list_(parameter_loader, web_app: WebApp):
+    """
+    Print all the deployed applications.
+    Warm the user if some infrastructure is not used.
+    """
+    unused_apps = []
+    no_application_deployed = True
+
+    for _wapp in web_app.all(parameter_loader):
+        no_application_deployed = False
+        if _wapp.exists():
+            print(f"Application: {_wapp.url()}")
+        else:
+            unused_apps.append(_wapp.name)
+
+    if no_application_deployed:
+        print('No application deployed.')
+        return
+
+    if unused_apps:
+        print('We found the following infrastructure without application deployed. This can be costly.')
+        for name in unused_apps:
+            print(f"Application '{name}', can be deleted by running: `{CLI_NAME} delete --subdomain {name}`")
+
+
+def _validation_before_deletion(config):
+    if input(f"Do you want to delete the application '{config['subdomain']}' (yes/no.)? ") != 'yes':
+        print('Aborting.')
+        sys.exit(0)
+    return config

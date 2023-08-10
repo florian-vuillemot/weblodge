@@ -7,7 +7,7 @@ import sys
 import unittest
 
 from weblodge.config import Item as ConfigItem
-from weblodge.parameters import Parser, ConfigIsDefined, ConfigIsNotDefined
+from weblodge.parameters import Parser, ConfigIsDefined, ConfigIsNotDefined, ConfigTrigger
 
 
 class TestConfigBasedParameters(unittest.TestCase):
@@ -34,7 +34,13 @@ class TestConfigBasedParameters(unittest.TestCase):
             name='build',
             description='Application must be build before.',
             attending_value=False,
-        )
+        ),
+        ConfigItem(
+            name='log_level',
+            description='Log level.',
+            default='info',
+            values_allowed=['error', 'info', 'verbose', 'warning']
+        ),
     ]
 
     def test_failed_when_missing_mandatory_item(self):
@@ -58,21 +64,30 @@ class TestConfigBasedParameters(unittest.TestCase):
         self.assertEqual(params['app_name'], app_name)
         self.assertEqual(params['dist'], self.config_fields[1].default)
         self.assertEqual(params['src'], self.config_fields[2].default)
+        self.assertEqual(params['log_level'], self.config_fields[4].default)
 
     def test_override(self):
         """
         Ensure parameters provided by the CLI replace the default values.
         """
-        src='my-src'
-        dist='my-dist'
+        src = 'my-src'
+        dist = 'my-dist'
         app_name = 'foo'
+        log_level = 'verbose'
 
-        sys.argv = [sys.argv[0], 'build', '--app-name', app_name, '--dist', dist, '--src',  src]
+        sys.argv = [
+            sys.argv[0], 'build',
+            '--app-name', app_name,
+            '--dist', dist,
+            '--src',  src,
+            '--log-level', log_level
+        ]
 
         params = Parser().load(self.config_fields)
         self.assertEqual(params['src'], src)
         self.assertEqual(params['dist'], dist)
         self.assertEqual(params['app_name'], app_name)
+        self.assertEqual(params['log_level'], log_level)
 
     def test_override_existing_parameters(self):
         """
@@ -201,3 +216,56 @@ class TestConfigBasedParameters(unittest.TestCase):
         # Ensure the config is not polluted by triggers.
         self.assertNotIn('yes', config)
         self.assertNotIn('no', config)
+
+    def test_trigger_everytime(self):
+        """
+        Ensure trigger is call if defined or not.
+        """
+        def _defined(_config):
+            self.assertNotIn('yes', _config)
+            return {
+                **_config,
+                'defined_called': True
+            }
+        def _not_defined(_config):
+            self.assertNotIn('no', _config)
+            return {
+                **_config,
+                'not_defined_called': True
+            }
+
+        defined_trigger = ConfigTrigger(
+            name='yes',
+            description='Validation.',
+            trigger=_defined,
+            attending_value=False
+        )
+        not_defined_trigger = ConfigTrigger(
+            name='no',
+            description='No validation.',
+            trigger=_not_defined,
+            attending_value=False
+        )
+
+        # First set of parameters loaded.
+        # `dist` is loaded as a default value.
+        sys.argv = [sys.argv[0], 'build', '--yes', '--app-name', 'foo']
+        parser = Parser()
+        parser.trigger_once(defined_trigger)
+        parser.trigger_once(not_defined_trigger)
+        config = parser.load(self.config_fields)
+
+        # Ensure the trigger was called.
+        self.assertIn('defined_called', config)
+        self.assertIn('not_defined_called', config)
+
+    def test_allowed_values(self):
+        """
+        Ensure only allowed values are accepted.
+        """
+        log_level = 'not-allowed'
+
+        sys.argv = [sys.argv[0], 'build', '--log-level', log_level]
+
+        with self.assertRaises(SystemExit):
+            Parser().load(self.config_fields)

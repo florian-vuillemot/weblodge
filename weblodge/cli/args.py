@@ -6,7 +6,7 @@ import argparse
 from typing import Tuple
 
 # Default configuration filename.
-DEFAULT_CONFIG_FILENAME = '.weblodge.json'
+DEFAULT_CONFIG_FILE = '.weblodge.json'
 
 # Command Line Interface name.
 CLI_NAME = sys.argv[0]
@@ -30,15 +30,15 @@ def get_cli_args() -> Tuple[str, str]:
         'action',
         type=str,
         help='Action to perform.',
-        choices=['build', 'deploy', 'delete', 'logs']
+        choices=['build', 'deploy', 'delete', 'clean', 'list', 'logs']
     )
     _parser.add_argument(
-        '--config-filename',
+        '--config-file',
         type=str,
         help='File containing the deployment configuration.',
-        default=DEFAULT_CONFIG_FILENAME,
+        default=DEFAULT_CONFIG_FILE,
         required=False
     )
     args, _ = _parser.parse_known_args()
 
-    return args.action, args.config_filename
+    return args.action, args.config_file

@@ -5,7 +5,7 @@ import json
 import logging
 from io import StringIO
 import time
-from typing import Dict, Union
+from typing import Dict, List, Union
 
 from azure.cli.core import get_default_cli
 
@@ -23,34 +23,54 @@ class Cli:
         self._first_invoke = True
         self.cli = get_default_cli()
 
+    # pylint: disable=too-many-arguments
     def invoke(
             self,
             command: str,
             to_json=True,
             tags: Dict[str, str] = None,
-            log_outputs: bool = False
+            log_outputs: bool = False,
+            command_args: List[str] = None
         ) -> Union[str, Dict]:
         """
         Execute an Azure CLI command and return its output.
         If `to_json` is True, the output is converted to a JSON object.
         If `log_outputs` is True, the output is not returned but logged instead.
+        `command_args` contains the arguments to add to the command as is without split.
         """
+        command_args = command_args or []
+
         if self._first_invoke:
             self._first_invoke = False
 
             try:
-                return self._invoke(command, to_json=to_json, tags=tags, log_outputs=log_outputs)
+                return self._invoke(
+                    command,
+                    to_json=to_json,
+                    tags=tags,
+                    log_outputs=log_outputs,
+                    command_args=command_args
+                )
             except Exception as exception:  # pylint: disable=broad-exception-caught
                 if 'az login' in str(exception):
                     logger.info('Authentication is needed...')
-                    self._invoke('login', False, None, log_outputs=log_outputs)
+                    self._invoke('login', to_json=False, tags=None, log_outputs=log_outputs, command_args=[])
                     logger.info('Login successful, retry previous command...')
 
-        return self._invoke(command, to_json=to_json, tags=tags, log_outputs=log_outputs)
+        return self._invoke(command, to_json=to_json, tags=tags, log_outputs=log_outputs, command_args=command_args)
 
-    def _invoke(self, command: str, to_json: bool, tags: Dict[str, str], log_outputs: bool) -> Union[str, Dict]:
+    # pylint: disable=too-many-arguments
+    def _invoke(
+        self,
+        command: str,
+        to_json: bool,
+        tags: Dict[str, str],
+        log_outputs: bool,
+        command_args: List[str]
+    ) -> Union[str, Dict]:
         # Convert the string command to a array of arguments.
         cmd = command.split()
+        cmd.extend(command_args)
         # Redirect the output to a file if the log output is not asked.
         out_fd = None if log_outputs else StringIO()
 

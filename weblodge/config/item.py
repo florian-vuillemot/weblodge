@@ -21,6 +21,8 @@ class Item:
     # Default value of the field.
     # When specified, the field is optional.
     default: str = None
+    # List of possible values.
+    values_allowed: list = None
 
     def __eq__(self, obj) -> bool:
         if isinstance(obj, Item):
