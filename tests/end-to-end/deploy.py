@@ -35,7 +35,7 @@ def test(folder, cmd, html_expected, log):
 
     # Simulate the CLI call.
     sys.argv = cmd.split()
-    web_app = main()
+    web_app = main(return_web_app=True)
 
     # Ensure the application is reachable.
     time.sleep(60)

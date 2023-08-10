@@ -25,7 +25,7 @@ logger.addHandler(logging.StreamHandler())
 
 
 # pylint: disable=missing-function-docstring
-def main():
+def main(return_web_app=False):
     success = False
     parameters = Parser()
     action, config_file = get_cli_args()
@@ -52,9 +52,9 @@ def main():
 
     if success:
         state.dump(config_file, config)
-        if __name__ == '__main__':
-            sys.exit(0)
-        return web_app
+        if return_web_app:
+            return web_app
+        return 0
 
     sys.exit(1)
 
