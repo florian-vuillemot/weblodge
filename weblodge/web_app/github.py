@@ -1,5 +1,6 @@
 """
-
+GitHub Application on Microsoft Entra.
+It allows to deploy an application on Azure WebApplication using GitHub Actions.
 """
 from weblodge.config import Item as ConfigItem
 from weblodge._azure import MicrosoftEntraApplication, AzureService

@@ -60,6 +60,7 @@ class Parser:
     def __init__(self) -> None:
         self._triggers: List[ConfigTrigger] = []
 
+    # pylint: disable=too-many-branches
     def load(self, fields: List[ConfigItem], existing_parameters: Dict[str, str] = None) -> Dict[str, str]:
         """
         Load the configuration from the parser.

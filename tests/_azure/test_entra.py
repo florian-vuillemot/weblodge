@@ -1,3 +1,6 @@
+"""
+Test the Entra facade.
+"""
 import json
 import unittest
 from pathlib import Path
@@ -56,8 +59,8 @@ class TestEntra(unittest.TestCase):
             {
                 "name": 'weblodge-app-name',
                 "issuer": "https://token.actions.githubusercontent.com",
-                "subject": f"repo:username/repo-name:ref:repo-branch",
-                "description": f'WebLodge GitHub Application for application: weblodge-app-name',
+                "subject": "repo:username/repo-name:ref:repo-branch",
+                "description": 'WebLodge GitHub Application for application: weblodge-app-name',
                 "audiences": [
                     "api://AzureADTokenExchange"
                 ]
@@ -98,8 +101,8 @@ class TestEntra(unittest.TestCase):
             {
                 "name": 'weblodge-app-name',
                 "issuer": "https://token.actions.githubusercontent.com",
-                "subject": f"repo:username/repo-name:ref:repo-branch",
-                "description": f'WebLodge GitHub Application for application: weblodge-app-name',
+                "subject": "repo:username/repo-name:ref:repo-branch",
+                "description": 'WebLodge GitHub Application for application: weblodge-app-name',
                 "audiences": [
                     "api://AzureADTokenExchange"
                 ]

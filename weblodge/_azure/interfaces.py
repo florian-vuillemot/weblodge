@@ -212,7 +212,7 @@ class MicrosoftEntra:
     @classmethod
     @abstractmethod
     def github_application(
-        self,
+        cls,
         name: str,
         username: str,
         repository: str,
