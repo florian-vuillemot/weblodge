@@ -17,19 +17,16 @@ class GitHubConfig:
     # Configurable items of the build.
     items = [
         ConfigItem(
-            name='branch',
-            description='The deployment branch.',
-            default='main'
-        ),
-        ConfigItem(
             name='username',
             description='The GitHub username.',
-            default='main'
         ),
         ConfigItem(
             name='repository',
             description='The GitHub repository.',
-            default='main'
+        ),
+        ConfigItem(
+            name='branch',
+            description='The deployment branch.',
         ),
         *BuildConfig.items,
         *DeploymentConfig.items
