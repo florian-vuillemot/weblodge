@@ -14,6 +14,13 @@ class ResourceGroup(Resource, AzureResourceGroup):
     _cli_prefix = 'group'
 
     @property
+    def id_(self) -> str:
+        """
+        Return the Resource Group ID.
+        """
+        return self._from_az['id']
+
+    @property
     def location(self) -> str:
         """
         Return the Resource Group location.

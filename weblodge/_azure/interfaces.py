@@ -217,7 +217,7 @@ class MicrosoftEntra:
         username: str,
         repository: str,
         branch: str,
-        resource_group: str
+        resource_group: AzureResourceGroup
     ) -> MicrosoftEntraApplication:
         """
         Return a Azure Entra Application for a GitHub Account.
@@ -227,7 +227,7 @@ class MicrosoftEntra:
         :param branch: The branch of the repository that will trigger the GitHub Action.
         :param username: The username/organisation of the repository owner.
         :param repository: The name of the GitHub repository.
-        :param resource_group: The resource group where the application will be deployed.
+        :param resource_group: The resource group where the application will be deployed. Must exists.
         :return: The Microsoft Entra representation.
         """
 

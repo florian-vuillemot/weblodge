@@ -109,12 +109,10 @@ class WebApp:
         """
         Create a GitHub Workflow for the application.
         """
-        github_config = GitHubConfig(
-            **self.config_loader(GitHubConfig.items, config)
-        )
-        entra_app = github(self.azure_service, github_config)
-        print(entra_app)
-        return True, github_config
+        config = self.config_loader(GitHubConfig.items, config)
+        github_config = GitHubConfig(**config)
+        github(self.azure_service, github_config)
+        return True, config
 
     def print_logs(self, config: Dict[str, str]):
         """

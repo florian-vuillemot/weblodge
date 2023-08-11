@@ -41,6 +41,7 @@ class GitHubConfig:
         branch: str,
         username: str,
         repository: str,
+        location: str,
         *_args,
         **_kwargs
     ):
@@ -48,16 +49,22 @@ class GitHubConfig:
         self.branch = branch
         self.username = username
         self.repository = repository
+        self.location = location
 
 
 def github(service: AzureService, config: GitHubConfig) -> MicrosoftEntraApplication:
     """
     Create a GitHub Application on Microsoft Entra.
     """
+    resource_group = service.resource_groups(config.subdomain)
+
+    if not resource_group.exists():
+        resource_group.create(config.location)
+
     return service.entra.github_application(
         name=config.subdomain,
         branch=config.branch,
         username=config.username,
         repository=config.repository,
-        resource_group=config.subdomain
+        resource_group=resource_group
     )

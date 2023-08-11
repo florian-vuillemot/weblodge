@@ -2,8 +2,10 @@
 Azure Web App representation.
 """
 import json
+import os
 import tempfile
 from .interfaces import MicrosoftEntra, MicrosoftEntraApplication
+from .resource_group import ResourceGroup
 from .cli import Cli
 
 
@@ -39,7 +41,7 @@ class Entra(MicrosoftEntra):
         username: str,
         repository: str,
         branch: str,
-        resource_group: str
+        resource_group: ResourceGroup
     ) -> EntraApplication:
         """
         Create an GitHub Application on Microsoft Entra.
@@ -57,7 +59,6 @@ class Entra(MicrosoftEntra):
         account = cls._cli.invoke('account show')
         subscription_id = account['id']
         tenant_id = account['tenantId']
-        resource_group = f'/subscriptions/{subscription_id}/resourceGroups/{resource_group}'
 
         app_id = cls._get_app_id(name)
         service_principal_id = cls._get_sp_id(name, app_id)
@@ -105,7 +106,7 @@ class Entra(MicrosoftEntra):
         role_assignments = cls._cli.invoke(
             ' '.join((
                 'role assignment list',
-                f'--scope {resource_group}',
+                f'--scope {resource_group.id_}',
                 f'--assignee {service_principal_id}',
                 '--role contributor'
             ))
@@ -120,8 +121,9 @@ class Entra(MicrosoftEntra):
                 f'--subscription {subscription_id}',
                 f'--assignee-object-id {service_principal_id}',
                 '--assignee-principal-type ServicePrincipal',
-                f'--scope {resource_group}'
-            ))
+                f'--scope {resource_group.id_}'
+            )),
+            to_json=False
         )
 
     @classmethod
@@ -146,14 +148,18 @@ class Entra(MicrosoftEntra):
                 cred.get('audiences') == cred_specs['audiences']:
                 return
 
-        with tempfile.NamedTemporaryFile(mode='w') as credential_file:
-            credential_file.write(
-                json.dumps(cred_specs)
-            )
-            cls._cli.invoke(
-                ' '.join((
-                    'ad app federated-credential create',
-                    f'--id {app_id}',
-                    f'--parameters {credential_file.name}'
-                ))
-            )
+        # pylint: disable=consider-using-with
+        credential_file = tempfile.NamedTemporaryFile(mode='w', delete=False)
+        json.dump(cred_specs, credential_file)
+        credential_file.close()
+
+        cls._cli.invoke(
+            ' '.join((
+                'ad app federated-credential create',
+                f'--id {app_id}',
+                f'--parameters {credential_file.name}'
+            )),
+            to_json=False
+        )
+
+        os.unlink(credential_file.name)
