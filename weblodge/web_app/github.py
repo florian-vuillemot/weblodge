@@ -1,8 +1,6 @@
 """
 
 """
-from pathlib import Path
-
 from weblodge.config import Item as ConfigItem
 from weblodge._azure import MicrosoftEntraApplication, AzureService
 
@@ -12,6 +10,8 @@ from .deploy import DeploymentConfig
 
 class GitHubConfig:
     """
+    GitHub Application configuration.
+    Handle deployment and build configuration.
     """
     # Configurable items of the build.
     items = [
@@ -52,6 +52,7 @@ class GitHubConfig:
 
 def github(service: AzureService, config: GitHubConfig) -> MicrosoftEntraApplication:
     """
+    Create a GitHub Application on Microsoft Entra.
     """
     return service.entra.github_application(
         name=config.subdomain,

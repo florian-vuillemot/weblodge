@@ -41,6 +41,8 @@ def main(return_web_app=False):
             success, config = deploy(config, web_app, parameters)
         elif action == 'delete':
             success = delete(config, web_app, parameters)
+        elif action == 'github':
+            success, config = web_app.github(config)
         elif action == 'list':
             list_(parameters.load, web_app)
             success = True

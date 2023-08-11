@@ -209,6 +209,7 @@ class MicrosoftEntra:
     Allow to create Azure Entra Applications.
     """
     # pylint: disable=too-many-arguments
+    @classmethod
     @abstractmethod
     def github_application(
         self,

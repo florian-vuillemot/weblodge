@@ -11,11 +11,12 @@ from weblodge._azure import AzureService, AzureWebApp
 from weblodge.config import Item as ConfigItem
 
 from ._all import _all as _all_az_web_app
-from .logs import LogsConfig, logs as _logs
+from .build import BuildConfig, build as _build
 from .delete import DeleteConfig, delete as _delete
 from .deploy import DeploymentConfig, deploy as _deploy
-from .build import BuildConfig, build as _build
 from .exceptions import RequirementsFileNotFound, EntryPointFileNotFound, FlaskAppNotFound
+from .logs import LogsConfig, logs as _logs
+from .github import GitHubConfig, github
 
 
 logger = logging.getLogger('weblodge')
@@ -103,6 +104,17 @@ class WebApp:
         logger.info('Successfully deleted.')
 
         return True, config
+
+    def github(self, config: Dict[str, str]) -> Tuple[bool, Dict[str, str]]:
+        """
+        Create a GitHub Workflow for the application.
+        """
+        github_config = GitHubConfig(
+            **self.config_loader(GitHubConfig.items, config)
+        )
+        entra_app = github(self.azure_service, github_config)
+        print(entra_app)
+        return True, github_config
 
     def print_logs(self, config: Dict[str, str]):
         """

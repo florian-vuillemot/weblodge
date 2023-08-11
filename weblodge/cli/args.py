@@ -30,7 +30,7 @@ def get_cli_args() -> Tuple[str, str]:
         'action',
         type=str,
         help='Action to perform.',
-        choices=['build', 'deploy', 'delete', 'clean', 'list', 'logs']
+        choices=['build', 'clean', 'deploy', 'delete', 'github', 'list', 'logs']
     )
     _parser.add_argument(
         '--config-file',
