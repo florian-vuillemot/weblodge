@@ -40,7 +40,7 @@ class TestGitHub(unittest.TestCase):
         )
         self.assertEqual(workflow.branch, 'main-branch')
         self.assertIsNotNone(workflow.client_id)
-        self.assertIsNotNone(workflow.client_secret)
+        self.assertIsNotNone(workflow.subscription_id)
         self.assertIsNotNone(workflow.tenant_id)
         self.assertEqual(
             workflow.content,
@@ -102,7 +102,7 @@ jobs:
         )
         self.assertEqual(workflow.branch, 'main-branch-2')
         self.assertIsNotNone(workflow.client_id)
-        self.assertIsNotNone(workflow.client_secret)
+        self.assertIsNotNone(workflow.subscription_id)
         self.assertIsNotNone(workflow.tenant_id)
         self.assertEqual(
             workflow.content,
