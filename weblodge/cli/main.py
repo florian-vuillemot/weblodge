@@ -160,14 +160,17 @@ def github(config: Dict[str, str], web_app: WebApp, config_file: str):
     # Create the GitHub workflow file.
     Path(workflow_file).write_text(workflow.content, encoding='utf-8')
 
-    print('Please, commit the following files:')
-    print(f'  - {workflow_file}')
-    print(f'  - {config_file}\n')
-    print('And add the following secrets to your GitHub repository:')
-    print(f'  - AZURE_CLIENT_ID: {workflow.client_id}')
-    print(f'  - AZURE_TENANT_ID: {workflow.tenant_id}')
-    print(f'  - AZURE_SUBSCRIPTION_ID: {workflow.subscription_id}')
-    print('More information: https://docs.github.com/en/actions/security-guides/encrypted-secrets#creating-encrypted-secrets-for-a-repository')
+    # pylint: disable=line-too-long
+    print(f'''
+Please, add the following secrets to your GitHub repository:
+  - AZURE_CLIENT_ID: xxxxxxxxx-xxxx-xxxx-xxxxx-xxxxxxxxxxxx
+  - AZURE_TENANT_ID: xxxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+  - AZURE_SUBSCRIPTION_ID: xxxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+Then, commit and push the following files:
+  - {workflow_file}
+  - {config_file}
+More information: https://docs.github.com/en/actions/security-guides/encrypted-secrets#creating-encrypted-secrets-for-a-repository
+''')
 
     return True, config
 

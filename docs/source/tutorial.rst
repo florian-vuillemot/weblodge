@@ -24,7 +24,7 @@ Here is the application we will deploy:
    $ cat requirements.txt 
    Flask
 
-You can deploy this application by executing the following commands in a terminal:
+You can :ref:`deploy` this application by executing the following commands in a terminal:
 
 .. code-block:: console
 
@@ -42,11 +42,14 @@ You can deploy this application by executing the following commands in a termina
    ...
    The application will soon be available at: https://weblodge-tutorial.azurewebsites.net
 
-During the build phase, **WebLodge** will create a folder with the application built and other files needed to deploy the application. This private folder does not need to be versioned and ignored by your version control system.
+During the build phase, **WebLodge** will create a folder with the application built and other files needed to deploy the application.
+This private folder does not need to be versioned and ignored by your version control system.
 
-**WebLodge** will create a `.weblodge.json` file containing the application's deployment configuration during deployment. This file can be version control.
+**WebLodge** will create a `.weblodge.json` file containing the application's deployment configuration during deployment.
+This file can be version control.
 The application needs a subdomain on the internet -- here `weblodge-tutorial` --.
-This subdomain is unique on Azure. You can set it by passing the `--subdomain` option. Otherwise, **WebLodge** will generate one.
+This subdomain is unique on Azure. You can set it by passing the `--subdomain` option.
+Otherwise, **WebLodge** will generate one.
 
 After a few seconds, the application will be available at the given subdomain and accessible from your browser.
 
@@ -58,8 +61,12 @@ After a few seconds, the application will be available at the given subdomain an
 
 .. warning::
 
-    By default, **WebLodge** will deploy free resources. This means Azure will shut down the application after a couple of minutes of inactivity, and the usage will be limited daily. You can change this behaviour by passing the `--sku` option.
-    Azure limits the number of free applications. If you encounter that problem, please remove the previously created resources or deploy and change the `--sku` option.
+    By default, **WebLodge** will deploy free resources.
+    This means Azure will shut down the application after a couple of minutes of inactivity, and the usage will be limited daily.
+    You can change this behaviour by passing the `--sku` option.
+    Azure limits the number of free applications.
+    If you encounter that problem, please remove the previously created resources or deploy and change the `--sku` option.
+
 
 Adding environment variables
 ****************************
@@ -110,6 +117,46 @@ You can also specify this file by using the `--env-file` option:
 Behind the scene, **WebLodge** uses the `python-dotenv`_ package to load the environment variables. Feel free to use its features.
 
 .. _python-dotenv: https://pypi.org/project/python-dotenv
+
+
+Adding continuous deployment
+****************************
+
+.. note::
+
+    This feature is only available for GitHub repositories.
+
+
+Using `GitHub Actions`_, you can automatically deploy your application when you push to your repository.
+
+You can setup the infrastructure and components by executing the following commands in a terminal:
+
+.. code-block:: console
+
+    $ # Create the GitHub workflow file.
+    $ weblodge github --username <your-username> --repository <your-repository> --branch <target-branch>
+    Please, add the following secrets to your GitHub repository:
+      - AZURE_CLIENT_ID: xxxxxxxxx-xxxx-xxxx-xxxxx-xxxxxxxxxxxx
+      - AZURE_TENANT_ID: xxxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+      - AZURE_SUBSCRIPTION_ID: xxxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+    Then, commit and push the following files:
+      - .github/workflows/weblodge.yml
+      - .weblodge.json
+    More information: https://docs.github.com/en/actions/security-guides/encrypted-secrets#creating-encrypted-secrets-for-a-repository
+
+Add the *AZURE_CLIENT_ID*, *AZURE_TENANT_ID*, *AZURE_SUBSCRIPTION_ID* as `GitHub secrets`_.
+Then commit and push files `.github/workflows/weblodge.yml` and `.weblodge.json`.
+Your application will automatically deployed on the next pus on the target branch.
+
+More information on the command :ref:`github`.
+
+.. _GitHub secrets: https://docs.github.com/en/actions/security-guides/encrypted-secrets#creating-encrypted-secrets-for-a-repository
+
+.. note::
+
+    In this scenario, environment variables are not yet supported.
+
+.. _GitHub Actions: https://github.com/features/actions
 
 
 Deleting the infrastructure

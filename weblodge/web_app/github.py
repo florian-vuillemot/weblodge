@@ -3,9 +3,8 @@ GitHub Application on Microsoft Entra.
 It allows to deploy an application on Azure WebApplication using GitHub Actions.
 """
 from dataclasses import dataclass
-from pathlib import Path
 from weblodge.config import Item as ConfigItem
-from weblodge._azure import MicrosoftEntraApplication, AzureService
+from weblodge._azure import AzureService
 
 from .build import BuildConfig
 from .deploy import DeploymentConfig
@@ -35,7 +34,7 @@ class GitHubConfig:
     items = [
         ConfigItem(
             name='username',
-            description='The GitHub username.',
+            description='The GitHub username/organisation.',
         ),
         ConfigItem(
             name='repository',

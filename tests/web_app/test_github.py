@@ -4,7 +4,7 @@ Test the GitHub command.
 import unittest
 from unittest.mock import MagicMock
 
-from weblodge.web_app.github import GitHubConfig, github, GitHubWorkflow
+from weblodge.web_app.github import GitHubConfig, github
 
 
 class TestGitHub(unittest.TestCase):
