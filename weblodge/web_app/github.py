@@ -22,8 +22,8 @@ class GitHubWorkflow:
     content: str
     # Application credentials to put in GitHub secrets.
     client_id: str
-    client_secret: str
     tenant_id: str
+    subscription_id: str
 
 
 class GitHubConfig:
@@ -88,8 +88,8 @@ def github(service: AzureService, config: GitHubConfig) -> GitHubWorkflow:
         branch=config.branch,
         content=_github_workflow(config),
         client_id=entra_application.client_id,
-        client_secret=entra_application.client_secret,
-        tenant_id=entra_application.tenant_id
+        tenant_id=entra_application.tenant_id,
+        subscription_id=entra_application.subscription_id,
     )
 
 

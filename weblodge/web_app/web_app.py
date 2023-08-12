@@ -16,7 +16,7 @@ from .delete import DeleteConfig, delete as _delete
 from .deploy import DeploymentConfig, deploy as _deploy
 from .exceptions import RequirementsFileNotFound, EntryPointFileNotFound, FlaskAppNotFound
 from .logs import LogsConfig, logs as _logs
-from .github import GitHubConfig, github
+from .github import GitHubConfig, github, GitHubWorkflow
 
 
 logger = logging.getLogger('weblodge')
@@ -105,14 +105,14 @@ class WebApp:
 
         return True, config
 
-    def github(self, config: Dict[str, str]) -> Tuple[bool, Dict[str, str]]:
+    def github(self, config: Dict[str, str]) -> Tuple[Dict[str, str], GitHubWorkflow]:
         """
         Create a GitHub Workflow for the application.
         """
         config = self.config_loader(GitHubConfig.items, config)
         github_config = GitHubConfig(**config)
-        github(self.azure_service, github_config)
-        return True, config
+        workflow = github(self.azure_service, github_config)
+        return config, workflow
 
     def print_logs(self, config: Dict[str, str]):
         """

@@ -153,20 +153,21 @@ def github(config: Dict[str, str], web_app: WebApp, config_file: str):
     workflow_folder: str = '.github/workflows'
     workflow_file: str = '.github/workflows/weblodge.yml'
 
-    workflow = web_app.github(config)
+    config, workflow = web_app.github(config)
 
     # Create the GitHub workflow folder if not exists.
     Path(workflow_folder).mkdir(parents=True, exist_ok=True)
     # Create the GitHub workflow file.
     Path(workflow_file).write_text(workflow.content, encoding='utf-8')
 
-    print('The following files have been created and must be commit:')
+    print('Please, commit the following files:')
     print(f'  - {workflow_file}')
-    print(f'  - {config_file}')
-    print('Please, add the following secrets to your GitHub repository:')
+    print(f'  - {config_file}\n')
+    print('And add the following secrets to your GitHub repository:')
     print(f'  - AZURE_CLIENT_ID: {workflow.client_id}')
-    print(f'  - AZURE_CLIENT_SECRET: {workflow.client_secret}')
     print(f'  - AZURE_TENANT_ID: {workflow.tenant_id}')
+    print(f'  - AZURE_SUBSCRIPTION_ID: {workflow.subscription_id}')
+    print('More information: https://docs.github.com/en/actions/security-guides/encrypted-secrets#creating-encrypted-secrets-for-a-repository')
 
     return True, config
 
