@@ -105,9 +105,10 @@ class WebApp:
 
         return True, config
 
-    def github(self, config: Dict[str, str]) -> Tuple[Dict[str, str], GitHubWorkflow]:
+    def github(self, config: Dict[str, str]) -> Tuple[Dict[str, str], Optional[GitHubWorkflow]]:
         """
         Create a GitHub Workflow for the application.
+        Workflow is None if the application has been deleted.
         """
         config = self.config_loader(GitHubConfig.items, config)
         github_config = GitHubConfig(**config)

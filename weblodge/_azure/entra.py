@@ -13,11 +13,19 @@ class EntraApplication(MicrosoftEntraApplication):
     """
     Azure Entra Application with Federated Identity.
     """
-    def __init__(self, client_id: str, tenant_id: str, subscription_id: str) -> None:
+    def __init__(self, client_id: str, tenant_id: str, subscription_id: str, cli: Cli) -> None:
         super().__init__()
         self.client_id = client_id
         self.tenant_id = tenant_id
         self.subscription_id = subscription_id
+
+        self._cli = cli
+
+    def delete(self):
+        """
+        Delete the application.
+        """
+        self._cli.invoke(f'ad app delete --id {self.client_id}', to_json=False)
 
 
 class Entra(MicrosoftEntra):
@@ -68,7 +76,8 @@ class Entra(MicrosoftEntra):
         return EntraApplication(
             client_id=app_id,
             tenant_id=tenant_id,
-            subscription_id=subscription_id
+            subscription_id=subscription_id,
+            cli=cls._cli
         )
 
     @classmethod

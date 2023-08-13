@@ -155,22 +155,21 @@ def github(config: Dict[str, str], web_app: WebApp, config_file: str):
 
     config, workflow = web_app.github(config)
 
-    # Create the GitHub workflow folder if not exists.
-    Path(workflow_folder).mkdir(parents=True, exist_ok=True)
-    # Create the GitHub workflow file.
-    Path(workflow_file).write_text(workflow.content, encoding='utf-8')
+    if workflow:
+        # Create the GitHub workflow folder if not exists.
+        Path(workflow_folder).mkdir(parents=True, exist_ok=True)
+        # Create the GitHub workflow file.
+        Path(workflow_file).write_text(workflow.content, encoding='utf-8')
 
-    # pylint: disable=line-too-long
-    print(f'''
-Please, add the following secrets to your GitHub repository:
+        # pylint: disable=line-too-long
+        print(f'''Please, add the following secrets to your GitHub repository:
   - AZURE_CLIENT_ID: xxxxxxxxx-xxxx-xxxx-xxxxx-xxxxxxxxxxxx
   - AZURE_TENANT_ID: xxxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
   - AZURE_SUBSCRIPTION_ID: xxxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 Then, commit and push the following files:
   - {workflow_file}
   - {config_file}
-More information: https://docs.github.com/en/actions/security-guides/encrypted-secrets#creating-encrypted-secrets-for-a-repository
-''')
+More information: https://docs.github.com/en/actions/security-guides/encrypted-secrets#creating-encrypted-secrets-for-a-repository''')
 
     return True, config
 

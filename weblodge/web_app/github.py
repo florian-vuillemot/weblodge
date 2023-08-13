@@ -3,6 +3,7 @@ GitHub Application on Microsoft Entra.
 It allows to deploy an application on Azure WebApplication using GitHub Actions.
 """
 from dataclasses import dataclass
+from typing import Optional
 from weblodge.config import Item as ConfigItem
 from weblodge._azure import AzureService
 
@@ -44,6 +45,11 @@ class GitHubConfig:
             name='branch',
             description='The deployment branch.',
         ),
+        ConfigItem(
+            name='delete',
+            description='Delete the deployment application.',
+            attending_value=False,
+        ),
         *BuildConfig.items,
         *DeploymentConfig.items
     ]
@@ -56,6 +62,7 @@ class GitHubConfig:
         username: str,
         repository: str,
         location: str,
+        delete: bool,
         *_args,
         **_kwargs
     ):
@@ -64,15 +71,22 @@ class GitHubConfig:
         self.username = username
         self.repository = repository
         self.location = location
+        self.delete = delete
 
 
-def github(service: AzureService, config: GitHubConfig) -> GitHubWorkflow:
+def github(service: AzureService, config: GitHubConfig) -> Optional[GitHubWorkflow]:
     """
     Create a GitHub Application on Microsoft Entra.
+
+    :param service: The Azure service.
+    :param config: The GitHub Application configuration.
+    :return: The GitHub workflow or None if the GitHub workflow has been deleted.
     """
+    rg_created = False
     resource_group = service.resource_groups(config.subdomain)
 
     if not resource_group.exists():
+        rg_created = True
         resource_group.create(config.location)
 
     entra_application = service.entra.github_application(
@@ -82,6 +96,15 @@ def github(service: AzureService, config: GitHubConfig) -> GitHubWorkflow:
         repository=config.repository,
         resource_group=resource_group
     )
+
+    if config.delete:
+        entra_application.delete()
+        if rg_created:
+            # The resource group may have been deleted before requesting the application's deletion.
+            # In this case, we've recreated it to be able to find the application,
+            # and we need to delete it again.
+            resource_group.delete()
+        return None
 
     return GitHubWorkflow(
         branch=config.branch,
