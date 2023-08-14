@@ -25,7 +25,8 @@ class TestGitHub(unittest.TestCase):
             branch='main-branch',
             username='test-username',
             repository='test-repository',
-            location='northeurope'
+            location='northeurope',
+            delete=False
         )
 
         workflow = github(azure_service, config)
@@ -88,7 +89,8 @@ jobs:
             branch='main-branch-2',
             username='test-username',
             repository='test-repository',
-            location='northeurope'
+            location='northeurope',
+            delete=False
         )
 
         workflow = github(azure_service, config)
@@ -160,6 +162,41 @@ jobs:
 
         resource_group.create.assert_not_called()
         resource_group.delete.assert_not_called()
+        entra_app.delete.assert_called_once()
+        azure_service.entra.github_application.assert_called_once_with(
+            name='test-subdomain',
+            branch='main-branch',
+            username='test-username',
+            repository='test-repository',
+            resource_group=resource_group
+        )
+        self.assertIsNone(workflow)
+
+    def test_delete_after_rg_create(self):
+        """
+        Test resource group deletion after GitHub application deletion if 
+        the resource group has been created by the GitHub application.
+        """
+        azure_service = MagicMock()
+        resource_group = MagicMock()
+        entra_app = MagicMock()
+        azure_service.resource_groups.return_value = resource_group
+        azure_service.entra.github_application.return_value = entra_app
+        resource_group.exists.return_value = False
+
+        config = GitHubConfig(
+            subdomain='test-subdomain',
+            branch='main-branch',
+            username='test-username',
+            repository='test-repository',
+            location='northeurope',
+            delete=True
+        )
+
+        workflow = github(azure_service, config)
+
+        resource_group.create.assert_called()
+        resource_group.delete.assert_called()
         entra_app.delete.assert_called_once()
         azure_service.entra.github_application.assert_called_once_with(
             name='test-subdomain',
