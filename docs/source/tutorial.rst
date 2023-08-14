@@ -146,7 +146,7 @@ You can setup the infrastructure and components by executing the following comma
 
 Add the *AZURE_CLIENT_ID*, *AZURE_TENANT_ID*, *AZURE_SUBSCRIPTION_ID* as `GitHub secrets`_.
 Then commit and push files `.github/workflows/weblodge.yml` and `.weblodge.json`.
-Your application will automatically deployed on the next pus on the target branch.
+Your application will automatically be deployed on the next push on the target branch.
 
 More information on the command :ref:`github`.
 

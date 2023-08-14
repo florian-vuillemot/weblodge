@@ -55,8 +55,8 @@ on:
       - main-branch
 
 permissions:
-      id-token: write
-      contents: read
+  id-token: write
+  contents: read
 
 jobs:
   build-and-deploy:
@@ -118,8 +118,8 @@ on:
       - main-branch-2
 
 permissions:
-      id-token: write
-      contents: read
+  id-token: write
+  contents: read
 
 jobs:
   build-and-deploy:

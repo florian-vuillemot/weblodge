@@ -62,13 +62,13 @@ Options
      - Default value
    * - username
      - The GitHub username/organisation.
-     -
+     - 
    * - repository
      - The repository that contains the application and the GitHub workflow.
-     -
+     - 
    * - branch
      - The branch that will trigger the workflow.
-     -
+     - 
    * - delete
      - Delete the generated Azure client. Do not delete the infrastructure.
      - False
