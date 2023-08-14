@@ -54,17 +54,24 @@ Options
 *******
 
 .. list-table::
-   :widths: 20 60
+   :widths: 20 60 20
    :header-rows: 1
 
    * - Option name
      - Description
+     - Default value
    * - username
      - The GitHub username/organisation.
+     -
    * - repository
      - The repository that contains the application and the GitHub workflow.
+     -
    * - branch
      - The branch that will trigger the workflow.
+     -
+   * - delete
+     - Delete the generated Azure client. Do not delete the infrastructure.
+     - False
 
 You can also provide all options of the :ref:`build` and :ref:`deploy` commands.
 Weblodge will use those options during the deployment from GitHub.
