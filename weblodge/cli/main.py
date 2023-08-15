@@ -163,9 +163,9 @@ def github(config: Dict[str, str], web_app: WebApp, config_file: str):
 
         # pylint: disable=line-too-long
         print(f'''Please, add the following secrets to your GitHub repository:
-  - AZURE_CLIENT_ID: xxxxxxxxx-xxxx-xxxx-xxxxx-xxxxxxxxxxxx
-  - AZURE_TENANT_ID: xxxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-  - AZURE_SUBSCRIPTION_ID: xxxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+  - AZURE_CLIENT_ID: {workflow.client_id}
+  - AZURE_TENANT_ID: {workflow.tenant_id}
+  - AZURE_SUBSCRIPTION_ID: {workflow.subscription_id}
 Then, commit and push the following files:
   - {workflow_file}
   - {config_file}

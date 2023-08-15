@@ -134,6 +134,7 @@ permissions:
 
 jobs:
   build-and-deploy:
+    timeout-minutes: 20
     runs-on: ubuntu-latest
     steps:
       - name: 'Az CLI login'
@@ -142,6 +143,12 @@ jobs:
           client-id: ${{{{ secrets.AZURE_CLIENT_ID }}}}
           tenant-id: ${{{{ secrets.AZURE_TENANT_ID }}}}
           subscription-id: ${{{{ secrets.AZURE_SUBSCRIPTION_ID }}}}
+
+      - uses: actions/checkout@v3
+
+      - name: 'Install WebLodge.'
+        run: |
+          pip install weblodge
 
       - name: 'Build and deploy.'
         run: |

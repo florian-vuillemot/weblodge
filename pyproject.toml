@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "weblodge"
-version = "0.3.1"
+version = "0.4.0"
 description = "A simple command line aiming to provide anyone with deployment and cloud management capabilities."
 authors = ["Vuillemot Florian <vuillemot.florian@outlook.fr>"]
 

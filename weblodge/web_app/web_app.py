@@ -113,6 +113,8 @@ class WebApp:
         config = self.config_loader(GitHubConfig.items, config)
         github_config = GitHubConfig(**config)
         workflow = github(self.azure_service, github_config)
+        # The deleted configuration is not one we want to propagate.
+        config.pop('delete', None)
         return config, workflow
 
     def print_logs(self, config: Dict[str, str]):

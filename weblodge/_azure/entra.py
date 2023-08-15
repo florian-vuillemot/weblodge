@@ -143,7 +143,7 @@ class Entra(MicrosoftEntra):
         cred_specs = {
             "name": name,
             "issuer": "https://token.actions.githubusercontent.com",
-            "subject": f"repo:{username}/{repository}:ref:{branch}",
+            "subject": f"repo:{username}/{repository}:ref:refs/heads/{branch}",
             "description": f'WebLodge GitHub Application for application: {name}',
             "audiences": [
                 "api://AzureADTokenExchange"

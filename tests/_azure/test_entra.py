@@ -59,7 +59,7 @@ class TestEntra(unittest.TestCase):
             {
                 "name": 'weblodge-app-name',
                 "issuer": "https://token.actions.githubusercontent.com",
-                "subject": "repo:username/repo-name:ref:repo-branch",
+                "subject": "repo:username/repo-name:ref:refs/heads/repo-branch",
                 "description": 'WebLodge GitHub Application for application: weblodge-app-name',
                 "audiences": [
                     "api://AzureADTokenExchange"
@@ -101,7 +101,7 @@ class TestEntra(unittest.TestCase):
             {
                 "name": 'weblodge-app-name',
                 "issuer": "https://token.actions.githubusercontent.com",
-                "subject": "repo:username/repo-name:ref:repo-branch",
+                "subject": "repo:username/repo-name:ref:refs/heads/repo-branch",
                 "description": 'WebLodge GitHub Application for application: weblodge-app-name',
                 "audiences": [
                     "api://AzureADTokenExchange"
@@ -119,7 +119,7 @@ class TestEntra(unittest.TestCase):
         """
         github_federated_cred_specs = {
             "issuer": "https://token.actions.githubusercontent.com",
-            "subject": "repo:username/repo-name:ref:repo-branch",
+            "subject": "repo:username/repo-name:ref:refs/heads/repo-branch",
             "audiences": [
                 "api://AzureADTokenExchange"
             ]
