@@ -6,6 +6,7 @@ Entry point for the CLI.
 This module is the entry point for the CLI. It parses the command line arguments
 and calls the appropriate functions.
 """
+from pathlib import Path
 import sys
 import logging
 
@@ -41,6 +42,8 @@ def main(return_web_app=False):
             success, config = deploy(config, web_app, parameters)
         elif action == 'delete':
             success = delete(config, web_app, parameters)
+        elif action == 'github':
+            success, config = github(config, web_app, config_file)
         elif action == 'list':
             list_(parameters.load, web_app)
             success = True
@@ -141,6 +144,34 @@ def clean(parameters: Parser, web_app: WebApp):
             continue
 
     return True
+
+
+def github(config: Dict[str, str], web_app: WebApp, config_file: str):
+    """
+    Create a GitHub application.
+    """
+    workflow_folder: str = '.github/workflows'
+    workflow_file: str = '.github/workflows/weblodge.yml'
+
+    config, workflow = web_app.github(config)
+
+    if workflow:
+        # Create the GitHub workflow folder if not exists.
+        Path(workflow_folder).mkdir(parents=True, exist_ok=True)
+        # Create the GitHub workflow file.
+        Path(workflow_file).write_text(workflow.content, encoding='utf-8')
+
+        # pylint: disable=line-too-long
+        print(f'''Please, add the following secrets to your GitHub repository:
+  - AZURE_CLIENT_ID: xxxxxxxxx-xxxx-xxxx-xxxxx-xxxxxxxxxxxx
+  - AZURE_TENANT_ID: xxxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+  - AZURE_SUBSCRIPTION_ID: xxxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+Then, commit and push the following files:
+  - {workflow_file}
+  - {config_file}
+More information: https://docs.github.com/en/actions/security-guides/encrypted-secrets#creating-encrypted-secrets-for-a-repository''')
+
+    return True, config
 
 
 def list_(parameter_loader, web_app: WebApp):

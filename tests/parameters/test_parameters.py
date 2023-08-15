@@ -269,3 +269,21 @@ class TestConfigBasedParameters(unittest.TestCase):
 
         with self.assertRaises(SystemExit):
             Parser().load(self.config_fields)
+
+    def test_config_item_provide_multiple_times(self):
+        """
+        User can provide multiple time the same config items.
+        """
+        app_name = 'my-app-name'
+        config_fields = self.config_fields + [self.config_fields[0]]
+
+        sys.argv = [sys.argv[0], 'build', '--app-name', app_name]
+        params = Parser().load(config_fields)
+        self.assertEqual(params['app_name'], app_name)
+        self.assertEqual(params['dist'], config_fields[1].default)
+
+        custom_dist = 'my-dist'
+        sys.argv = [sys.argv[0], 'build', '--app-name', app_name, '--dist', custom_dist]
+        params = Parser().load(config_fields)
+        self.assertEqual(params['app_name'], app_name)
+        self.assertEqual(params['dist'], custom_dist)

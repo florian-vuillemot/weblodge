@@ -60,16 +60,26 @@ class Parser:
     def __init__(self) -> None:
         self._triggers: List[ConfigTrigger] = []
 
+    # pylint: disable=too-many-branches
     def load(self, fields: List[ConfigItem], existing_parameters: Dict[str, str] = None) -> Dict[str, str]:
         """
         Load the configuration from the parser.
         Override the current config with the new values.
         """
+        # The user can supply the same argument several times.
+        # The ArgumentParser raise in this case, but that's not what we want.
+        # If the user provides the same argument several times, we'll save the first one.
+        argument_provided = set()
         existing_parameters = existing_parameters or {}
 
         # Create and configure a parser for the fields.
         parser = argparse.ArgumentParser()
         for field in fields + self._triggers:
+            # Do not register twice the same argument.
+            if field.name in argument_provided:
+                continue
+            argument_provided.add(field.name)
+
             argument = {
                 'help': field.description,
             }

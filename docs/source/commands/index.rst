@@ -10,5 +10,6 @@ your application from your computer or your CI/CD to the cloud.
    clean
    delete
    deploy
+   github
    list
    logs

@@ -1,0 +1,18 @@
+{
+    "environmentName": "AzureCloud",
+    "homeTenantId": "901536cd-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+    "id": "15be6804-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+    "isDefault": true,
+    "managedByTenants": [
+        {
+            "tenantId": "2f4a9838-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        }
+    ],
+    "name": "develop",
+    "state": "Enabled",
+    "tenantId": "901536cd-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+    "user": {
+        "name": "foo@bar.com",
+        "type": "user"
+    }
+}

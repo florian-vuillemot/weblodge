@@ -1,3 +1,5 @@
+.. _deploy:
+
 Deploy
 ######
 
@@ -83,7 +85,7 @@ Building during deployment
 **************************
 
 You can build and then deploy your application by providing the `--build` option.
-If you need to specify more options, you can add all the *build* options.
+If you need to specify more options, you can add all the :ref:`build` options.
 
 .. code-block:: console
 

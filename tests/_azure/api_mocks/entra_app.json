@@ -1,0 +1,71 @@
+{
+    "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#applications/$entity",
+    "addIns": [],
+    "api": {
+      "acceptMappedClaims": null,
+      "knownClientApplications": [],
+      "oauth2PermissionScopes": [],
+      "preAuthorizedApplications": [],
+      "requestedAccessTokenVersion": 2
+    },
+    "appId": "29608a66-xxxx-xxxx-xxxxx-0ecee9437x42",
+    "appRoles": [],
+    "applicationTemplateId": null,
+    "certification": null,
+    "createdDateTime": "2023-08-10T20:59:15.8130331Z",
+    "defaultRedirectUri": null,
+    "deletedDateTime": null,
+    "description": null,
+    "disabledByMicrosoftStatus": null,
+    "displayName": "weblodge-app-name",
+    "groupMembershipClaims": null,
+    "id": "8f2833a5-xxxx-xxxx-xxxxx-yyyyyyyyyy",
+    "identifierUris": [],
+    "info": {
+      "logoUrl": null,
+      "marketingUrl": null,
+      "privacyStatementUrl": null,
+      "supportUrl": null,
+      "termsOfServiceUrl": null
+    },
+    "isDeviceOnlyAuthSupported": null,
+    "isFallbackPublicClient": null,
+    "keyCredentials": [],
+    "notes": null,
+    "optionalClaims": null,
+    "parentalControlSettings": {
+      "countriesBlockedForMinors": [],
+      "legalAgeGroupRule": "Allow"
+    },
+    "passwordCredentials": [],
+    "publicClient": {
+      "redirectUris": []
+    },
+    "publisherDomain": "foo.com",
+    "requestSignatureVerification": null,
+    "requiredResourceAccess": [],
+    "samlMetadataUrl": null,
+    "serviceManagementReference": null,
+    "servicePrincipalLockConfiguration": null,
+    "signInAudience": "AzureADandPersonalMicrosoftAccount",
+    "spa": {
+      "redirectUris": []
+    },
+    "tags": [],
+    "tokenEncryptionKeyId": null,
+    "verifiedPublisher": {
+      "addedDateTime": null,
+      "displayName": null,
+      "verifiedPublisherId": null
+    },
+    "web": {
+      "homePageUrl": null,
+      "implicitGrantSettings": {
+        "enableAccessTokenIssuance": false,
+        "enableIdTokenIssuance": false
+      },
+      "logoutUrl": null,
+      "redirectUriSettings": [],
+      "redirectUris": []
+    }
+  }

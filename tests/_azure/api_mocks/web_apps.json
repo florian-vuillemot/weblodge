@@ -53,7 +53,7 @@
     "id": "/subscriptions/15be6804-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/develop/providers/Microsoft.Web/sites/develop-app-service",
     "identity": {
       "principalId": "2a63efae-ddb3-411e-a59b-ed874ed24619",
-      "tenantId": "901536cd-6f25-4714-8cb6-8b4dfdd429ce",
+      "tenantId": "901536cd-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
       "type": "SystemAssigned",
       "userAssignedIdentities": null
     },
@@ -236,7 +236,7 @@
     "id": "/subscriptions/8615f926-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/staging/providers/Microsoft.Web/sites/staging-app-service",
     "identity": {
       "principalId": "2a63efae-ddb3-411e-a59b-ed874ed24619",
-      "tenantId": "901536cd-6f25-4714-8cb6-8b4dfdd429ce",
+      "tenantId": "901536cd-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
       "type": "SystemAssigned",
       "userAssignedIdentities": null
     },
@@ -419,7 +419,7 @@
     "id": "/subscriptions/2f0df319-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/production/providers/Microsoft.Web/sites/production-app-service",
     "identity": {
       "principalId": "2a63efae-ddb3-411e-a59b-ed874ed24619",
-      "tenantId": "901536cd-6f25-4714-8cb6-8b4dfdd429ce",
+      "tenantId": "901536cd-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
       "type": "SystemAssigned",
       "userAssignedIdentities": null
     },

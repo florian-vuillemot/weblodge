@@ -1,0 +1,51 @@
+{
+    "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#servicePrincipals/$entity",        
+    "accountEnabled": true,
+    "addIns": [],
+    "alternativeNames": [],
+    "appDescription": null,
+    "appDisplayName": "weblodge-app-name",
+    "appId": "29608a66-xxxx-xxxx-xxxxx-0ecee9437x42",
+    "appOwnerOrganizationId": "901536cd-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+    "appRoleAssignmentRequired": false,
+    "appRoles": [],
+    "applicationTemplateId": null,
+    "createdDateTime": null,
+    "deletedDateTime": null,
+    "description": null,
+    "disabledByMicrosoftStatus": null,
+    "displayName": "weblodge-app-name",
+    "homepage": null,
+    "id": "498a7c3c-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+    "info": {
+      "logoUrl": null,
+      "marketingUrl": null,
+      "privacyStatementUrl": null,
+      "supportUrl": null,
+      "termsOfServiceUrl": null
+    },
+    "keyCredentials": [],
+    "loginUrl": null,
+    "logoutUrl": null,
+    "notes": null,
+    "notificationEmailAddresses": [],
+    "oauth2PermissionScopes": [],
+    "passwordCredentials": [],
+    "preferredSingleSignOnMode": null,
+    "preferredTokenSigningKeyThumbprint": null,
+    "replyUrls": [],
+    "resourceSpecificApplicationPermissions": [],
+    "samlSingleSignOnSettings": null,
+    "servicePrincipalNames": [
+      "29608a66-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+    ],
+    "servicePrincipalType": "Application",
+    "signInAudience": "AzureADandPersonalMicrosoftAccount",
+    "tags": [],
+    "tokenEncryptionKeyId": null,
+    "verifiedPublisher": {
+      "addedDateTime": null,
+      "displayName": null,
+      "verifiedPublisherId": null
+    }
+  }
