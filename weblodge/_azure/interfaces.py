@@ -11,6 +11,12 @@ class AzureLogLevel:
     By default, the log level is set to Warning.
     """
     @abstractmethod
+    def __init__(self) -> None:
+        """
+        Initialize the log level.
+        """
+
+    @abstractmethod
     def error(self) -> None:
         """
         Set the log level to error.
@@ -47,6 +53,12 @@ class AzureResourceGroup:
 
     # Tags of the Resource Group.
     tags: Dict[str, str]
+
+    @abstractmethod
+    def __init__(self, name: str) -> None:
+        """
+        Initialize the Resource Group.
+        """
 
     @abstractmethod
     def create(self, location: str, tags: Dict[str, str] = None) -> 'AzureResourceGroup':
@@ -89,6 +101,12 @@ class AzureAppService:
 
     # List of supported SKUs.
     skus = []
+
+    @abstractmethod
+    def __init__(self, name: str, resource_group: AzureResourceGroup) -> None:
+        """
+        Initialize the Azure App Service.
+        """
 
     @abstractmethod
     def create(self, sku: str) -> 'AzureAppService':
@@ -136,6 +154,12 @@ class AzureWebApp:
 
     # Azure Resource Group of the WebApp.
     resource_group: AzureResourceGroup
+
+    @abstractmethod
+    def __init__(self, name: str, resource_group: AzureResourceGroup, app_service: AzureAppService) -> None:
+        """
+        Initialize the Azure Web App.
+        """
 
     @abstractmethod
     def create(self) -> 'AzureWebApp':
@@ -196,6 +220,9 @@ class AzureWebApp:
 
 
 class AzureKeyVaultSecret:
+    """
+    Azure KeyVault Secret representation.
+    """
     # Secret name.
     name: str
 

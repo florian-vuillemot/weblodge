@@ -74,6 +74,7 @@ class WebApp(Resource, AzureWebApp):
                 f'--always-on {self.app_service.always_on_supported}',
             ))
         )
+        return self
 
     def set_log_level(self, log_level: LogLevel) -> None:
         """

@@ -72,7 +72,7 @@ class AppService(Resource, AzureAppService):
         rg_name = self.resource_group.name
         location = self.resource_group.location
 
-        self._invoke(
+        self._from_az = self._invoke(
             f'{self._cli_prefix} create --name {self.name} --sku {sku} --resource-group {rg_name} --location {location} --is-linux',  # pylint: disable=line-too-long
             tags=tags
         )
