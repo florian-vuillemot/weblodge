@@ -68,7 +68,7 @@ class KeyVault(Resource, AzureKeyVault):
                 'keyvault secret set',
                 f'--vault-name {self.name}',
                 f'--name {name}',
-                f'--value {value}'
+                f'--value "{value}"'
             ])
         )
         return KeyVaultSecret(

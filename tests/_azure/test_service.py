@@ -30,7 +30,7 @@ class TestAzureService(unittest.TestCase):
         self.assertTrue(issubclass(service.app_services, AzureAppService))
         self.assertTrue(issubclass(service.web_apps, AzureWebApp))
         self.assertTrue(issubclass(service.log_levels, AzureLogLevel))
-        self.assertTrue(issubclass(service.keyvault, AzureKeyVault))
+        self.assertTrue(issubclass(service.keyvaults, AzureKeyVault))
         self.assertTrue(issubclass(service.entra, MicrosoftEntra))
 
     def test_service_type(self):
@@ -44,7 +44,7 @@ class TestAzureService(unittest.TestCase):
         self.assertEqual(service.app_services, AppService)
         self.assertEqual(service.web_apps, WebApp)
         self.assertEqual(service.log_levels, LogLevel)
-        self.assertEqual(service.keyvault, KeyVault)
+        self.assertEqual(service.keyvaults, KeyVault)
         self.assertEqual(service.entra, Entra)
 
     def test_cli(self):
@@ -57,12 +57,12 @@ class TestAzureService(unittest.TestCase):
         self.assertIsInstance(service.resource_groups._cli, Cli)
         self.assertIsInstance(service.app_services._cli, Cli)
         self.assertIsInstance(service.web_apps._cli, Cli)
-        self.assertIsInstance(service.keyvault._cli, Cli)
+        self.assertIsInstance(service.keyvaults._cli, Cli)
         self.assertIsInstance(service.entra._cli, Cli)
 
         # pylint: disable=protected-access
         self.assertEqual(service.cli, service.resource_groups._cli)
         self.assertEqual(service.cli, service.app_services._cli)
         self.assertEqual(service.cli, service.web_apps._cli)
-        self.assertEqual(service.cli, service.keyvault._cli)
+        self.assertEqual(service.cli, service.keyvaults._cli)
         self.assertEqual(service.cli, service.entra._cli)

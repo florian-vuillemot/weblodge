@@ -124,7 +124,7 @@ def deploy(azure_service: AzureService, config: DeploymentConfig) -> AzureWebApp
     if not web_app.exists():
         logger.info('The infrastructure is being created...')
         if not web_app.app_service.exists():
-            if config.sku == 'F1':
+            if web_app.app_service.is_free:
                 # Only one free AppService Plan is allowed per Azure subscription and location.
                 # Check if a free AppService Plan already exists.
                 if free_web_app := azure_service.app_services.get_existing_free(config.location):
@@ -139,6 +139,8 @@ def deploy(azure_service: AzureService, config: DeploymentConfig) -> AzureWebApp
                     }
                 )
             web_app.app_service.create(config.sku)
+        if not web_app.keyvault.exists():
+            web_app.keyvault.create()
         web_app.create()
         logger.info('The infrastructure is created.')
 

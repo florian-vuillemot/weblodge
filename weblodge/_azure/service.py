@@ -22,7 +22,7 @@ class Service(AzureService):
     app_services: AzureAppService
     web_apps: AzureWebApp
     log_levels: AzureLogLevel
-    keyvault: AzureKeyVault
+    keyvaults: AzureKeyVault
     entra: MicrosoftEntra
 
     def __init__(self):
@@ -32,11 +32,11 @@ class Service(AzureService):
         self.app_services: AzureAppService = AppService
         self.web_apps: AzureWebApp = WebApp
         self.log_levels: AzureLogLevel = LogLevel
-        self.keyvault: AzureKeyVault = KeyVault
+        self.keyvaults: AzureKeyVault = KeyVault
         self.entra: MicrosoftEntra = Entra
 
         self.resource_groups.set_cli(self.cli)
         self.app_services.set_cli(self.cli)
         self.web_apps.set_cli(self.cli)
-        self.keyvault.set_cli(self.cli)
+        self.keyvaults.set_cli(self.cli)
         self.entra.set_cli(self.cli)

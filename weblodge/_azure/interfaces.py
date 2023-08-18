@@ -80,145 +80,6 @@ class AzureResourceGroup:
         """
 
 
-class AzureAppService:
-    """
-    Azure AppService Plan.
-    """
-    # Name of the Resource Group.
-    name: str
-
-    # Location of the Resouce Group.
-    location: str
-
-    # Tags of the Resource Group.
-    tags: Dict[str, str]
-
-    # True if the AppService Plan support AlwaysOn.
-    always_on_supported: bool
-
-    # True if the AppService Plan is Free.
-    is_free: bool
-
-    # List of supported SKUs.
-    skus = []
-
-    @abstractmethod
-    def __init__(self, name: str, resource_group: AzureResourceGroup) -> None:
-        """
-        Initialize the Azure App Service.
-        """
-
-    @abstractmethod
-    def create(self, sku: str) -> 'AzureAppService':
-        """
-        Create a Linux AppService with Python.
-        """
-
-    @classmethod
-    @abstractmethod
-    def all(cls) -> Iterator['AzureAppService']:
-        """
-        Return all the AppService.
-        """
-
-    @classmethod
-    @abstractmethod
-    def get_existing_free(cls, location: str) -> Optional['AzureAppService']:
-        """
-        Return the free existing Azure App Service if exists in that location.
-        None otherwise.
-        """
-
-
-class AzureWebApp:
-    """
-    Azure Web App.
-    """
-    # Name of the WebApp.
-    # It is also its unique subdomain on Azure.
-    name: str
-
-    # The WebApp location.
-    # Ex: northeurope, westeurope, etc.
-    location: str
-
-    # WebApp domain.
-    # Ex: weblodge.azurewebsites.net
-    domain: str
-
-    # Tags of the Web App.
-    tags: Dict[str, str]
-
-    # Azure App Service of the WebApp.
-    app_service: AzureAppService
-
-    # Azure Resource Group of the WebApp.
-    resource_group: AzureResourceGroup
-
-    @abstractmethod
-    def __init__(self, name: str, resource_group: AzureResourceGroup, app_service: AzureAppService) -> None:
-        """
-        Initialize the Azure Web App.
-        """
-
-    @abstractmethod
-    def create(self) -> 'AzureWebApp':
-        """
-        Create the WebApp.
-        """
-
-    @abstractmethod
-    def exists(self) -> bool:
-        """
-        Return True if the Web App exists.
-        False otherwise.
-        """
-
-    @classmethod
-    @abstractmethod
-    def all(cls) -> Iterator['AzureWebApp']:
-        """
-        Return all the WebApps.
-        """
-
-    @abstractmethod
-    def set_log_level(self, log_level: AzureLogLevel) -> None:
-        """
-        Set the WebApp log level.
-        """
-
-    @abstractmethod
-    def deploy(self, src: str) -> None:
-        """
-        Deploy an application zipped.
-        """
-
-    @abstractmethod
-    def logs(self) -> None:
-        """
-        Stream WebApp logs.
-        This is a blocking operation. User must run CTRL+C to stop the process.
-        """
-
-    @abstractmethod
-    def update_environment(self, env: Dict) -> None:
-        """
-        Update the WebApp environment variables.
-        """
-
-    @abstractmethod
-    def deployment_in_progress(self) -> bool:
-        """
-        True if the WebApp is deploying.
-        """
-
-    @abstractmethod
-    def restart(self) -> None:
-        """
-        Restart the WebApp.
-        """
-
-
 class AzureKeyVaultSecret:
     """
     Azure KeyVault Secret representation.
@@ -284,6 +145,151 @@ class AzureKeyVault:
         """
 
 
+class AzureAppService:
+    """
+    Azure AppService Plan.
+    """
+    # Name of the Resource Group.
+    name: str
+
+    # Location of the Resouce Group.
+    location: str
+
+    # Tags of the Resource Group.
+    tags: Dict[str, str]
+
+    # True if the AppService Plan is Free.
+    is_free: bool
+
+    # List of supported SKUs.
+    skus = []
+
+    @abstractmethod
+    def __init__(self, name: str, resource_group: AzureResourceGroup) -> None:
+        """
+        Initialize the Azure App Service.
+        """
+
+    @abstractmethod
+    def create(self, sku: str) -> 'AzureAppService':
+        """
+        Create a Linux AppService with Python.
+        """
+
+    @classmethod
+    @abstractmethod
+    def all(cls) -> Iterator['AzureAppService']:
+        """
+        Return all the AppService.
+        """
+
+    @classmethod
+    @abstractmethod
+    def get_existing_free(cls, location: str) -> Optional['AzureAppService']:
+        """
+        Return the free existing Azure App Service if exists in that location.
+        None otherwise.
+        """
+
+
+class AzureWebApp:
+    """
+    Azure Web App.
+    """
+    # Name of the WebApp.
+    # It is also its unique subdomain on Azure.
+    name: str
+
+    # The WebApp location.
+    # Ex: northeurope, westeurope, etc.
+    location: str
+
+    # WebApp domain.
+    # Ex: weblodge.azurewebsites.net
+    domain: str
+
+    # Tags of the Web App.
+    tags: Dict[str, str]
+
+    # Azure App Service of the WebApp.
+    app_service: AzureAppService
+
+    # Azure Resource Group of the WebApp.
+    resource_group: AzureResourceGroup
+
+    # Azure KeyVault of the WebApp.
+    keyvault: AzureKeyVault
+
+    @abstractmethod
+    def __init__(
+        self,
+        name: str,
+        resource_group: AzureResourceGroup,
+        app_service: AzureAppService,
+        keyvault: AzureKeyVault
+    ) -> None:
+        """
+        Initialize the Azure Web App.
+        """
+
+    @abstractmethod
+    def create(self) -> 'AzureWebApp':
+        """
+        Create the WebApp.
+        """
+
+    @abstractmethod
+    def exists(self) -> bool:
+        """
+        Return True if the Web App exists.
+        False otherwise.
+        """
+
+    @classmethod
+    @abstractmethod
+    def all(cls) -> Iterator['AzureWebApp']:
+        """
+        Return all the WebApps.
+        """
+
+    @abstractmethod
+    def set_log_level(self, log_level: AzureLogLevel) -> None:
+        """
+        Set the WebApp log level.
+        """
+
+    @abstractmethod
+    def deploy(self, src: str) -> None:
+        """
+        Deploy an application zipped.
+        """
+
+    @abstractmethod
+    def logs(self) -> None:
+        """
+        Stream WebApp logs.
+        This is a blocking operation. User must run CTRL+C to stop the process.
+        """
+
+    @abstractmethod
+    def update_environment(self, env: Dict) -> None:
+        """
+        Update the WebApp environment variables.
+        """
+
+    @abstractmethod
+    def deployment_in_progress(self) -> bool:
+        """
+        True if the WebApp is deploying.
+        """
+
+    @abstractmethod
+    def restart(self) -> None:
+        """
+        Restart the WebApp.
+        """
+
+
 class MicrosoftEntraApplication:
     """
     Azure Application registered on the Entra platform.
@@ -329,5 +335,5 @@ class AzureService:
     app_services: AzureAppService
     web_apps: AzureWebApp
     log_levels: AzureLogLevel
-    keyvault: AzureKeyVault
+    keyvaults: AzureKeyVault
     entra: MicrosoftEntra
