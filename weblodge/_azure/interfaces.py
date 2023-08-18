@@ -1,7 +1,7 @@
 """
 Public interface of the Azure module.
 """
-from typing import Dict, Iterator, Optional
+from typing import Dict, Iterable, Iterator, List, Optional
 from abc import abstractmethod
 
 
@@ -144,7 +144,7 @@ class AzureWebApp:
         """
 
     @abstractmethod
-    def exists(self) -> None:
+    def exists(self) -> bool:
         """
         Return True if the Web App exists.
         False otherwise.
@@ -195,6 +195,68 @@ class AzureWebApp:
         """
 
 
+class AzureKeyVaultSecret:
+    # Secret name.
+    name: str
+
+    # Secret value.
+    value: str
+
+    # Secret URI.
+    uri: str
+
+
+class AzureKeyVault:
+    """
+    Azure KeyVault representation.
+    """
+    # The KeyVault name.
+    name: str
+
+    # It's resource group.
+    resource_group: AzureResourceGroup
+
+    # Tags of the KeyVault.
+    tags: Dict[str, str]
+
+    @abstractmethod
+    def __init__(self, name: str, resource_group: AzureResourceGroup):
+        """
+        Initialize the KeyVault.
+        """
+
+    @abstractmethod
+    def create(self) -> 'AzureKeyVault':
+        """
+        Create the Azure KeyVault.
+        """
+
+    @abstractmethod
+    def delete(self) -> None:
+        """
+        Delete the Azure KeyVault.
+        """
+
+    @abstractmethod
+    def exists(self) -> bool:
+        """
+        Return True if the Key Vault exists.
+        False otherwise.
+        """
+
+    @abstractmethod
+    def get_all(self) -> Iterable[AzureKeyVaultSecret]:
+        """
+        Return the KeyVault secrets.
+        """
+
+    @abstractmethod
+    def set(self, name: str, value: str) -> AzureKeyVaultSecret:
+        """
+        Create a secret.
+        """
+
+
 class MicrosoftEntraApplication:
     """
     Azure Application registered on the Entra platform.
@@ -240,4 +302,5 @@ class AzureService:
     app_services: AzureAppService
     web_apps: AzureWebApp
     log_levels: AzureLogLevel
+    keyvault: AzureKeyVault
     entra: MicrosoftEntra
