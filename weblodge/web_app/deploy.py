@@ -123,6 +123,7 @@ def deploy(azure_service: AzureService, config: DeploymentConfig) -> AzureWebApp
 
     if not web_app.exists():
         logger.info('The infrastructure is being created...')
+        web_app.app_service.set_sku(config.sku)
         if not web_app.app_service.exists():
             if web_app.app_service.is_free:
                 # Only one free AppService Plan is allowed per Azure subscription and location.

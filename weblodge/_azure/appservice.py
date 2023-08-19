@@ -32,7 +32,7 @@ class AppService(Resource, AzureAppService):
         ) -> None:
         super().__init__(name, from_az)
         self.resource_group = resource_group
-        self.sku = self._from_az['sku']['name'] if from_az else None
+        self._sku = self._from_az['sku']['name'] if from_az else None
 
     @property
     def id_(self) -> str:
@@ -53,9 +53,9 @@ class AppService(Resource, AzureAppService):
         """
         Return True if the AppService Plan is Free.
         """
-        if not self.sku:
-            self.sku = self._from_az['sku']['name']
-        return self.sku == 'F1'
+        if not self._sku:
+            self._sku = self._from_az['sku']['name']
+        return self._sku == 'F1'
 
     @property
     def location(self) -> str:
@@ -63,6 +63,16 @@ class AppService(Resource, AzureAppService):
         Return the AppService Plan location.
         """
         return self.resource_group.location
+
+    def set_sku(self, sku: str) -> 'AzureAppService':
+        """
+        Set the AppService Plan SKU.
+        """
+        if sku not in self.skus:
+            raise InvalidSku(f"Invalid SKU: '{sku}'")
+
+        self._sku = sku
+        return self
 
     def create(self, sku: str) -> 'AzureAppService':
         """
@@ -79,7 +89,7 @@ class AppService(Resource, AzureAppService):
             f'{self._cli_prefix} create --name {self.name} --sku {sku} --resource-group {rg_name} --location {location} --is-linux',  # pylint: disable=line-too-long
             tags=tags
         )
-        self.sku = sku
+        self._sku = sku
         return self
 
     @classmethod
@@ -119,5 +129,5 @@ class AppService(Resource, AzureAppService):
                 f'{self._cli_prefix} show --name {self.name} --resource-group {self.resource_group.name}'
             )
         )
-        self.sku = self._from_az['sku']['name']
+        self._sku = self._from_az['sku']['name']
         return self

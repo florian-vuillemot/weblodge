@@ -161,6 +161,9 @@ class AzureAppService:
     # True if the AppService Plan is Free.
     is_free: bool
 
+    # True if the AppService Plan support AlwaysOn.
+    always_on_supported: bool
+
     # List of supported SKUs.
     skus = []
 
@@ -174,6 +177,12 @@ class AzureAppService:
     def create(self, sku: str) -> 'AzureAppService':
         """
         Create a Linux AppService with Python.
+        """
+
+    @abstractmethod
+    def set_sku(self, sku: str) -> 'AzureAppService':
+        """
+        Set the AppService Plan SKU.
         """
 
     @classmethod
