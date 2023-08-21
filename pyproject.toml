@@ -18,7 +18,7 @@ python = ">=3.8,<3.12"
 azure-cli = ">=2.40.0"
 python-dotenv = ">=0.19.0"
 # Fix: https://github.com/Azure/azure-cli/issues/27131
-azure-core = "==1.28.0"
+azure-core = "==1.29.2"
 
 [tool.poetry.group.tests.dependencies]
 urllib3 = "^2.0.3"
