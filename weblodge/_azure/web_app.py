@@ -25,7 +25,7 @@ class WebApp(Resource, AzureWebApp):
             app_service: AppService,
             keyvault: KeyVault,
             from_az: Dict = None
-            ) -> None:
+        ) -> None:
         super().__init__(name=name, from_az=from_az)
         self.python_version = '3.10'
         self.app_service = app_service
@@ -77,6 +77,16 @@ class WebApp(Resource, AzureWebApp):
                 f'--always-on {self.app_service.always_on_supported}',
             ))
         )
+        # Retrieve the WebApp identity.
+        identity = self._invoke(
+            ' '.join((
+                f'{self._cli_prefix} identity assign',
+                f'-g {self.resource_group.name}',
+                f'-n {self.name}',
+            ))
+        )
+        # Allow the WebApp to read the KeyVault secrets.
+        self.keyvault.can_read_secrets(identity['principalId'])
         return self
 
     def set_log_level(self, log_level: LogLevel) -> None:
@@ -85,7 +95,7 @@ class WebApp(Resource, AzureWebApp):
         """
         self._invoke(
             ' '.join((
-                'webapp log config',
+                f'{self._cli_prefix} log config',
                 f'--name {self.name}',
                 f'--resource-group {self.resource_group.name}',
                 '--application-logging filesystem',
@@ -127,7 +137,7 @@ class WebApp(Resource, AzureWebApp):
         # Insert secret in KeyVault.
         for name, value in env.items():
             secret = self.keyvault.set(name, value)
-            env_formatted.append(f'{name}={secret.uri}')
+            env_formatted.append(f'{name}=@Microsoft.KeyVault(SecretUri={secret.uri})')
 
         # Update the WebApp environment variables.
         self._invoke(
