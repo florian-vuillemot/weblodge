@@ -48,7 +48,7 @@ class Resource:
         """
         Return ID of the current user.
         """
-        return self._invoke('ad signed-in-user show')['id']
+        return self._invoke('account show')['user']['name']
 
     @property
     def tags(self) -> Dict[str, str]:
