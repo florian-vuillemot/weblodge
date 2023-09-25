@@ -86,6 +86,8 @@ try:
         'From foo.',
         'Deploy another application.'
     )
+except (SystemExit, Exception) as e: # pylint: disable=invalid-name,broad-exception-caught
+    print(f"Test failed.\nTraceback: {e}", flush=True, file=sys.stderr)
 finally:
     # Delete resources.
     sys.argv = ['weblodge', 'delete', '--yes']
