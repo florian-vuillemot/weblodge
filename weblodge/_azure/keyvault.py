@@ -2,7 +2,7 @@
 Azure Keyvault interface.
 """
 from dataclasses import dataclass
-from typing import Dict, Iterable, List
+from typing import Dict, Iterable
 
 from weblodge._azure.resource_group import ResourceGroup
 

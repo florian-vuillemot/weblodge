@@ -73,7 +73,7 @@ class Cli:
         cmd.extend(command_args)
         # Redirect the output to a file if the log output is not asked.
         out_fd = None if log_outputs else StringIO()
-        print(cmd)
+
         if tags:
             cmd.append('--tags')
             cmd.extend(f'{k}={v}' for k, v in tags.items())

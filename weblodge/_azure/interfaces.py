@@ -1,8 +1,8 @@
 """
 Public interface of the Azure module.
 """
-from typing import Dict, Iterable, Iterator, List, Optional
 from abc import abstractmethod
+from typing import Dict, Iterable, Iterator, Optional
 
 
 class AzureLogLevel:

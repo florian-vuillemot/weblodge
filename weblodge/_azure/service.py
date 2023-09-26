@@ -7,10 +7,10 @@ from .interfaces import AzureResourceGroup, AzureWebApp, AzureAppService, \
 from .cli import Cli
 from .entra import Entra
 from .web_app import WebApp
+from .keyvault import KeyVault
 from .log_level import LogLevel
 from .appservice import AppService
 from .resource_group import ResourceGroup
-from .keyvault import KeyVault, KeyVaultSecret
 
 
 class Service(AzureService):
