@@ -137,7 +137,7 @@ def clean(parameters: Parser, web_app: WebApp):
 
     for _wa in web_app.all(parameters.load):
         try:
-            parameters.trigger_once(prompt)
+            #parameters.trigger_once(prompt)
             _wa.delete()
         except SystemExit:
             # User aborted the deletion.

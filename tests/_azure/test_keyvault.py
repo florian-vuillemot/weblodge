@@ -36,7 +36,9 @@ class TestKeyVault(unittest.TestCase):
         resource_group.name = 'develop'
         resource_group.tags = {'managedby': 'weblodge'}
         expected_output = self.keyvaults[0]
-        cli = Cli([expected_output, {'id': None}, None])
+        cli = Cli(
+            [expected_output, {'user': {'name': 'current-user'}}, {'id': None}, None]
+        )
 
         keyvault = KeyVault(
             name=expected_output['name'],

@@ -109,15 +109,16 @@ class Entra(MicrosoftEntra):
     @classmethod
     def _assign_role(cls, subscription_id, service_principal_id, resource_group):
         """
-        Assign the contributor role to the service principal on the resource group
+        Assign the owner role to the service principal on the resource group
         if it not already assigned.
+        The owner role is required to manage KeyVault consumers.
         """
         role_assignments = cls._cli.invoke(
             ' '.join((
                 'role assignment list',
                 f'--scope {resource_group.id_}',
                 f'--assignee {service_principal_id}',
-                '--role contributor'
+                '--role owner'
             ))
         )
         if role_assignments:
@@ -126,7 +127,7 @@ class Entra(MicrosoftEntra):
         cls._cli.invoke(
             ' '.join((
                 'role assignment create',
-                '--role contributor',
+                '--role owner',
                 f'--subscription {subscription_id}',
                 f'--assignee-object-id {service_principal_id}',
                 '--assignee-principal-type ServicePrincipal',
