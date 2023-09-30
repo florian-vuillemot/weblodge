@@ -78,7 +78,16 @@ a `.env` file or by providing the `--env-file` option.
 
   **WebLodge** is using the `python-dotenv`_ package to load environment variables and so support all it functionality.
 
+.. note::
+
+  **WebLodge** creates an `Azure Key Vault`_ and provides permissions to the deployer (ex: the GitHub Action) to set secrets and to the Azure WebApp running the application to read them.
+  `Azugre Key Vault`_ is not a free service, but in this context the cost is almost zero. Indeed, the cost is based on the number of operations. In this case, the number of operations is equal to the number of secrets by the number of restarts of the application and deployment.
+  You can find more information on the `Azure Key Vault pricing page`_.
+
+
 .. _python-dotenv: https://pypi.org/project/python-dotenv
+.. _Azure Key Vault: https://learn.microsoft.com/en-us/azure/key-vault/general/basic-concepts
+.. _Azure Key Vault pricing page: https://azure.microsoft.com/en-us/pricing/details/key-vault/
 
 
 Building during deployment

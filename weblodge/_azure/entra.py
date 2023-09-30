@@ -111,7 +111,7 @@ class Entra(MicrosoftEntra):
         """
         Assign the owner role to the service principal on the resource group
         if it not already assigned.
-        The owner role is required to manage KeyVault consumers.
+        The owner role is required to assign authorizations to KeyVault consumers.
         """
         role_assignments = cls._cli.invoke(
             ' '.join((
