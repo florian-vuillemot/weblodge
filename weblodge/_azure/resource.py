@@ -44,6 +44,13 @@ class Resource:
         self._from_az = _AzDict(load=self.load, **(from_az or {}))
 
     @property
+    def _user_id(self) -> str:
+        """
+        Return ID of the current user.
+        """
+        return self._invoke('account show')['user']['name']
+
+    @property
     def tags(self) -> Dict[str, str]:
         """
         Return the resource tags.
@@ -84,19 +91,14 @@ class Resource:
             f'{cls._cli_prefix} list'
         )
 
+        print(cls._cli_prefix, resources)
+
         # Tags must be present and not None.
         ressources_with_tags = (_r for _r in resources if _r.get('tags'))
         weblodges_resources = (_r for _r in ressources_with_tags if _r['tags'].get('managedby') == 'weblodge')
         yield from (
             cls.from_az(_r['name'], _r) for _r in weblodges_resources
         )
-
-    @classmethod
-    def from_az(cls, name: str, from_az: Dict):
-        """
-        Create a resource from Azure.
-        """
-        return cls(name, from_az)
 
     @classmethod
     def set_cli(cls, cli: Cli):
@@ -114,6 +116,13 @@ class Resource:
         if cls._cli is None:
             cls._cli = Cli()
         return cls._cli.invoke(*args, **kwargs)
+
+    @classmethod
+    @abstractmethod
+    def from_az(cls, name: str, from_az: Dict):
+        """
+        Create the resource from Azure.
+        """
 
     @abstractmethod
     def _load(self):

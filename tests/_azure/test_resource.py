@@ -3,6 +3,7 @@ Resource Tests.
 """
 import json
 from pathlib import Path
+from typing import Dict
 import unittest
 
 from weblodge._azure.resource import Resource
@@ -22,6 +23,13 @@ class MockResourceGroup(Resource):
         Return the resource ID.
         """
         return self._from_az['id']
+
+    @classmethod
+    def from_az(cls, name: str, from_az: Dict):
+        """
+        Create a resource from Azure.
+        """
+        return cls(name, from_az)
 
     def _load(self):
         """

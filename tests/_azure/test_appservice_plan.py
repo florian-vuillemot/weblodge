@@ -79,6 +79,33 @@ class TestAppService(unittest.TestCase):
         with self.assertRaises(InvalidSku):
             asp.create('invalid sku')
 
+    def test_set_sku(self):
+        """
+        Set the SKU.
+        """
+        asp = AppService(name='test', resource_group=None)
+
+        asp.set_sku('B1')
+
+        self.assertEqual(asp._sku, 'B1') # pylint: disable=protected-access
+        self.assertFalse(asp.is_free)
+        self.assertTrue(asp.always_on_supported)
+
+        asp.set_sku('F1')
+
+        self.assertEqual(asp._sku, 'F1') # pylint: disable=protected-access
+        self.assertTrue(asp.is_free)
+        self.assertFalse(asp.always_on_supported)
+
+    def test_set_invalid_sku(self):
+        """
+        Set a invalid SKU and verify raised.
+        """
+        asp = AppService(name='test', resource_group=None)
+
+        with self.assertRaises(InvalidSku):
+            asp.set_sku('Invalid SKU')
+
     def test_is_free(self):
         """
         Test if AppService is free.

@@ -1,8 +1,8 @@
 """
 Public interface of the Azure module.
 """
-from typing import Dict, Iterator, Optional
 from abc import abstractmethod
+from typing import Dict, Iterable, Iterator, Optional
 
 
 class AzureLogLevel:
@@ -10,6 +10,12 @@ class AzureLogLevel:
     Log levels.
     By default, the log level is set to Warning.
     """
+    @abstractmethod
+    def __init__(self) -> None:
+        """
+        Initialize the log level.
+        """
+
     @abstractmethod
     def error(self) -> None:
         """
@@ -49,6 +55,12 @@ class AzureResourceGroup:
     tags: Dict[str, str]
 
     @abstractmethod
+    def __init__(self, name: str) -> None:
+        """
+        Initialize the Resource Group.
+        """
+
+    @abstractmethod
     def create(self, location: str, tags: Dict[str, str] = None) -> 'AzureResourceGroup':
         """
         Create a new Resource Group and return it.
@@ -68,6 +80,71 @@ class AzureResourceGroup:
         """
 
 
+class AzureKeyVaultSecret:
+    """
+    Azure KeyVault Secret representation.
+    """
+    # Secret name.
+    name: str
+
+    # Secret value.
+    value: str
+
+    # Secret URI.
+    uri: str
+
+
+class AzureKeyVault:
+    """
+    Azure KeyVault representation.
+    """
+    # The KeyVault name.
+    name: str
+
+    # It's resource group.
+    resource_group: AzureResourceGroup
+
+    # Tags of the KeyVault.
+    tags: Dict[str, str]
+
+    @abstractmethod
+    def __init__(self, name: str, resource_group: AzureResourceGroup):
+        """
+        Initialize the KeyVault.
+        """
+
+    @abstractmethod
+    def create(self) -> 'AzureKeyVault':
+        """
+        Create the Azure KeyVault.
+        """
+
+    @abstractmethod
+    def delete(self) -> None:
+        """
+        Delete the Azure KeyVault.
+        """
+
+    @abstractmethod
+    def exists(self) -> bool:
+        """
+        Return True if the Key Vault exists.
+        False otherwise.
+        """
+
+    @abstractmethod
+    def get_all(self) -> Iterable[AzureKeyVaultSecret]:
+        """
+        Return the KeyVault secrets.
+        """
+
+    @abstractmethod
+    def set(self, name: str, value: str) -> AzureKeyVaultSecret:
+        """
+        Create a secret.
+        """
+
+
 class AzureAppService:
     """
     Azure AppService Plan.
@@ -81,19 +158,31 @@ class AzureAppService:
     # Tags of the Resource Group.
     tags: Dict[str, str]
 
-    # True if the AppService Plan support AlwaysOn.
-    always_on_supported: bool
-
     # True if the AppService Plan is Free.
     is_free: bool
+
+    # True if the AppService Plan support AlwaysOn.
+    always_on_supported: bool
 
     # List of supported SKUs.
     skus = []
 
     @abstractmethod
+    def __init__(self, name: str, resource_group: AzureResourceGroup) -> None:
+        """
+        Initialize the Azure App Service.
+        """
+
+    @abstractmethod
     def create(self, sku: str) -> 'AzureAppService':
         """
         Create a Linux AppService with Python.
+        """
+
+    @abstractmethod
+    def set_sku(self, sku: str) -> 'AzureAppService':
+        """
+        Set the AppService Plan SKU.
         """
 
     @classmethod
@@ -137,6 +226,21 @@ class AzureWebApp:
     # Azure Resource Group of the WebApp.
     resource_group: AzureResourceGroup
 
+    # Azure KeyVault of the WebApp.
+    keyvault: AzureKeyVault
+
+    @abstractmethod
+    def __init__(
+        self,
+        name: str,
+        resource_group: AzureResourceGroup,
+        app_service: AzureAppService,
+        keyvault: AzureKeyVault
+    ) -> None:
+        """
+        Initialize the Azure Web App.
+        """
+
     @abstractmethod
     def create(self) -> 'AzureWebApp':
         """
@@ -144,7 +248,7 @@ class AzureWebApp:
         """
 
     @abstractmethod
-    def exists(self) -> None:
+    def exists(self) -> bool:
         """
         Return True if the Web App exists.
         False otherwise.
@@ -240,4 +344,5 @@ class AzureService:
     app_services: AzureAppService
     web_apps: AzureWebApp
     log_levels: AzureLogLevel
+    keyvaults: AzureKeyVault
     entra: MicrosoftEntra

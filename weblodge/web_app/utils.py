@@ -19,10 +19,12 @@ def get_webapp(azure_service: AzureService, subdomain: str) -> AzureWebApp:
     The Web App may not exists.
     """
     resource_group = azure_service.resource_groups(subdomain)
+    keyvault = azure_service.keyvaults(subdomain, resource_group)
     return azure_service.web_apps(
         subdomain,
         resource_group=resource_group,
-        app_service=azure_service.app_services(subdomain, resource_group)
+        app_service=azure_service.app_services(subdomain, resource_group),
+        keyvault=keyvault
     )
 
 

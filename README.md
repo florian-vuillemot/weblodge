@@ -12,7 +12,7 @@
 - A `requirements.txt` with the application dependencies. 
 - Have an [Azure account](https://azure.microsoft.com/en-us/free).
 
-> Note: By default, **WebLodge** uses **Free** [Azure services](https://azure.microsoft.com/en-us/pricing/free-services) and lets the user specify non-free configurations.
+> Note: By default, **WebLodge** uses **Free** (or almost free) [Azure services](https://azure.microsoft.com/en-us/pricing/free-services) and lets the user specify non-free configurations.
 
 
 > Note: Today, **WebLodge** is only available for **Flask** applications.

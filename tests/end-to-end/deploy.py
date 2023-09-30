@@ -47,7 +47,7 @@ def test(folder, cmd, html_expected, log):
         )
         app_output = res.data.decode('utf-8')
         app_status = res.status
-    except Exception as e: # pylint: disable=invalid-name,broad-exception-caught
+    except (SystemExit, Exception) as e: # pylint: disable=invalid-name,broad-exception-caught
         print(f"Test failed.\nTraceback: {e}", flush=True, file=sys.stderr)
 
     # Delete resources.

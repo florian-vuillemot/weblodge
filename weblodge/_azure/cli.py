@@ -79,7 +79,7 @@ class Cli:
             cmd.extend(f'{k}={v}' for k, v in tags.items())
 
         exception = None
-        for _ in range(10):
+        for i in range(1, 10):
             try:
                 # Execute the Azure CLI command.
                 if self.cli.invoke(cmd, out_file=out_fd):
@@ -89,7 +89,7 @@ class Cli:
                     break
             except (SystemExit, Exception) as exception: # pylint: disable=broad-exception-caught
                 exception = CLIException(f"Error during execution of the command '{command}'.\nTraceback: {exception}") # pylint: disable=raise-missing-from
-            time.sleep(30)
+            time.sleep(i)
 
         if exception:
             raise exception

@@ -49,6 +49,13 @@ class ResourceGroup(Resource, AzureResourceGroup):
         """
         self._invoke(f'{self._cli_prefix} delete --name {self.name} --yes', to_json=False)
 
+    @classmethod
+    def from_az(cls, name: str, from_az: Dict):
+        """
+        Create the Resource Group from Azure.
+        """
+        return cls(name, from_az)
+
     def _load(self):
         """
         Load the Resource Group from Azure.

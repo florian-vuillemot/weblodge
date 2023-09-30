@@ -7,6 +7,7 @@ from .resource import Resource
 from .log_level import LogLevel
 from .appservice import AppService
 from .resource_group import ResourceGroup
+from .keyvault import KeyVault
 from .interfaces import AzureWebApp
 
 
@@ -22,12 +23,14 @@ class WebApp(Resource, AzureWebApp):
             name: str,
             resource_group: ResourceGroup,
             app_service: AppService,
+            keyvault: KeyVault,
             from_az: Dict = None
-            ) -> None:
+        ) -> None:
         super().__init__(name=name, from_az=from_az)
         self.python_version = '3.10'
         self.app_service = app_service
         self.resource_group = resource_group
+        self.keyvault = keyvault
 
     @property
     def location(self) -> str:
@@ -74,6 +77,17 @@ class WebApp(Resource, AzureWebApp):
                 f'--always-on {self.app_service.always_on_supported}',
             ))
         )
+        # Retrieve the WebApp identity.
+        identity = self._invoke(
+            ' '.join((
+                f'{self._cli_prefix} identity assign',
+                f'-g {self.resource_group.name}',
+                f'-n {self.name}',
+            ))
+        )
+        # Allow the WebApp to read the KeyVault secrets.
+        self.keyvault.can_read_secrets(identity['principalId'])
+        return self
 
     def set_log_level(self, log_level: LogLevel) -> None:
         """
@@ -81,7 +95,7 @@ class WebApp(Resource, AzureWebApp):
         """
         self._invoke(
             ' '.join((
-                'webapp log config',
+                f'{self._cli_prefix} log config',
                 f'--name {self.name}',
                 f'--resource-group {self.resource_group.name}',
                 '--application-logging filesystem',
@@ -118,8 +132,12 @@ class WebApp(Resource, AzureWebApp):
         """
         Update the WebApp environment variables.
         """
-        # Web App App settings format.
-        env_formatted = [f'{k}={v}' for k, v in env.items()]
+        env_formatted = []
+
+        # Insert secret in KeyVault.
+        for name, value in env.items():
+            secret = self.keyvault.set(name, value)
+            env_formatted.append(f'{name}=@Microsoft.KeyVault(SecretUri={secret.uri})')
 
         # Update the WebApp environment variables.
         self._invoke(
@@ -163,10 +181,12 @@ class WebApp(Resource, AzureWebApp):
         """
         Create a WebApp from Azure result.
         """
+        resource_group = ResourceGroup(from_az['resourceGroup'])
         return cls(
-            name,
-            ResourceGroup(from_az['resourceGroup']),
-            AppService.from_id(from_az['appServicePlanId']),
+            name=name,
+            resource_group=resource_group,
+            app_service=AppService.from_id(from_az['appServicePlanId']),
+            keyvault=KeyVault(name=name, resource_group=resource_group),
             from_az=from_az
         )
 

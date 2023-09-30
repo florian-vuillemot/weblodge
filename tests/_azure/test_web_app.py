@@ -4,8 +4,9 @@ Web App Tests.
 import json
 from pathlib import Path
 import unittest
+from unittest.mock import MagicMock
 
-from weblodge._azure.web_app import WebApp, ResourceGroup, AppService
+from weblodge._azure.web_app import WebApp, ResourceGroup, AppService, KeyVault
 
 from .cli import Cli
 
@@ -37,6 +38,30 @@ class TestWebApp(unittest.TestCase):
         self.assertEqual(web_app.domain, expected_output['hostNames'][0])
         self.assertEqual(web_app.location, expected_output['location'])
 
+    def test_update_environment(self):
+        """
+        Update Web App environment.
+        """
+        env = {'foo': 'bar', 'foo2': 'bar2'}
+        kv_list = []
+        kv_mock = MagicMock()
+        kv_mock.set = lambda n, v: kv_list.append((n, v)) or MagicMock()
+
+        cli = Cli(['set_env_foo', 'set_env_bar', 'invoke_app'])
+        web_app = WebApp(
+            name='webapp',
+            resource_group=MagicMock(),
+            app_service=MagicMock(),
+            keyvault=kv_mock
+        )
+        web_app.set_cli(cli)
+
+        web_app.update_environment(env)
+        self.assertEqual(
+            kv_list,
+            [('foo', 'bar'), ('foo2', 'bar2')]
+        )
+
     def test_deployment_in_progress(self):
         """
         Test the "deployment_in_progress" instance method.
@@ -63,10 +88,15 @@ class TestWebApp(unittest.TestCase):
             resource_group=resource_group,
             from_az=self.app_services[idx]
         )
+        keyvault = KeyVault(
+            name=wp_data['name'],
+            resource_group=resource_group
+        )
         web_app = WebApp(
             name=wp_data['name'],
             resource_group=resource_group,
             app_service=asp,
+            keyvault=keyvault
         )
         web_app.set_cli(cli or Cli(wp_data))
 

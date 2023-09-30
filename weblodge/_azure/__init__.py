@@ -7,4 +7,5 @@ from .service import Service
 from .exceptions import InvalidSku
 from .interfaces import AzureService, \
     AzureResourceGroup, AzureWebApp, AzureAppService, \
-    AzureLogLevel, MicrosoftEntraApplication, MicrosoftEntra
+    AzureLogLevel, MicrosoftEntraApplication, MicrosoftEntra, \
+    AzureKeyVault, AzureKeyVaultSecret

@@ -1,0 +1,176 @@
+[
+    {
+        "id": "/subscriptions/15be6804-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/develop/providers/Microsoft.KeyVault/vaults/develop_kv",
+        "location": "northeurope",
+        "name": "develop_kv",
+        "properties": {
+            "accessPolicies": [
+            {
+                "applicationId": null,
+                "objectId": "13798a6d-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+                "permissions": {
+                "certificates": [
+                    "all"
+                ],
+                "keys": [
+                    "all"
+                ],
+                "secrets": [
+                    "all"
+                ],
+                "storage": [
+                    "all"
+                ]
+                },
+                "tenantId": "901536cd-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+            }
+            ],
+            "createMode": null,
+            "enablePurgeProtection": null,
+            "enableRbacAuthorization": null,
+            "enableSoftDelete": true,
+            "enabledForDeployment": false,
+            "enabledForDiskEncryption": null,
+            "enabledForTemplateDeployment": null,
+            "hsmPoolResourceId": null,
+            "networkAcls": null,
+            "privateEndpointConnections": null,
+            "provisioningState": "Succeeded",
+            "publicNetworkAccess": "Enabled",
+            "sku": {
+            "family": "A",
+            "name": "standard"
+            },
+            "softDeleteRetentionInDays": 90,
+            "tenantId": "901536cd-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+            "vaultUri": "https://develop_kv.vault.azure.net/"
+        },
+        "resourceGroup": "develop",
+        "systemData": {
+            "createdAt": "2023-08-18T13:02:34.245000+00:00",
+            "createdBy": "user@foo.com",
+            "createdByType": "User",
+            "lastModifiedAt": "2023-08-18T23:02:34.245000+00:00",
+            "lastModifiedBy": "user@foo.com",
+            "lastModifiedByType": "User"
+        },
+        "tags": {"managedby": "weblodge"},
+        "type": "Microsoft.KeyVault/vaults"
+    },
+    {
+        "id": "/subscriptions/8615f926-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/staging/providers/Microsoft.KeyVault/vaults/staging_kv",
+        "location": "northeurope",
+        "name": "staging_kv",
+        "properties": {
+            "accessPolicies": [
+            {
+                "applicationId": null,
+                "objectId": "13798a6s-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+                "permissions": {
+                "certificates": [
+                    "all"
+                ],
+                "keys": [
+                    "all"
+                ],
+                "secrets": [
+                    "all"
+                ],
+                "storage": [
+                    "all"
+                ]
+                },
+                "tenantId": "901536cd-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+            }
+            ],
+            "createMode": null,
+            "enablePurgeProtection": null,
+            "enableRbacAuthorization": null,
+            "enableSoftDelete": true,
+            "enabledForDeployment": false,
+            "enabledForDiskEncryption": null,
+            "enabledForTemplateDeployment": null,
+            "hsmPoolResourceId": null,
+            "networkAcls": null,
+            "privateEndpointConnections": null,
+            "provisioningState": "Succeeded",
+            "publicNetworkAccess": "Enabled",
+            "sku": {
+            "family": "A",
+            "name": "standard"
+            },
+            "softDeleteRetentionInDays": 90,
+            "tenantId": "901536cd-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+            "vaultUri": "https://staging_kv.vault.azure.net/"
+        },
+        "resourceGroup": "staging",
+        "systemData": {
+            "createdAt": "2023-08-18T13:02:34.245000+00:00",
+            "createdBy": "user@foo.com",
+            "createdByType": "User",
+            "lastModifiedAt": "2023-08-18T23:02:34.245000+00:00",
+            "lastModifiedBy": "user@foo.com",
+            "lastModifiedByType": "User"
+        },
+        "tags": {"managedby": "weblodge"},
+        "type": "Microsoft.KeyVault/vaults"
+    },
+    {
+        "id": "/subscriptions/2f0df319-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/production/providers/Microsoft.KeyVault/vaults/production_kv",
+        "location": "northeurope",
+        "name": "production_kv",
+        "properties": {
+            "accessPolicies": [
+            {
+                "applicationId": null,
+                "objectId": "13798a6p-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+                "permissions": {
+                "certificates": [
+                    "all"
+                ],
+                "keys": [
+                    "all"
+                ],
+                "secrets": [
+                    "all"
+                ],
+                "storage": [
+                    "all"
+                ]
+                },
+                "tenantId": "901536cd-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+            }
+            ],
+            "createMode": null,
+            "enablePurgeProtection": null,
+            "enableRbacAuthorization": null,
+            "enableSoftDelete": true,
+            "enabledForDeployment": false,
+            "enabledForDiskEncryption": null,
+            "enabledForTemplateDeployment": null,
+            "hsmPoolResourceId": null,
+            "networkAcls": null,
+            "privateEndpointConnections": null,
+            "provisioningState": "Succeeded",
+            "publicNetworkAccess": "Enabled",
+            "sku": {
+            "family": "A",
+            "name": "standard"
+            },
+            "softDeleteRetentionInDays": 90,
+            "tenantId": "901536cd-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+            "vaultUri": "https://production_kv.vault.azure.net/"
+        },
+        "resourceGroup": "staging",
+        "systemData": {
+            "createdAt": "2023-08-18T13:02:34.245000+00:00",
+            "createdBy": "user@foo.com",
+            "createdByType": "User",
+            "lastModifiedAt": "2023-08-18T23:02:34.245000+00:00",
+            "lastModifiedBy": "user@foo.com",
+            "lastModifiedByType": "User"
+        },
+        "tags": {"managedby": "weblodge"},
+        "type": "Microsoft.KeyVault/vaults"
+    }
+]
