@@ -79,7 +79,7 @@ class Cli:
             cmd.extend(f'{k}={v}' for k, v in tags.items())
 
         exception = None
-        for i in range(1, 10):
+        for i in range(1, 15):
             try:
                 # Execute the Azure CLI command.
                 if self.cli.invoke(cmd, out_file=out_fd):
