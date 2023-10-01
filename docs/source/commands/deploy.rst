@@ -81,7 +81,7 @@ a `.env` file or by providing the `--env-file` option.
 .. note::
 
   **WebLodge** creates an `Azure Key Vault`_ and provides permissions to the deployer (ex: the GitHub Action) to set secrets and to the Azure WebApp running the application to read them.
-  `Azugre Key Vault`_ is not a free service, but in this context the cost is almost zero. Indeed, the cost is based on the number of operations. In this case, the number of operations is equal to the number of secrets by the number of restarts of the application and deployment.
+  `Azure Key Vault`_ is not a free service, but in this context the cost is almost zero. Indeed, the cost is based on the number of operations. In this case, the number of operations is equal to the number of secrets by the number of restarts of the application and deployment.
   You can find more information on the `Azure Key Vault pricing page`_.
 
 

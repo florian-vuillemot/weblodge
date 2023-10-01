@@ -144,7 +144,7 @@ jobs:
           tenant-id: ${{{{ secrets.AZURE_TENANT_ID }}}}
           subscription-id: ${{{{ secrets.AZURE_SUBSCRIPTION_ID }}}}
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: 'Install WebLodge.'
         run: |

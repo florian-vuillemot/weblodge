@@ -91,8 +91,6 @@ class Resource:
             f'{cls._cli_prefix} list'
         )
 
-        print(cls._cli_prefix, resources)
-
         # Tags must be present and not None.
         ressources_with_tags = (_r for _r in resources if _r.get('tags'))
         weblodges_resources = (_r for _r in ressources_with_tags if _r['tags'].get('managedby') == 'weblodge')
