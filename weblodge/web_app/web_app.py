@@ -17,7 +17,7 @@ from .deploy import DeploymentConfig, deploy as _deploy
 from .exceptions import RequirementsFileNotFound, EntryPointFileNotFound, FlaskAppNotFound
 from .logs import LogsConfig, logs as _logs
 from .github import GitHubConfig, github, GitHubWorkflow
-from .tier import TierConfig, tiers as _tiers
+from .tiers import TiersConfig, tiers as _tiers
 
 
 logger = logging.getLogger('weblodge')
@@ -153,6 +153,6 @@ class WebApp:
         """
         Return all tiers of the application.
         """
-        config = self.config_loader(TierConfig.items, config)
-        tier_config = TierConfig(**config)
+        config = self.config_loader(TiersConfig.items, config)
+        tier_config = TiersConfig(**config)
         yield from _tiers(self.azure_service, tier_config)

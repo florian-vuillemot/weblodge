@@ -11,7 +11,7 @@ from weblodge._azure import AzureService, AzureAppServiceSku
 logger = logging.getLogger('weblodge')
 
 
-class TierConfig:
+class TiersConfig:
     """
     Tier configuration.
 
@@ -35,7 +35,7 @@ class TierConfig:
         self.location = location
 
 
-def tiers(azure_service: AzureService, config: TierConfig) -> Iterable[AzureAppServiceSku]:
+def tiers(azure_service: AzureService, config: TiersConfig) -> Iterable[AzureAppServiceSku]:
     """
     Return all available tiers.
     """

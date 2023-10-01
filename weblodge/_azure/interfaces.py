@@ -3,7 +3,7 @@ Public interface of the Azure module.
 """
 from decimal import Decimal
 from abc import abstractmethod
-from typing import Dict, Iterable, Iterator, Optional
+from typing import Dict, Iterable, Iterator, Optional, Union
 
 
 class AzureLogLevel:
@@ -163,13 +163,14 @@ class AzureAppServiceSku:
     description: str
 
     # Number of Cores.
-    cores: int
+    # It is a string when the SKU is free.
+    cores: Union[int, str]
 
     # RAM in GB.
-    ram: str
+    ram: int
 
     # Disk size in GB.
-    disk: str
+    disk: int
 
 
 class AzureAppService:

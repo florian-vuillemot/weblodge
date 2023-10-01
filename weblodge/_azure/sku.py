@@ -3,11 +3,17 @@ SKU class for Azure resources.
 """
 from decimal import Decimal
 from dataclasses import dataclass
-from typing import Iterable
+from typing import Iterable, Union
 
-from urllib3 import Retry, request
+from urllib3 import Retry as urllib_retry, request as urllib_request
 
+from .exceptions import InvalidSku
 from .interfaces import AzureAppServiceSku
+
+
+# Function to use for API calls can be mocked.
+REQUEST = urllib_request
+RETRY = urllib_retry
 
 
 _B_TIER = "Designed for apps that have lower traffic requirements, and don't need advanced auto scale and traffic management features."  # pylint: disable=line-too-long
@@ -15,25 +21,25 @@ _S_TIER = "Designed for running production workloads"
 _PV3_TIER = "Designed to provide enhanced performance for production apps and workloads."
 
 _SKU_INFOS = {
-    'F1': {'cores': '60 CPU minutes / day', 'ram': '1', 'disk': '1', 'description': 'Free Tier for testing.'},
+    'F1': {'cores': '60 CPU minutes / day', 'ram': 1, 'disk': 1, 'description': 'Free Tier for testing.'},
 
-    'B1': {'cores': '1', 'ram': '1.75', 'disk': '10', 'description': _B_TIER},
-    'B2': {'cores': '2', 'ram': '3.50', 'disk': '10', 'description': _B_TIER},
-    'B3': {'cores': '4', 'ram': '7', 'disk': '10', 'description': _B_TIER},
+    'B1': {'cores': 1, 'ram': 1.75, 'disk': 10, 'description': _B_TIER},
+    'B2': {'cores': 2, 'ram': 3.50, 'disk': 10, 'description': _B_TIER},
+    'B3': {'cores': 4, 'ram': 7, 'disk': 10, 'description': _B_TIER},
 
-    'S1': {'cores': '1', 'ram': '1.75', 'disk': '50', 'description': _S_TIER},
-    'S2': {'cores': '2', 'ram': '3.50', 'disk': '50', 'description': _S_TIER},
-    'S3': {'cores': '4', 'ram': '7', 'disk': '50', 'description': _S_TIER},
+    'S1': {'cores': 1, 'ram': 1.75, 'disk': 50, 'description': _S_TIER},
+    'S2': {'cores': 2, 'ram': 3.50, 'disk': 50, 'description': _S_TIER},
+    'S3': {'cores': 4, 'ram': 7, 'disk': 50, 'description': _S_TIER},
 
-    'P0v3': {'cores': '1', 'ram': '4', 'disk': '250', 'description': _PV3_TIER},
-    'P1v3': {'cores': '2', 'ram': '8', 'disk': '250', 'description': _PV3_TIER},
-    'P1mv3': {'cores': '2', 'ram': '16', 'disk': '250', 'description': _PV3_TIER},
-    'P2v3': {'cores': '4', 'ram': '16', 'disk': '250', 'description': _PV3_TIER},
-    'P2mv3': {'cores': '4', 'ram': '32', 'disk': '250', 'description': _PV3_TIER},
-    'P3v3': {'cores': '8', 'ram': '32', 'disk': '250', 'description': _PV3_TIER},
-    'P3mv3': {'cores': '8', 'ram': '64', 'disk': '250', 'description': _PV3_TIER},
-    'P4mv3': {'cores': '16', 'ram': '128', 'disk': '250', 'description': _PV3_TIER},
-    'P5mv3': {'cores': '32', 'ram': '256', 'disk': '250', 'description': _PV3_TIER},
+    'P0v3': {'cores': 1, 'ram': 4, 'disk': 250, 'description': _PV3_TIER},
+    'P1v3': {'cores': 2, 'ram': 8, 'disk': 250, 'description': _PV3_TIER},
+    'P1mv3': {'cores': 2, 'ram': 16, 'disk': 250, 'description': _PV3_TIER},
+    'P2v3': {'cores': 4, 'ram': 16, 'disk': 250, 'description': _PV3_TIER},
+    'P2mv3': {'cores': 4, 'ram': 32, 'disk': 250, 'description': _PV3_TIER},
+    'P3v3': {'cores': 8, 'ram': 32, 'disk': 250, 'description': _PV3_TIER},
+    'P3mv3': {'cores': 8, 'ram': 64, 'disk': 250, 'description': _PV3_TIER},
+    'P4mv3': {'cores': 16, 'ram': 128, 'disk': 250, 'description': _PV3_TIER},
+    'P5mv3': {'cores': 32, 'ram': 256, 'disk': 250, 'description': _PV3_TIER},
 }
 
 AVAILABLE_SKUS = list(_SKU_INFOS.keys())
@@ -53,11 +59,11 @@ class AppServiceSku(AzureAppServiceSku):
     # Human description of the SKU.
     description: str
     # Number of Cores.
-    cores: int
+    cores: Union[int, str]
     # RAM in GB.
-    ram: str
+    ram: int
     # Disk size in GB.
-    disk: str
+    disk: int
 
 
 def get_skus(region_name: str) -> Iterable[AzureAppServiceSku]:
@@ -65,15 +71,16 @@ def get_skus(region_name: str) -> Iterable[AzureAppServiceSku]:
     Return the list of available SKUs for the given region.
     """
     try:
-        skus = request(
+        skus = REQUEST(
             'GET',
             f"https://prices.azure.com/api/retail/prices?$filter=serviceName eq 'Azure App Service' and contains(productName, 'Linux') and armRegionName eq '{region_name}' and unitOfMeasure eq '1 Hour' and type eq 'Consumption' and isPrimaryMeterRegion eq true and currencyCode eq 'USD'",  # pylint: disable=line-too-long
-            retries=Retry(total=10, backoff_factor=5, status=5, status_forcelist=[500, 502, 503, 504])
+            retries=RETRY(total=10, backoff_factor=5, status=5, status_forcelist=[500, 502, 503, 504])
         )
         items = skus.json()['Items']
-    except:  # pylint: disable=bare-except
-        print(f"""Unable to retrieve the list of SKUs.
-Please check your internet connection and the location '{region_name}'.""")
+    except Exception as exception:  # pylint: disable=bare-except
+        raise InvalidSku(f"""Unable to retrieve the list of SKUs.
+Please check your internet connection and the location '{region_name}'."""
+        ) from exception
 
     for item in items:
         sku_info = _SKU_INFOS.get(item['skuName'])
@@ -82,9 +89,9 @@ Please check your internet connection and the location '{region_name}'.""")
             yield AppServiceSku(
                 name=item['skuName'],
                 region=item['armRegionName'],
-                price_by_hour=Decimal(item['retailPrice']),
+                price_by_hour=item['retailPrice'],
                 description=sku_info['description'],
-                cores=int(sku_info['cores']),
+                cores=sku_info['cores'],
                 ram=sku_info['ram'],
                 disk=sku_info['disk']
             )
