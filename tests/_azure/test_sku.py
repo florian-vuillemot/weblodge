@@ -1,5 +1,5 @@
 """
-SKU Tests.
+Tests SKU internal API.
 """
 import json
 import unittest
@@ -12,7 +12,7 @@ from weblodge._azure.exceptions import InvalidSku
 
 class TestSku(unittest.TestCase):
     """
-    Sku Tests.
+    Tests SKU internal API.
     """
     def setUp(self) -> None:
         self.skus = json.loads(
@@ -22,7 +22,7 @@ class TestSku(unittest.TestCase):
 
     def test_default(self):
         """
-        Retrieve SKUs.
+        Ensure SKU is properly setted.
         """
         sku.REQUEST = MagicMock()
         sku.REQUEST.return_value.json.return_value = self.skus
@@ -41,14 +41,14 @@ class TestSku(unittest.TestCase):
         self.assertEqual(skus[0].name, 'P4mv3')
         self.assertEqual(skus[0].region, 'northeurope')
         self.assertEqual(skus[0].price_by_hour, 1.6128)
-        self.assertEqual(skus[0].description, 'Designed to provide enhanced performance for production apps and workloads.')
+        self.assertEqual(skus[0].description, 'Designed to provide enhanced performance for production apps and workloads.')  # pylint: disable=line-too-long
         self.assertEqual(skus[0].cores, 16)
         self.assertEqual(skus[0].ram, 128)
         self.assertEqual(skus[0].disk, 250)
 
-    def test_param(self):
+    def test_location(self):
         """
-        Retrieve SKUs.
+        Ensure location is properly updated.
         """
         sku.REQUEST = MagicMock()
         sku.REQUEST.return_value.json.return_value = self.skus
@@ -65,9 +65,9 @@ class TestSku(unittest.TestCase):
             retries=42
         )
 
-    def test_bad_param(self):
+    def test_raised(self):
         """
-        Retrieve SKUs.
+        Properly raise an exception when the API call has failed.
         """
         sku.REQUEST = MagicMock(side_effect=Exception('Bad request'))
 

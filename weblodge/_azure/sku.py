@@ -1,7 +1,6 @@
 """
 SKU class for Azure resources.
 """
-from decimal import Decimal
 from dataclasses import dataclass
 from typing import Iterable, Union
 
@@ -11,15 +10,16 @@ from .exceptions import InvalidSku
 from .interfaces import AzureAppServiceSku
 
 
-# Function to use for API calls can be mocked.
-REQUEST = urllib_request
+# Function to use for HTTP calls and mocks.
 RETRY = urllib_retry
+REQUEST = urllib_request
 
-
+# Tier description of SKU families.
 _B_TIER = "Designed for apps that have lower traffic requirements, and don't need advanced auto scale and traffic management features."  # pylint: disable=line-too-long
 _S_TIER = "Designed for running production workloads"
 _PV3_TIER = "Designed to provide enhanced performance for production apps and workloads."
 
+# Hard coded hardware capabilities for each SKU.
 _SKU_INFOS = {
     'F1': {'cores': '60 CPU minutes / day', 'ram': 1, 'disk': 1, 'description': 'Free Tier for testing.'},
 
@@ -42,21 +42,22 @@ _SKU_INFOS = {
     'P5mv3': {'cores': 32, 'ram': 256, 'disk': 250, 'description': _PV3_TIER},
 }
 
+# List of available SKU names.
 AVAILABLE_SKUS = list(_SKU_INFOS.keys())
 
 
 @dataclass(frozen=True)
 class AppServiceSku(AzureAppServiceSku):
     """
-    Human representation of the SKU.
+    User representation of the SKU.
     """
     # Name of the SKU.
     name: str
     # Name of the region where the SKU is available.
     region: str
     # Price per hour of the SKU.
-    price_by_hour: Decimal
-    # Human description of the SKU.
+    price_by_hour: float
+    # Description of the SKU.
     description: str
     # Number of Cores.
     cores: Union[int, str]
@@ -68,9 +69,10 @@ class AppServiceSku(AzureAppServiceSku):
 
 def get_skus(region_name: str) -> Iterable[AzureAppServiceSku]:
     """
-    Return the list of available SKUs for the given region.
+    Return availables SKUs for the given region.
     """
     try:
+        # Retrieve SKUs from the Azure API.
         skus = REQUEST(
             'GET',
             f"https://prices.azure.com/api/retail/prices?$filter=serviceName eq 'Azure App Service' and contains(productName, 'Linux') and armRegionName eq '{region_name}' and unitOfMeasure eq '1 Hour' and type eq 'Consumption' and isPrimaryMeterRegion eq true and currencyCode eq 'USD'",  # pylint: disable=line-too-long
@@ -82,6 +84,7 @@ def get_skus(region_name: str) -> Iterable[AzureAppServiceSku]:
 Please check your internet connection and the location '{region_name}'."""
         ) from exception
 
+    # Return each SKU as AppServiceSKU if find in the hard coded database.
     for item in items:
         sku_info = _SKU_INFOS.get(item['skuName'])
 

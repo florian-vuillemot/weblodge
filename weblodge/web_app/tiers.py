@@ -1,5 +1,5 @@
 """
-
+Allow to retrieve all available tiers for a given location.
 """
 import logging
 from typing import Iterable
@@ -13,13 +13,15 @@ logger = logging.getLogger('weblodge')
 
 class TiersConfig:
     """
-    Tier configuration.
+    Tiers configuration.
 
+    Tier or "SKU" on Azure is the name of the plan that will be used to host the application.
+    It come with a price and hardware capabilities that may be asked by the user.
     """
     items = [
         ConfigItem(
             name='location',
-            description='The physical application location.',
+            description='The physical location of tiers.',
             default='northeurope'
         ),
     ]
@@ -31,7 +33,7 @@ class TiersConfig:
             *_args,
             **_kwargs
         ):
-        # Application location.
+        # Tiers location.
         self.location = location
 
 

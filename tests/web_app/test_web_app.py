@@ -1,5 +1,5 @@
 """
-Test the WebApp.
+Test the WebApp facade.
 """
 import json
 from pathlib import Path

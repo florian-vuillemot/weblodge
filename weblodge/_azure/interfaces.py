@@ -1,7 +1,6 @@
 """
 Public interface of the Azure module.
 """
-from decimal import Decimal
 from abc import abstractmethod
 from typing import Dict, Iterable, Iterator, Optional, Union
 
@@ -157,7 +156,7 @@ class AzureAppServiceSku:
     region: str
 
     # Price per hour of the SKU.
-    price_by_hour: Decimal
+    price_by_hour: float
 
     # Human description of the SKU.
     description: str
