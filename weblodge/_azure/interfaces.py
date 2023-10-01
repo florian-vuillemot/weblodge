@@ -1,6 +1,7 @@
 """
 Public interface of the Azure module.
 """
+from decimal import Decimal
 from abc import abstractmethod
 from typing import Dict, Iterable, Iterator, Optional
 
@@ -145,6 +146,32 @@ class AzureKeyVault:
         """
 
 
+class AzureAppServiceSku:
+    """
+    Human representation of the SKU.
+    """
+    # Name of the SKU.
+    name: str
+
+    # Name of the region where the SKU is available.
+    region: str
+
+    # Price per hour of the SKU.
+    price_by_hour: Decimal
+
+    # Human description of the SKU.
+    description: str
+
+    # Number of Cores.
+    cores: int
+
+    # RAM in GB.
+    ram: str
+
+    # Disk size in GB.
+    disk: str
+
+
 class AzureAppService:
     """
     Azure AppService Plan.
@@ -164,8 +191,6 @@ class AzureAppService:
     # True if the AppService Plan support AlwaysOn.
     always_on_supported: bool
 
-    # List of supported SKUs.
-    skus = []
 
     @abstractmethod
     def __init__(self, name: str, resource_group: AzureResourceGroup) -> None:
@@ -174,13 +199,13 @@ class AzureAppService:
         """
 
     @abstractmethod
-    def create(self, sku: str) -> 'AzureAppService':
+    def create(self) -> 'AzureAppService':
         """
         Create a Linux AppService with Python.
         """
 
     @abstractmethod
-    def set_sku(self, sku: str) -> 'AzureAppService':
+    def set_sku(self, sku_name: str) -> 'AzureAppService':
         """
         Set the AppService Plan SKU.
         """
@@ -198,6 +223,13 @@ class AzureAppService:
         """
         Return the free existing Azure App Service if exists in that location.
         None otherwise.
+        """
+
+    @staticmethod
+    @abstractmethod
+    def skus(location: str) -> Iterable[AzureAppServiceSku]:
+        """
+        Return the list of available SKUs for the given location.
         """
 
 

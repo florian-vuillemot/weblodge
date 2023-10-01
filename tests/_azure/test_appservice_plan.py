@@ -35,7 +35,8 @@ class TestAppService(unittest.TestCase):
             resource_group=resource_group
         )
         app_service.set_cli(Cli([expected_output, expected_output]))
-        app_service = app_service.create('B1')
+        app_service.set_sku('B1')
+        app_service = app_service.create()
 
         self.assertEqual(app_service.name, expected_output['name'])
         self.assertEqual(app_service.id_, expected_output['id'])
@@ -69,15 +70,6 @@ class TestAppService(unittest.TestCase):
         app_service.set_cli(Cli(expected_output))
 
         self.assertFalse(app_service.always_on_supported)
-
-    def test_invalid_sku(self):
-        """
-        Can not handle invalid SKU.
-        """
-        asp = AppService(name='test', resource_group=None)
-
-        with self.assertRaises(InvalidSku):
-            asp.create('invalid sku')
 
     def test_set_sku(self):
         """

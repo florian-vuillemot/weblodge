@@ -6,6 +6,7 @@ Entry point for the CLI.
 This module is the entry point for the CLI. It parses the command line arguments
 and calls the appropriate functions.
 """
+from collections import defaultdict
 from pathlib import Path
 import sys
 import logging
@@ -50,6 +51,9 @@ def main(return_web_app=False):
         elif action == 'logs':
             print('Logs will be stream, execute CTRL+C to stop the application.', flush=True)
             web_app.print_logs(config)
+        elif action == 'app-tiers':
+            list_app_tiers(config, web_app)
+            success = True
     except Exception as exception: # pylint: disable=broad-exception-caught
         print('Command failed with the following error:', exception, file=sys.stderr, flush=True)
 
@@ -137,7 +141,7 @@ def clean(parameters: Parser, web_app: WebApp):
 
     for _wa in web_app.all(parameters.load):
         try:
-            parameters.trigger_once(prompt)
+            #parameters.trigger_once(prompt)
             _wa.delete()
         except SystemExit:
             # User aborted the deletion.
@@ -172,6 +176,31 @@ Then, commit and push the following files:
 More information: https://docs.github.com/en/actions/security-guides/encrypted-secrets#creating-encrypted-secrets-for-a-repository''')
 
     return True, config
+
+
+def list_app_tiers(config, web_app) -> None:
+    """
+    Show to the user the available tiers.
+    """
+    print('Warning: There is no guarantee of the estimated price.')
+
+    # Retrieve the tiers.
+    tiers = web_app.tiers(config)
+
+    # Group the tiers by description to print them by blocks.
+    tiers_by_description = defaultdict(list)
+    for tier in tiers:
+        tiers_by_description[tier.description].append(tier)
+        # Sort by cores to have a nice display.
+        tiers_by_description[tier.description].sort(key=lambda t: t.cores)
+
+    # Print the tiers.
+    for description, tiers in tiers_by_description.items():
+        print(f'\nTier description: {description}')
+        print(f' Name |    Price    | Cores |   RAM   | Storage')
+        print('-----------------------------------------------')
+        for tier in tiers:
+            print(f'{tier.name:>5} |  ${tier.price_by_hour:.2f}/hour |    {tier.cores:>2} | {tier.ram:>4} GB |  {tier.disk + " GB":>6}')  # pylint: disable=line-too-long
 
 
 def list_(parameter_loader, web_app: WebApp):

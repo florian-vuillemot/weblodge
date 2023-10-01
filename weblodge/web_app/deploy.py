@@ -139,7 +139,7 @@ def deploy(azure_service: AzureService, config: DeploymentConfig) -> AzureWebApp
                         **WEBAPP_TAGS
                     }
                 )
-            web_app.app_service.create(config.sku)
+            web_app.app_service.create()
         if not web_app.keyvault.exists():
             web_app.keyvault.create()
         web_app.create()
