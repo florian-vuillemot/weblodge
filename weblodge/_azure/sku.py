@@ -15,7 +15,7 @@ RETRY = urllib_retry
 REQUEST = urllib_request
 
 # Tier description of SKU families.
-_B_TIER = "Designed for apps that have lower traffic requirements, and don't need advanced auto scale and traffic management features."  # pylint: disable=line-too-long
+_B_TIER = "Designed for apps with lower traffic requirements and don't need advanced auto scale and traffic management features."  # pylint: disable=line-too-long
 _S_TIER = "Designed for running production workloads"
 _PV3_TIER = "Designed to provide enhanced performance for production apps and workloads."
 

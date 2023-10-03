@@ -24,16 +24,16 @@ class TestSku(unittest.TestCase):
         """
         Ensure SKU is properly setted.
         """
-        sku.REQUEST = MagicMock()
-        sku.REQUEST.return_value.json.return_value = self.skus
+        skus.REQUEST = MagicMock()
+        skus.REQUEST.return_value.json.return_value = self.skus
 
-        sku.RETRY = MagicMock()
-        sku.RETRY.return_value = 42
+        skus.RETRY = MagicMock()
+        skus.RETRY.return_value = 42
 
-        skus = list(sku.get_skus('northeurope'))
+        skus = list(skus.get_skus('northeurope'))
 
         self.assertEqual(len(skus), 12)
-        sku.REQUEST.assert_called_with(
+        skus.REQUEST.assert_called_with(
             'GET',
             "https://prices.azure.com/api/retail/prices?$filter=serviceName eq 'Azure App Service' and contains(productName, 'Linux') and armRegionName eq 'northeurope' and unitOfMeasure eq '1 Hour' and type eq 'Consumption' and isPrimaryMeterRegion eq true and currencyCode eq 'USD'",  # pylint: disable=line-too-long
             retries=42
@@ -50,16 +50,16 @@ class TestSku(unittest.TestCase):
         """
         Ensure location is properly updated.
         """
-        sku.REQUEST = MagicMock()
-        sku.REQUEST.return_value.json.return_value = self.skus
+        skus.REQUEST = MagicMock()
+        skus.REQUEST.return_value.json.return_value = self.skus
 
-        sku.RETRY = MagicMock()
-        sku.RETRY.return_value = 42
+        skus.RETRY = MagicMock()
+        skus.RETRY.return_value = 42
 
-        skus = list(sku.get_skus('westeurope'))
+        skus = list(skus.get_skus('westeurope'))
 
         self.assertEqual(len(skus), 12)
-        sku.REQUEST.assert_called_with(
+        skus.REQUEST.assert_called_with(
             'GET',
             "https://prices.azure.com/api/retail/prices?$filter=serviceName eq 'Azure App Service' and contains(productName, 'Linux') and armRegionName eq 'westeurope' and unitOfMeasure eq '1 Hour' and type eq 'Consumption' and isPrimaryMeterRegion eq true and currencyCode eq 'USD'",  # pylint: disable=line-too-long
             retries=42

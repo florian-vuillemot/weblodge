@@ -196,11 +196,14 @@ def list_app_tiers(config, web_app) -> None:
 
     # Print the tiers.
     for description, tiers in tiers_by_description.items():
-        print(f'\nTier description: {description}')
-        print(' Name |    Price    | Cores |   RAM   | Storage')
-        print('-----------------------------------------------')
-        for tier in tiers:
-            print(f'{tier.name:>5} |  ${tier.price_by_hour:.2f}/hour |    {tier.cores:>2} | {tier.ram:>4} GB |  {str(tier.disk) + " GB":>6}')  # pylint: disable=line-too-long
+        # If the list is not empty, print the information.
+        if tiers:
+            print(f'\nTier description: {description}')
+            print(f'Tier location: {tiers[0].region}')
+            print(' Name |    Price    | Cores |   RAM   | Storage')
+            print('-----------------------------------------------')
+            for tier in tiers:
+                print(f'{tier.name:>5} |  ${tier.price_by_hour:.2f}/hour |    {tier.cores:>2} | {tier.ram:>4} GB |  {str(tier.disk) + " GB":>6}')  # pylint: disable=line-too-long
 
 
 def list_(parameter_loader, web_app: WebApp):

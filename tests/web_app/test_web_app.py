@@ -20,12 +20,12 @@ class TestWebApp(unittest.TestCase):
         """
         Test the tiers command.
         """
-        sku.REQUEST = MagicMock()
+        tiers.REQUEST = MagicMock()
         skus = json.loads(
             Path('./tests/_azure/api_mocks/skus.json').read_text(encoding='utf-8')
         )
 
-        sku.REQUEST.return_value.json.return_value = skus
+        tiers.REQUEST.return_value.json.return_value = skus
 
         web_app = WebApp(Parser().load, Service())
         tiers = web_app.tiers({})
@@ -35,20 +35,20 @@ class TestWebApp(unittest.TestCase):
         """
         Test the tiers command with a location.
         """
-        sku.REQUEST = MagicMock()
-        sku.RETRY = MagicMock()
+        tiers.REQUEST = MagicMock()
+        tiers.RETRY = MagicMock()
 
         skus = json.loads(
             Path('./tests/_azure/api_mocks/skus.json').read_text(encoding='utf-8')
         )
 
-        sku.RETRY.return_value = 42
-        sku.REQUEST.return_value.json.return_value = skus
+        tiers.RETRY.return_value = 42
+        tiers.REQUEST.return_value.json.return_value = skus
 
         web_app = WebApp(Parser().load, Service())
         tiers = web_app.tiers({'location': 'westeurope'})
         self.assertEqual(len(list(tiers)), 12)
-        sku.REQUEST.assert_called_with(
+        tiers.REQUEST.assert_called_with(
             'GET',
             "https://prices.azure.com/api/retail/prices?$filter=serviceName eq 'Azure App Service' and contains(productName, 'Linux') and armRegionName eq 'westeurope' and unitOfMeasure eq '1 Hour' and type eq 'Consumption' and isPrimaryMeterRegion eq true and currencyCode eq 'USD'",  # pylint: disable=line-too-long
             retries=42
@@ -58,7 +58,7 @@ class TestWebApp(unittest.TestCase):
         """
         Test the tiers command when API failed.
         """
-        sku.REQUEST = None
+        tiers.REQUEST = None
 
         web_app = WebApp(Parser().load, Service())
         tiers = web_app.tiers({})
