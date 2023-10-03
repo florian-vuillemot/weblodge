@@ -6,6 +6,7 @@ your application from your computer or your CI/CD to the cloud.
 
 .. toctree::
 
+   app-tiers
    build
    clean
    delete
