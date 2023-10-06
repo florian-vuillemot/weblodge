@@ -46,5 +46,4 @@ def tiers(azure_service: AzureService, config: TiersConfig) -> List[AzureAppServ
     try:
         return list(azure_service.app_services.skus(config.location))
     except InvalidLocation:
-        raise CanNotFindTierLocation(f"Can not find any tier for the location '{config.location}'.") from InvalidLocation
-
+        raise CanNotFindTierLocation(f"Can not find any tier for the location '{config.location}'.") from InvalidLocation  # pylint: disable=line-too-long
