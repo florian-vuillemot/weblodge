@@ -8,10 +8,10 @@ from unittest.mock import MagicMock
 
 from weblodge._azure import sku
 
-from weblodge.web_app import WebApp
-from weblodge.parameters import Parser
 from weblodge._azure import Service
+from weblodge.parameters import Parser
 from weblodge._azure.exceptions import InvalidSku
+from weblodge.web_app import WebApp, CanNotFindTierLocation
 
 
 class TestWebApp(unittest.TestCase):
@@ -31,7 +31,7 @@ class TestWebApp(unittest.TestCase):
 
         web_app = WebApp(Parser().load, Service())
         tiers = web_app.tiers({})
-        self.assertEqual(len(list(tiers)), 12)
+        self.assertEqual(len(tiers), 12)
 
     def test_tiers_with_location(self):
         """
@@ -49,7 +49,7 @@ class TestWebApp(unittest.TestCase):
 
         web_app = WebApp(Parser().load, Service())
         tiers = web_app.tiers({'location': 'westeurope'})
-        self.assertEqual(len(list(tiers)), 12)
+        self.assertEqual(len(tiers), 12)
         sku.REQUEST.assert_called_with(
             'GET',
             "https://prices.azure.com/api/retail/prices?$filter=serviceName eq 'Azure App Service' and contains(productName, 'Linux') and armRegionName eq 'westeurope' and unitOfMeasure eq '1 Hour' and type eq 'Consumption' and isPrimaryMeterRegion eq true and currencyCode eq 'USD'",  # pylint: disable=line-too-long
@@ -63,7 +63,18 @@ class TestWebApp(unittest.TestCase):
         sku.REQUEST = None
 
         web_app = WebApp(Parser().load, Service())
-        tiers = web_app.tiers({})
 
         with self.assertRaises(InvalidSku):
-            next(tiers)
+            web_app.tiers({})
+
+    def test_tiers_invalid_location(self):
+        """
+        Test the tiers command when API failed.
+        """
+        sku.REQUEST = MagicMock()
+        sku.REQUEST.return_value.json.return_value = {'Items': []}
+
+        web_app = WebApp(Parser().load, Service())
+
+        with self.assertRaises(CanNotFindTierLocation):
+            web_app.tiers({})

@@ -3,7 +3,7 @@ Web App exceptions.
 """
 class BuildException(Exception):
     """
-    Exception relative to the build.
+    Exceptions relative to the build.
     """
 
 
@@ -27,7 +27,7 @@ class FlaskAppNotFound(BuildException):
 
 class DeploymentException(Exception):
     """
-    Exception relative to the deployment.
+    Exceptions relative to the deployment.
     """
 
 
@@ -35,4 +35,16 @@ class NoMoreFreeApplicationAvailable(DeploymentException):
     """
     A free application is already deployed.
     Contains the name of the free application.
+    """
+
+
+class AppTierException(Exception):
+    """
+    Exceptions relative to the app-tier command.
+    """
+
+
+class CanNotFindTierLocation(AppTierException):
+    """
+    Can not find any tier for the provided location.
     """

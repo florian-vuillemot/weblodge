@@ -6,8 +6,8 @@ from typing import Iterable, Union
 
 from urllib3 import Retry as urllib_retry, request as urllib_request
 
-from .exceptions import InvalidSku
 from .interfaces import AzureAppServiceSku
+from .exceptions import InvalidSku, InvalidRegion
 
 
 # Function to use for HTTP calls and mocks.
@@ -80,9 +80,13 @@ def get_skus(region_name: str) -> Iterable[AzureAppServiceSku]:
         )
         items = skus.json()['Items']
     except Exception as exception:  # pylint: disable=bare-except
-        raise InvalidSku(f"""Unable to retrieve the list of SKUs.
-Please check your internet connection and the location '{region_name}'."""
+        raise InvalidSku("""Unable to retrieve the list of SKUs.
+Please check your internet connection."""
         ) from exception
+
+    # The 'Items' key is empty when the region does not exist.
+    if len(items) == 0:
+        raise InvalidRegion(f"Can not find any SKU for the region '{region_name}'.")
 
     # Return each SKU as AppServiceSKU if find in the hard coded database.
     for item in items:

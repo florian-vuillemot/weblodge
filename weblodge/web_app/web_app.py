@@ -149,10 +149,10 @@ class WebApp:
             for web_app in _all_az_web_app(self.azure_service)
         )
 
-    def tiers(self, config: Dict[str, str]) -> Iterable[AzureAppServiceSku]:
+    def tiers(self, config: Dict[str, str]) -> List[AzureAppServiceSku]:
         """
         Return all tiers of the application.
         """
         config = self.config_loader(TiersConfig.items, config)
         tier_config = TiersConfig(**config)
-        yield from _tiers(self.azure_service, tier_config)
+        return _tiers(self.azure_service, tier_config)

@@ -6,7 +6,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import MagicMock
 
-from weblodge._azure import sku
+from weblodge._azure import sku, InvalidRegion
 from weblodge._azure.exceptions import InvalidSku
 
 
@@ -72,4 +72,14 @@ class TestSku(unittest.TestCase):
         sku.REQUEST = MagicMock(side_effect=Exception('Bad request'))
 
         with self.assertRaises(InvalidSku):
+            list(sku.get_skus('bad'))
+
+    def test_invalid_region(self):
+        """
+        Properly raise an exception if the location is incorrect.
+        """
+        sku.REQUEST = MagicMock()
+        sku.REQUEST.return_value.json.return_value = {'Items': []}
+
+        with self.assertRaises(InvalidRegion):
             list(sku.get_skus('bad'))

@@ -6,21 +6,23 @@ Entry point for the CLI.
 This module is the entry point for the CLI. It parses the command line arguments
 and calls the appropriate functions.
 """
-from collections import defaultdict
-from pathlib import Path
 import sys
 import logging
-
 from typing import Dict
+from pathlib import Path
+from collections import defaultdict
+
 
 import weblodge.state as state
 from weblodge._azure import Service
-from weblodge.web_app import WebApp, NoMoreFreeApplicationAvailable
 from weblodge.parameters import Parser, ConfigIsNotDefined, ConfigIsDefined, ConfigTrigger
+from weblodge.web_app import WebApp, NoMoreFreeApplicationAvailable, CanNotFindTierLocation
 
 from .args import get_cli_args, CLI_NAME
 
 
+# Define the logger for internal usage.
+# But the CLI will use print for user interraction.
 logger = logging.getLogger('weblodge')
 logger.setLevel(logging.INFO)
 logger.addHandler(logging.StreamHandler())
@@ -141,7 +143,7 @@ def clean(parameters: Parser, web_app: WebApp):
 
     for _wa in web_app.all(parameters.load):
         try:
-            #parameters.trigger_once(prompt)
+            parameters.trigger_once(prompt)
             _wa.delete()
         except SystemExit:
             # User aborted the deletion.
@@ -182,10 +184,15 @@ def list_app_tiers(config, web_app) -> None:
     """
     Show to the user the available tiers.
     """
-    print('Warning: There is no guarantee of the estimated price.')
+    try:
+        # Retrieve the tiers.
+        tiers = web_app.tiers(config)
+    except CanNotFindTierLocation:
+        print('Can not find any tier for the provided location.')
+        print('Please, check the location and try again.')
+        sys.exit(1)
 
-    # Retrieve the tiers.
-    tiers = web_app.tiers(config)
+    print('Warning: There is no guarantee of the estimated price.')
 
     # Group the tiers by description to print them by blocks.
     tiers_by_description = defaultdict(list)
