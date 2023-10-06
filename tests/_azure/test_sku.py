@@ -24,16 +24,16 @@ class TestSku(unittest.TestCase):
         """
         Ensure SKU is properly setted.
         """
-        skus.REQUEST = MagicMock()
-        skus.REQUEST.return_value.json.return_value = self.skus
+        sku.REQUEST = MagicMock()
+        sku.REQUEST.return_value.json.return_value = self.skus
 
-        skus.RETRY = MagicMock()
-        skus.RETRY.return_value = 42
+        sku.RETRY = MagicMock()
+        sku.RETRY.return_value = 42
 
-        skus = list(skus.get_skus('northeurope'))
+        skus = list(sku.get_skus('northeurope'))
 
         self.assertEqual(len(skus), 12)
-        skus.REQUEST.assert_called_with(
+        sku.REQUEST.assert_called_with(
             'GET',
             "https://prices.azure.com/api/retail/prices?$filter=serviceName eq 'Azure App Service' and contains(productName, 'Linux') and armRegionName eq 'northeurope' and unitOfMeasure eq '1 Hour' and type eq 'Consumption' and isPrimaryMeterRegion eq true and currencyCode eq 'USD'",  # pylint: disable=line-too-long
             retries=42
@@ -41,7 +41,7 @@ class TestSku(unittest.TestCase):
         self.assertEqual(skus[0].name, 'P4mv3')
         self.assertEqual(skus[0].region, 'northeurope')
         self.assertEqual(skus[0].price_by_hour, 1.6128)
-        self.assertEqual(skus[0].description, 'Designed to provide enhanced performance for production apps and workloads.')  # pylint: disable=line-too-long
+        self.assertEqual(skus[0].description, 'Designed to provide enhanced performance for production apps and workload.')  # pylint: disable=line-too-long
         self.assertEqual(skus[0].cores, 16)
         self.assertEqual(skus[0].ram, 128)
         self.assertEqual(skus[0].disk, 250)
@@ -50,16 +50,16 @@ class TestSku(unittest.TestCase):
         """
         Ensure location is properly updated.
         """
-        skus.REQUEST = MagicMock()
-        skus.REQUEST.return_value.json.return_value = self.skus
+        sku.REQUEST = MagicMock()
+        sku.REQUEST.return_value.json.return_value = self.skus
 
-        skus.RETRY = MagicMock()
-        skus.RETRY.return_value = 42
+        sku.RETRY = MagicMock()
+        sku.RETRY.return_value = 42
 
-        skus = list(skus.get_skus('westeurope'))
+        skus = list(sku.get_skus('westeurope'))
 
         self.assertEqual(len(skus), 12)
-        skus.REQUEST.assert_called_with(
+        sku.REQUEST.assert_called_with(
             'GET',
             "https://prices.azure.com/api/retail/prices?$filter=serviceName eq 'Azure App Service' and contains(productName, 'Linux') and armRegionName eq 'westeurope' and unitOfMeasure eq '1 Hour' and type eq 'Consumption' and isPrimaryMeterRegion eq true and currencyCode eq 'USD'",  # pylint: disable=line-too-long
             retries=42

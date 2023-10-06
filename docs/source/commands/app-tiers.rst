@@ -1,7 +1,7 @@
 App-tiers
 #########
 
-The *app-tiers* operation return all application tiers available from **WebLodge** in the selected region.
+The *app-tiers* operation returns all application tiers available from **WebLodge** in the selected region.
 The output is a list of application tiers, each with a description and hardware information.
 
 Usage
@@ -12,7 +12,7 @@ Usage
    $ weblodge app-tiers
    Warning: There is no guarantee of the estimated price.
 
-   Tier description: Designed to provide enhanced performance for production apps and workloads.
+   Tier description: Designed to provide enhanced performance for production apps and workload.
    Tier location: northeurope
     Name |    Price    | Cores |   RAM   | Storage
    -----------------------------------------------
@@ -31,7 +31,7 @@ Usage
    S2 |  $0.19/hour |     2 |  3.5 GB |   50 GB
    S3 |  $0.38/hour |     4 |    7 GB |   50 GB
 
-   Tier description: Designed for apps with lower traffic requirements and don't need advanced auto scale and traffic management features.
+   Tier description: Designed for apps with lower traffic requirements and not needing advanced auto scale and traffic management features.
    Tier location: northeurope
     Name |    Price    | Cores |   RAM   | Storage
    -----------------------------------------------
