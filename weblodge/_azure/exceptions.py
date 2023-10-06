@@ -37,9 +37,9 @@ class InvalidSku(AzureException):
     Raise when an invalid SKU is provided.
     """
 
-class InvalidRegion(AzureException):
+class InvalidLocation(AzureException):
     """
-    Raise when an invalid region is provided.
+    Raise when an invalid  is provided.
     """
 
 class SecretNotFound(AzureException):

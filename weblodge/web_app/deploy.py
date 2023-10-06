@@ -6,7 +6,7 @@ The infrastructure is composed of:
 - App Service Plan
 - Web App
 
-All that infrastructure is created in the same Azure region and in the same Azure
+All that infrastructure is created in the same Azure location and in the same Azure
 Resource Group.
 """
 import os

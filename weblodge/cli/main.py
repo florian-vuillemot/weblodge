@@ -206,7 +206,7 @@ def list_app_tiers(config, web_app) -> None:
         # If the list is not empty, print the information.
         if tiers:
             print(f'\nTier description: {description}')
-            print(f'Tier location: {tiers[0].region}')
+            print(f'Tier location: {tiers[0].location}')
             print(' Name |    Price    | Cores |   RAM   | Storage')
             print('-----------------------------------------------')
             for tier in tiers:

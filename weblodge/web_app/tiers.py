@@ -5,7 +5,7 @@ import logging
 from typing import List
 
 from weblodge.config import Item as ConfigItem
-from weblodge._azure import AzureService, AzureAppServiceSku, InvalidRegion
+from weblodge._azure import AzureService, AzureAppServiceSku, InvalidLocation
 
 from .exceptions import CanNotFindTierLocation
 
@@ -45,5 +45,6 @@ def tiers(azure_service: AzureService, config: TiersConfig) -> List[AzureAppServ
     """
     try:
         return list(azure_service.app_services.skus(config.location))
-    except InvalidRegion:
-        raise CanNotFindTierLocation(f"Can not find any tier for the location '{config.location}'.") from InvalidRegion
+    except InvalidLocation:
+        raise CanNotFindTierLocation(f"Can not find any tier for the location '{config.location}'.") from InvalidLocation
+

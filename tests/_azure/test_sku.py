@@ -6,7 +6,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import MagicMock
 
-from weblodge._azure import sku, InvalidRegion
+from weblodge._azure import sku, InvalidLocation
 from weblodge._azure.exceptions import InvalidSku
 
 
@@ -39,7 +39,7 @@ class TestSku(unittest.TestCase):
             retries=42
         )
         self.assertEqual(skus[0].name, 'P4mv3')
-        self.assertEqual(skus[0].region, 'northeurope')
+        self.assertEqual(skus[0].location, 'northeurope')
         self.assertEqual(skus[0].price_by_hour, 1.6128)
         self.assertEqual(skus[0].description, 'Designed to provide enhanced performance for production apps and workload.')  # pylint: disable=line-too-long
         self.assertEqual(skus[0].cores, 16)
@@ -81,5 +81,5 @@ class TestSku(unittest.TestCase):
         sku.REQUEST = MagicMock()
         sku.REQUEST.return_value.json.return_value = {'Items': []}
 
-        with self.assertRaises(InvalidRegion):
+        with self.assertRaises(InvalidLocation):
             list(sku.get_skus('bad'))

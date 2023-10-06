@@ -152,8 +152,8 @@ class AzureAppServiceSku:
     # Name of the SKU.
     name: str
 
-    # Name of the region where the SKU is available.
-    region: str
+    # Name of the location where the SKU is available.
+    location: str
 
     # Price per hour of the SKU.
     price_by_hour: float

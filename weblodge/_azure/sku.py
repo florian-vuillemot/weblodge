@@ -7,7 +7,7 @@ from typing import Iterable, Union
 from urllib3 import Retry as urllib_retry, request as urllib_request
 
 from .interfaces import AzureAppServiceSku
-from .exceptions import InvalidSku, InvalidRegion
+from .exceptions import InvalidSku, InvalidLocation
 
 
 # Function to use for HTTP calls and mocks.
@@ -53,8 +53,8 @@ class AppServiceSku(AzureAppServiceSku):
     """
     # Name of the SKU.
     name: str
-    # Name of the region where the SKU is available.
-    region: str
+    # Name of the location where the SKU is available.
+    location: str
     # Price per hour of the SKU.
     price_by_hour: float
     # Description of the SKU.
@@ -67,15 +67,15 @@ class AppServiceSku(AzureAppServiceSku):
     disk: int
 
 
-def get_skus(region_name: str) -> Iterable[AzureAppServiceSku]:
+def get_skus(location: str) -> Iterable[AzureAppServiceSku]:
     """
-    Return availables SKUs for the given region.
+    Return availables SKUs for the given location.
     """
     try:
         # Retrieve SKUs from the Azure API.
         skus = REQUEST(
             'GET',
-            f"https://prices.azure.com/api/retail/prices?$filter=serviceName eq 'Azure App Service' and contains(productName, 'Linux') and armRegionName eq '{region_name}' and unitOfMeasure eq '1 Hour' and type eq 'Consumption' and isPrimaryMeterRegion eq true and currencyCode eq 'USD'",  # pylint: disable=line-too-long
+            f"https://prices.azure.com/api/retail/prices?$filter=serviceName eq 'Azure App Service' and contains(productName, 'Linux') and armRegionName eq '{location}' and unitOfMeasure eq '1 Hour' and type eq 'Consumption' and isPrimaryMeterRegion eq true and currencyCode eq 'USD'",  # pylint: disable=line-too-long
             retries=RETRY(total=10, backoff_factor=5, status=5, status_forcelist=[500, 502, 503, 504])
         )
         items = skus.json()['Items']
@@ -84,9 +84,9 @@ def get_skus(region_name: str) -> Iterable[AzureAppServiceSku]:
 Please check your internet connection."""
         ) from exception
 
-    # The 'Items' key is empty when the region does not exist.
+    # The 'Items' key is empty when the location does not exist.
     if len(items) == 0:
-        raise InvalidRegion(f"Can not find any SKU for the region '{region_name}'.")
+        raise InvalidLocation(f"Can not find any SKU for the location '{location}'.")
 
     # Return each SKU as AppServiceSKU if find in the hard coded database.
     for item in items:
@@ -95,7 +95,7 @@ Please check your internet connection."""
         if sku_info:
             yield AppServiceSku(
                 name=item['skuName'],
-                region=item['armRegionName'],
+                location=item['armRegionName'],
                 price_by_hour=item['retailPrice'],
                 description=sku_info['description'],
                 cores=sku_info['cores'],
