@@ -38,6 +38,12 @@ class NoMoreFreeApplicationAvailable(DeploymentException):
     """
 
 
+class InvalidTier(DeploymentException):
+    """
+    Can not find the asked tier.
+    """
+
+
 class AppTierException(Exception):
     """
     Exceptions relative to the app-tier command.

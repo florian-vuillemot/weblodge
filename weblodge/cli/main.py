@@ -94,7 +94,7 @@ def deploy(config: Dict[str, str], web_app: WebApp, parameters: Parser):
     except NoMoreFreeApplicationAvailable as free_app_name:
         print(
             'Can not create the infrastrucutre. Azure support only one Free application by location.',
-            'Please, change the deployment location or the application sku.',
+            'Please, change the deployment location or the application tier.',
             f"The already existing free application is this location is '{free_app_name}'.",
             file=sys.stderr,
             flush=True

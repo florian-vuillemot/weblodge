@@ -1,8 +1,9 @@
 """
 Allow to retrieve all available tiers for a given location.
 """
+from dataclasses import dataclass
 import logging
-from typing import List
+from typing import List, Union
 
 from weblodge.config import Item as ConfigItem
 from weblodge._azure import AzureService, AzureAppServiceSku, InvalidLocation
@@ -11,6 +12,34 @@ from .exceptions import CanNotFindTierLocation
 
 
 logger = logging.getLogger('weblodge')
+
+
+@dataclass
+class WebAppTier:
+    """
+    Information on the WebApp hardware and price.
+    """
+    # Technical name of the tier.
+    name: str
+
+    # Name of the location where the tier is available.
+    location: str
+
+    # Price per hour of the tier.
+    price_by_hour: float
+
+    # Human description of the tier.
+    description: str
+
+    # Number of Cores.
+    # It is a string when the SKU is free.
+    cores: Union[int, str]
+
+    # RAM in GB.
+    ram: int
+
+    # Disk size in GB.
+    disk: int
 
 
 class TiersConfig:
@@ -39,11 +68,22 @@ class TiersConfig:
         self.location = location
 
 
-def tiers(azure_service: AzureService, config: TiersConfig) -> List[AzureAppServiceSku]:
+def tiers(azure_service: AzureService, config: TiersConfig) -> List[WebAppTier]:
     """
     Return all available tiers.
     """
     try:
-        return list(azure_service.app_services.skus(config.location))
+        return [
+            WebAppTier(
+                name=s.name,
+                location=s.location,
+                price_by_hour=s.price_by_hour,
+                description=s.description,
+                cores=s.cores,
+                ram=s.ram,
+                disk=s.disk,
+            )
+            for s in azure_service.app_services.skus(config.location)
+        ]
     except InvalidLocation:
         raise CanNotFindTierLocation(f"Can not find any tier for the location '{config.location}'.") from InvalidLocation  # pylint: disable=line-too-long

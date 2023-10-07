@@ -7,17 +7,17 @@ import logging
 
 from typing import Callable, Iterable, List, Dict, Optional, Tuple
 
-from weblodge._azure import AzureService, AzureWebApp, AzureAppServiceSku
+from weblodge._azure import AzureService, AzureWebApp
 from weblodge.config import Item as ConfigItem
 
 from ._all import _all as _all_az_web_app
 from .build import BuildConfig, build as _build
 from .delete import DeleteConfig, delete as _delete
 from .deploy import DeploymentConfig, deploy as _deploy
-from .exceptions import RequirementsFileNotFound, EntryPointFileNotFound, FlaskAppNotFound
+from .exceptions import RequirementsFileNotFound, EntryPointFileNotFound, FlaskAppNotFound, InvalidTier
 from .logs import LogsConfig, logs as _logs
 from .github import GitHubConfig, github, GitHubWorkflow
-from .tiers import TiersConfig, tiers as _tiers
+from .tiers import TiersConfig, tiers as _tiers, WebAppTier
 
 
 logger = logging.getLogger('weblodge')
@@ -149,7 +149,7 @@ class WebApp:
             for web_app in _all_az_web_app(self.azure_service)
         )
 
-    def tiers(self, config: Dict[str, str]) -> List[AzureAppServiceSku]:
+    def tiers(self, config: Dict[str, str]) -> List[WebAppTier]:
         """
         Return all tiers of the application.
         """
