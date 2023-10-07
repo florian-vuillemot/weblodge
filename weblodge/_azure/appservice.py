@@ -3,12 +3,13 @@ Azure AppService Plan abstraction.
 
 Allow to CRUD on Azure AppService Plan.
 """
-from typing import Dict, Optional
+from typing import Dict, Iterable, Optional
 
+from .sku import get_skus, AVAILABLE_SKUS
 from .resource import Resource
-from .resource_group import ResourceGroup
 from .exceptions import InvalidSku
-from .interfaces import AzureAppService
+from .resource_group import ResourceGroup
+from .interfaces import AzureAppService, AzureAppServiceSku
 
 
 class AppService(Resource, AzureAppService):
@@ -16,12 +17,6 @@ class AppService(Resource, AzureAppService):
     Azure AppService Plan representation.
     """
     _cli_prefix = 'appservice plan'
-    skus = [
-        'F1', 
-        'B1', 'B2', 'B3',
-        'P0V3', 'P1MV3', 'P1V2', 'P1V3', 'P2MV3', 'P2V2', 'P2V3', 'P3MV3', 'P3V2', 'P3V3', 'P4MV3', 'P5MV3',
-        'S1', 'S2', 'S3'
-    ]
 
     # pylint: disable=too-many-arguments
     def __init__(
@@ -64,32 +59,31 @@ class AppService(Resource, AzureAppService):
         """
         return self.resource_group.location
 
-    def set_sku(self, sku: str) -> 'AzureAppService':
+    def set_sku(self, sku_name: str) -> 'AzureAppService':
         """
         Set the AppService Plan SKU.
         """
-        if sku not in self.skus:
-            raise InvalidSku(f"Invalid SKU: '{sku}'")
+        if sku_name not in AVAILABLE_SKUS:
+            raise InvalidSku(f"Invalid SKU: '{sku_name}'")
 
-        self._sku = sku
+        self._sku = sku_name
         return self
 
-    def create(self, sku: str) -> 'AzureAppService':
+    def create(self) -> 'AzureAppService':
         """
         Create a Linux AppService Plan with Python.
         """
-        if sku not in self.skus:
-            raise InvalidSku(f"Invalid SKU: '{sku}'")
+        if not self._sku:
+            raise InvalidSku('The SKU must be set before creating the AppService Plan.')
 
         tags = self.resource_group.tags
         rg_name = self.resource_group.name
         location = self.resource_group.location
 
         self._from_az = self._invoke(
-            f'{self._cli_prefix} create --name {self.name} --sku {sku} --resource-group {rg_name} --location {location} --is-linux',  # pylint: disable=line-too-long
+            f'{self._cli_prefix} create --name {self.name} --sku {self._sku} --resource-group {rg_name} --location {location} --is-linux',  # pylint: disable=line-too-long
             tags=tags
         )
-        self._sku = sku
         return self
 
     @classmethod
@@ -100,6 +94,13 @@ class AppService(Resource, AzureAppService):
         free_asps = filter(lambda asp: asp.is_free, cls.all())
         with_same_location = filter(lambda asp: asp.location == location, free_asps)
         return next(with_same_location, None)
+
+    @staticmethod
+    def skus(location: str) -> Iterable[AzureAppServiceSku]:
+        """
+        Return the list of available SKUs for the given location.
+        """
+        yield from get_skus(location)
 
     @classmethod
     def from_id(cls, id_: str) -> 'AzureAppService':

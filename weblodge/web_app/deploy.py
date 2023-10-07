@@ -6,7 +6,7 @@ The infrastructure is composed of:
 - App Service Plan
 - Web App
 
-All that infrastructure is created in the same Azure region and in the same Azure
+All that infrastructure is created in the same Azure location and in the same Azure
 Resource Group.
 """
 import os
@@ -139,7 +139,7 @@ def deploy(azure_service: AzureService, config: DeploymentConfig) -> AzureWebApp
                         **WEBAPP_TAGS
                     }
                 )
-            web_app.app_service.create(config.sku)
+            web_app.app_service.create()
         if not web_app.keyvault.exists():
             web_app.keyvault.create()
         web_app.create()

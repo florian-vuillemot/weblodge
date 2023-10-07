@@ -6,20 +6,23 @@ Entry point for the CLI.
 This module is the entry point for the CLI. It parses the command line arguments
 and calls the appropriate functions.
 """
-from pathlib import Path
 import sys
 import logging
-
 from typing import Dict
+from pathlib import Path
+from collections import defaultdict
+
 
 import weblodge.state as state
 from weblodge._azure import Service
-from weblodge.web_app import WebApp, NoMoreFreeApplicationAvailable
 from weblodge.parameters import Parser, ConfigIsNotDefined, ConfigIsDefined, ConfigTrigger
+from weblodge.web_app import WebApp, NoMoreFreeApplicationAvailable, CanNotFindTierLocation
 
 from .args import get_cli_args, CLI_NAME
 
 
+# Define the logger for internal usage.
+# But the CLI will use print for user interraction.
 logger = logging.getLogger('weblodge')
 logger.setLevel(logging.INFO)
 logger.addHandler(logging.StreamHandler())
@@ -50,6 +53,9 @@ def main(return_web_app=False):
         elif action == 'logs':
             print('Logs will be stream, execute CTRL+C to stop the application.', flush=True)
             web_app.print_logs(config)
+        elif action == 'app-tiers':
+            list_app_tiers(config, web_app)
+            success = True
     except Exception as exception: # pylint: disable=broad-exception-caught
         print('Command failed with the following error:', exception, file=sys.stderr, flush=True)
 
@@ -172,6 +178,39 @@ Then, commit and push the following files:
 More information: https://docs.github.com/en/actions/security-guides/encrypted-secrets#creating-encrypted-secrets-for-a-repository''')
 
     return True, config
+
+
+def list_app_tiers(config, web_app) -> None:
+    """
+    Show to the user the available tiers.
+    """
+    try:
+        # Retrieve the tiers.
+        tiers = web_app.tiers(config)
+    except CanNotFindTierLocation:
+        print('Can not find any tier for the provided location.')
+        print('Please, check the location and try again.')
+        sys.exit(1)
+
+    print('Warning: There is no guarantee of the estimated price.')
+
+    # Group the tiers by description to print them by blocks.
+    tiers_by_description = defaultdict(list)
+    for tier in tiers:
+        tiers_by_description[tier.description].append(tier)
+        # Sort by cores to have a nice display.
+        tiers_by_description[tier.description].sort(key=lambda t: t.cores)
+
+    # Print the tiers.
+    for description, tiers in tiers_by_description.items():
+        # If the list is not empty, print the information.
+        if tiers:
+            print(f'\nTier description: {description}')
+            print(f'Tier location: {tiers[0].location}')
+            print(' Name |    Price    | Cores |   RAM   | Storage')
+            print('-----------------------------------------------')
+            for tier in tiers:
+                print(f'{tier.name:>5} |  ${tier.price_by_hour:.2f}/hour |    {tier.cores:>2} | {tier.ram:>4} GB |  {str(tier.disk) + " GB":>6}')  # pylint: disable=line-too-long
 
 
 def list_(parameter_loader, web_app: WebApp):
