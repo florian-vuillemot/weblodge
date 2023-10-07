@@ -6,7 +6,7 @@ import logging
 from typing import List, Union
 
 from weblodge.config import Item as ConfigItem
-from weblodge._azure import AzureService, AzureAppServiceSku, InvalidLocation
+from weblodge._azure import AzureService, InvalidLocation
 
 from .exceptions import CanNotFindTierLocation
 

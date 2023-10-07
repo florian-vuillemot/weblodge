@@ -31,7 +31,7 @@ Options
      - The subdomain of the application on the Internet: `<subdomain>.azurewebsites.net`. Randomly generated if not provided.
      - `<randomly generated>`
    * - tier
-     - The application `computational power`_.
+     - The application `computational power`_ name.
      - `F1`
    * - location
      - The physical application location.
