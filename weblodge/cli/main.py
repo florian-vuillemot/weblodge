@@ -16,7 +16,7 @@ from collections import defaultdict
 import weblodge.state as state
 from weblodge._azure import Service
 from weblodge.parameters import Parser, ConfigIsNotDefined, ConfigIsDefined, ConfigTrigger
-from weblodge.web_app import WebApp, NoMoreFreeApplicationAvailable, CanNotFindTierLocation
+from weblodge.web_app import WebApp, NoMoreFreeApplicationAvailable, CanNotFindTierLocation, InvalidTier
 
 from .args import get_cli_args, CLI_NAME
 
@@ -90,7 +90,7 @@ def deploy(config: Dict[str, str], web_app: WebApp, parameters: Parser):
 
     parameters.trigger_once(build_too)
     try:
-        success, config = web_app.deploy(config)
+        success, config, tier = web_app.deploy(config)
     except NoMoreFreeApplicationAvailable as free_app_name:
         print(
             'Can not create the infrastrucutre. Azure support only one Free application by location.',
@@ -100,6 +100,16 @@ def deploy(config: Dict[str, str], web_app: WebApp, parameters: Parser):
             flush=True
         )
         return False, config
+    except InvalidTier as _invalid_tier:
+        print(
+            'Invalid tier. Please, choose a tier from the following list:',
+            file=sys.stderr,
+            flush=True
+        )
+        list_app_tiers(config, web_app)
+        return False, config
+
+    print(f'Estimated cost: ${tier.price_by_hour * 730:.2f}/month')
 
     if success:
         print(f"The application will soon be available at: {web_app.url()}", flush=True)

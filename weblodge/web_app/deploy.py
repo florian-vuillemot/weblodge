@@ -97,7 +97,7 @@ class DeploymentConfig:
         # It will be used as the URL of the application and for created Azure resources.
         self.subdomain = subdomain
         # Application SKU (https://azure.microsoft.com/en-us/pricing/details/app-service/linux/).
-        self.sku = sku
+        self.sku = sku.upper()
         # Application location.
         self.location = location
         # Application environment.

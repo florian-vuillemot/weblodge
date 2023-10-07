@@ -70,18 +70,20 @@ class WebApp:
         logger.info('Successfully built.')
         return True, config
 
-    def deploy(self, config: Dict[str, str]) -> Tuple[bool, Dict[str, str]]:
+    def deploy(self, config: Dict[str, str]) -> Tuple[bool, Dict[str, str], WebAppTier]:
         """
         Deploy an application.
         """
         config = self.config_loader(DeploymentConfig.items, config)
         deployment_config = DeploymentConfig(**config)
 
+        tier = self._get_tier(config, deployment_config.sku)
+
         logger.info('Deploying...')
         self._web_app = _deploy(self.azure_service, deployment_config)
         logger.info('Successfully deployed.')
 
-        return True, config
+        return True, config, tier
 
     def url(self) -> str:
         """
@@ -156,3 +158,22 @@ class WebApp:
         config = self.config_loader(TiersConfig.items, config)
         tier_config = TiersConfig(**config)
         return _tiers(self.azure_service, tier_config)
+
+    def _get_tier(self, config, sku) -> WebAppTier:
+        """
+        Return the tier of the WebApp.
+        """
+        config = self.config_loader(TiersConfig.items, config)
+        tier_config = TiersConfig(**config)
+        tiers = _tiers(self.azure_service, tier_config)
+
+        # Match the tier by name.
+        tier = next((t for t in tiers if t.name.upper() == sku), None)
+
+        # If not found, the tier is invalid.
+        if not tier:
+            raise InvalidTier(
+                f"Can not find the tier '{sku}' in the location '{tier_config.location}."
+            )
+
+        return tier
