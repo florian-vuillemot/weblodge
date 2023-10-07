@@ -30,7 +30,7 @@ Options
    * - subdomain
      - The subdomain of the application on the Internet: `<subdomain>.azurewebsites.net`. Randomly generated if not provided.
      - `<randomly generated>`
-   * - sku
+   * - tier
      - The application `computational power`_.
      - `F1`
    * - location
