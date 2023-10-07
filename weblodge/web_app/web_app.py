@@ -77,7 +77,7 @@ class WebApp:
         config = self.config_loader(DeploymentConfig.items, config)
         deployment_config = DeploymentConfig(**config)
 
-        tier = self._get_tier(config, deployment_config.sku)
+        tier = self._get_tier(config, deployment_config.tier)
 
         logger.info('Deploying...')
         self._web_app = _deploy(self.azure_service, deployment_config)
@@ -159,7 +159,7 @@ class WebApp:
         tier_config = TiersConfig(**config)
         return _tiers(self.azure_service, tier_config)
 
-    def _get_tier(self, config, sku) -> WebAppTier:
+    def _get_tier(self, config, tier: str) -> WebAppTier:
         """
         Return the tier of the WebApp.
         """
@@ -168,12 +168,12 @@ class WebApp:
         tiers = _tiers(self.azure_service, tier_config)
 
         # Match the tier by name.
-        tier = next((t for t in tiers if t.name.upper() == sku), None)
+        tier = next((t for t in tiers if t.name.upper() == tier), None)
 
         # If not found, the tier is invalid.
         if not tier:
             raise InvalidTier(
-                f"Can not find the tier '{sku}' in the location '{tier_config.location}."
+                f"Can not find the tier '{tier}' in the location '{tier_config.location}."
             )
 
         return tier

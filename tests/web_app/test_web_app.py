@@ -117,7 +117,7 @@ class TestWebApp(unittest.TestCase):
 
         self.assertTrue(success)
         self.assertEqual(config['location'], 'northeurope')
-        self.assertEqual(config['sku'], 'F1')
+        self.assertEqual(config['tier'], 'F1')
 
         self.assertEqual(tier.name, self.f1_tier.name)
         self.assertEqual(tier.location, self.f1_tier.location)
@@ -136,13 +136,13 @@ class TestWebApp(unittest.TestCase):
         azure_service.web_apps.exists.return_value = True
         web_app = WebApp(Parser().load, azure_service)
         success, config, tier = web_app.deploy({
-            'sku': 'S1',
+            'tier': 'S1',
             'location': 'westeurope'
         })
 
         self.assertTrue(success)
         self.assertEqual(config['location'], 'westeurope')
-        self.assertEqual(config['sku'], 'S1')
+        self.assertEqual(config['tier'], 'S1')
 
         self.assertEqual(tier.name, self.s1_tier.name)
         self.assertEqual(tier.location, self.s1_tier.location)
@@ -162,4 +162,4 @@ class TestWebApp(unittest.TestCase):
         web_app = WebApp(Parser().load, azure_service)
 
         with self.assertRaises(InvalidTier):
-            web_app.deploy({'sku': 'invalid'})
+            web_app.deploy({'tier': 'invalid'})

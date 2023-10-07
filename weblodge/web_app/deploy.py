@@ -47,7 +47,7 @@ class DeploymentConfig:
             default=''.join(random.choice(string.ascii_lowercase) for _ in range(20))
         ),
         ConfigItem(
-            name='sku',
+            name='tier',
             description='The application computational power (https://azure.microsoft.com/en-us/pricing/details/app-service/linux/).',  # pylint: disable=line-too-long
             default='F1'
         ),
@@ -83,7 +83,7 @@ class DeploymentConfig:
     def __init__(
             self,
             subdomain,
-            sku,
+            tier,
             location,
             environment,
             dist,
@@ -97,7 +97,7 @@ class DeploymentConfig:
         # It will be used as the URL of the application and for created Azure resources.
         self.subdomain = subdomain
         # Application SKU (https://azure.microsoft.com/en-us/pricing/details/app-service/linux/).
-        self.sku = sku.upper()
+        self.tier = tier.upper()
         # Application location.
         self.location = location
         # Application environment.
@@ -123,7 +123,7 @@ def deploy(azure_service: AzureService, config: DeploymentConfig) -> AzureWebApp
 
     if not web_app.exists():
         logger.info('The infrastructure is being created...')
-        web_app.app_service.set_sku(config.sku)
+        web_app.app_service.set_sku(config.tier)
         if not web_app.app_service.exists():
             if web_app.app_service.is_free:
                 # Only one free AppService Plan is allowed per Azure subscription and location.
