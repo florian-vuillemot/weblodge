@@ -4,16 +4,10 @@ Each test consists of deploying an application on the cloud and
 checking that it is accessible via HTTP.
 """
 import io
-import os
 import sys
 from contextlib import redirect_stdout, redirect_stderr
 
 from weblodge.cli import main
-
-
-# Tests update the application folder.
-# Keep current allows to return to the starting point.
-current_folder = os.getcwd()
 
 
 def run_app_tiers(args: str) -> (str, str, bool):
@@ -27,7 +21,7 @@ def run_app_tiers(args: str) -> (str, str, bool):
     print(f"Running: weblodge --app-tiers '{args}'", flush=True)
 
     # Simulate the CLI call.
-    sys.argv = ['weblodge', '--app-tiers', *args.split()]
+    sys.argv = ['weblodge', 'app-tiers', *args.split()]
     with redirect_stdout(io.StringIO()) as fstdout:
         with redirect_stderr(io.StringIO()) as fstderr:
             try:
@@ -38,6 +32,7 @@ def run_app_tiers(args: str) -> (str, str, bool):
     return fstdout.getvalue(), fstderr.getvalue(), sys_exit
 
 stdout, stderr, sys_exit = run_app_tiers('')
+print(stdout), print(stderr), print(sys_exit)
 assert 'B1' in stdout
 assert 'Warning: There is no guarantee of the estimated price.' in stdout
 assert stderr == ''
