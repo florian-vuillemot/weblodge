@@ -54,8 +54,7 @@ def main(return_web_app=False):
             print('Logs will be stream, execute CTRL+C to stop the application.', flush=True)
             web_app.print_logs(config)
         elif action == 'app-tiers':
-            list_app_tiers(config, web_app)
-            success = True
+            success = list_app_tiers(config, web_app)
     except Exception as exception: # pylint: disable=broad-exception-caught
         print('Command failed with the following error:', exception, file=sys.stderr, flush=True)
 
@@ -190,7 +189,7 @@ More information: https://docs.github.com/en/actions/security-guides/encrypted-s
     return True, config
 
 
-def list_app_tiers(config, web_app) -> None:
+def list_app_tiers(config, web_app) -> bool:
     """
     Show to the user the available tiers.
     """
@@ -200,7 +199,7 @@ def list_app_tiers(config, web_app) -> None:
     except CanNotFindTierLocation:
         print('Can not find any tier for the provided location.')
         print('Please, check the location and try again.')
-        sys.exit(1)
+        return False
 
     print('Warning: There is no guarantee of the estimated price.')
 
@@ -222,6 +221,7 @@ def list_app_tiers(config, web_app) -> None:
             for tier in tiers:
                 print(f'{tier.name:>5} |  ${tier.price_by_hour:.2f}/hour |    {tier.cores:>2} | {tier.ram:>4} GB |  {str(tier.disk) + " GB":>6}')  # pylint: disable=line-too-long
 
+    return True
 
 def list_(parameter_loader, web_app: WebApp):
     """
