@@ -15,13 +15,14 @@ RETRY = urllib_retry
 REQUEST = urllib_request
 
 # Tier description of SKU families.
-_B_TIER = "Designed for apps with lower traffic requirements and not needing advanced auto scale and traffic management features."  # pylint: disable=line-too-long
-_S_TIER = "Designed for running production workloads"
-_PV3_TIER = "Designed to provide enhanced performance for production apps and workload."
+_F_TIER = 'Free tier - limited to 60 minutes per day.'
+_B_TIER = 'Designed for apps with lower traffic requirements and not needing advanced auto scale and traffic management features.'  # pylint: disable=line-too-long
+_S_TIER = 'Designed for running production workloads.'
+_PV3_TIER = 'Designed to provide enhanced performance for production apps and workload.'
 
 # Hard coded hardware capabilities for each SKU.
 _SKU_INFOS = {
-    'F1': {'cores': '60 CPU minutes / day', 'ram': 1, 'disk': 1, 'description': 'Free Tier for testing.'},
+    'F1': {'cores': 1, 'ram': 1, 'disk': 1, 'description': _F_TIER},
 
     'B1': {'cores': 1, 'ram': 1.75, 'disk': 10, 'description': _B_TIER},
     'B2': {'cores': 2, 'ram': 3.50, 'disk': 10, 'description': _B_TIER},
@@ -53,16 +54,22 @@ class AppServiceSku(AzureAppServiceSku):
     """
     # Name of the SKU.
     name: str
+
     # Name of the location where the SKU is available.
     location: str
+
     # Price per hour of the SKU.
     price_by_hour: float
+
     # Description of the SKU.
     description: str
+
     # Number of Cores.
-    cores: Union[int, str]
+    cores: int
+
     # RAM in GB.
     ram: int
+
     # Disk size in GB.
     disk: int
 
@@ -102,3 +109,14 @@ Please check your internet connection."""
                 ram=sku_info['ram'],
                 disk=sku_info['disk']
             )
+
+    # Return the free SKU.
+    yield AppServiceSku(
+        name='F1',
+        location=location,
+        price_by_hour=0.0,
+        description=_SKU_INFOS['F1']['description'],
+        cores=_SKU_INFOS['F1']['cores'],
+        ram=_SKU_INFOS['F1']['ram'],
+        disk=_SKU_INFOS['F1']['disk']
+    )

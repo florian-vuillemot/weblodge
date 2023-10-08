@@ -162,8 +162,7 @@ class AzureAppServiceSku:
     description: str
 
     # Number of Cores.
-    # It is a string when the SKU is free.
-    cores: Union[int, str]
+    cores: int
 
     # RAM in GB.
     ram: int
