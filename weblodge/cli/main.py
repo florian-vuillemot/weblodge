@@ -197,8 +197,8 @@ def list_app_tiers(config, web_app) -> bool:
         # Retrieve the tiers.
         tiers = web_app.tiers(config)
     except CanNotFindTierLocation:
-        print('Can not find any tier for the provided location.')
-        print('Please, check the location and try again.')
+        print('Can not find any tier for the provided location.', sys=sys.stderr, flush=True)
+        print('Please, check the location and try again.', sys=sys.stderr, flush=True)
         return False
 
     print('Warning: There is no guarantee of the estimated price.')

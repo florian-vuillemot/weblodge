@@ -50,5 +50,5 @@ assert wstdout != stdout
 istdout, istderr, isys_exit = run_app_tiers('--location incorrect')
 assert 'B1' not in istdout
 assert 'Warning: There is no guarantee of the estimated price.' not in istdout
-assert istderr != ''
+assert 'Can not find any tier for the provided location.' in istderr
 assert isys_exit
