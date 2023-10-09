@@ -57,7 +57,7 @@ class TestWebApp(unittest.TestCase):
 
         web_app = WebApp(Parser().load, Service())
         tiers = web_app.tiers({})
-        self.assertEqual(len(tiers), 12)
+        self.assertEqual(len(tiers), 13)
 
     def test_tiers_with_location(self):
         """
@@ -75,7 +75,7 @@ class TestWebApp(unittest.TestCase):
 
         web_app = WebApp(Parser().load, Service())
         tiers = web_app.tiers({'location': 'westeurope'})
-        self.assertEqual(len(tiers), 12)
+        self.assertEqual(len(tiers), 13)
         sku.REQUEST.assert_called_with(
             'GET',
             "https://prices.azure.com/api/retail/prices?$filter=serviceName eq 'Azure App Service' and contains(productName, 'Linux') and armRegionName eq 'westeurope' and unitOfMeasure eq '1 Hour' and type eq 'Consumption' and isPrimaryMeterRegion eq true and currencyCode eq 'USD'",  # pylint: disable=line-too-long
