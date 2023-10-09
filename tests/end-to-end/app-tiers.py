@@ -31,9 +31,24 @@ def run_app_tiers(args: str) -> (str, str, bool):
 
     return fstdout.getvalue(), fstderr.getvalue(), sys_exit
 
+# Default location.
 stdout, stderr, sys_exit = run_app_tiers('')
-print(stdout), print(stderr), print(sys_exit)
 assert 'B1' in stdout
 assert 'Warning: There is no guarantee of the estimated price.' in stdout
 assert stderr == ''
 assert not sys_exit
+
+# Custom location.
+wstdout, wstderr, wsys_exit = run_app_tiers('--location westus')
+assert 'B1' in wstdout
+assert 'Warning: There is no guarantee of the estimated price.' in wstdout
+assert wstderr == ''
+assert not wsys_exit
+assert wstdout != stdout
+
+# Exit on error.
+istdout, istderr, isys_exit = run_app_tiers('--location incorrect')
+assert 'B1' not in istdout
+assert 'Warning: There is no guarantee of the estimated price.' not in istdout
+assert istderr != ''
+assert isys_exit
