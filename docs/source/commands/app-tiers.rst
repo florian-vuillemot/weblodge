@@ -39,6 +39,11 @@ Usage
    B2 |  $0.04/hour |     2 |  3.5 GB |   10 GB
    B3 |  $0.07/hour |     4 |    7 GB |   10 GB
 
+   Tier description: Free tier - limited to 60 minutes per day.
+   Tier location: northeurope
+    Name |    Price    | Cores |   RAM   | Storage
+   -----------------------------------------------
+   F1 |  $0.00/hour |     1 |    1 GB |    1 GB
 
 .. note::
 

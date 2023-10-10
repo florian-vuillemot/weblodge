@@ -27,7 +27,7 @@ class TestDeploy(unittest.TestCase):
 
         deployment_config = DeploymentConfig(
             subdomain='test',
-            sku='F1',
+            tier='F1',
             location='westeurope',
             environment='test',
             dist='dist',
@@ -58,7 +58,7 @@ class TestDeploy(unittest.TestCase):
 
         deployment_config = DeploymentConfig(
             subdomain='test',
-            sku='F1',
+            tier='F1',
             location='westeurope',
             environment='test',
             dist='dist',

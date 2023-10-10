@@ -32,7 +32,7 @@ class TestSku(unittest.TestCase):
 
         skus = list(sku.get_skus('northeurope'))
 
-        self.assertEqual(len(skus), 12)
+        self.assertEqual(len(skus), 13)
         sku.REQUEST.assert_called_with(
             'GET',
             "https://prices.azure.com/api/retail/prices?$filter=serviceName eq 'Azure App Service' and contains(productName, 'Linux') and armRegionName eq 'northeurope' and unitOfMeasure eq '1 Hour' and type eq 'Consumption' and isPrimaryMeterRegion eq true and currencyCode eq 'USD'",  # pylint: disable=line-too-long
@@ -58,7 +58,7 @@ class TestSku(unittest.TestCase):
 
         skus = list(sku.get_skus('westeurope'))
 
-        self.assertEqual(len(skus), 12)
+        self.assertEqual(len(skus), 13)
         sku.REQUEST.assert_called_with(
             'GET',
             "https://prices.azure.com/api/retail/prices?$filter=serviceName eq 'Azure App Service' and contains(productName, 'Linux') and armRegionName eq 'westeurope' and unitOfMeasure eq '1 Hour' and type eq 'Consumption' and isPrimaryMeterRegion eq true and currencyCode eq 'USD'",  # pylint: disable=line-too-long

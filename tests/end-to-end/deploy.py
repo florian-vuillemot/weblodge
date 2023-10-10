@@ -74,7 +74,7 @@ def test(folder, cmd, html_expected, log):
 # Azure limits the `F1` SKU to one per region and per subscription.
 test(
     'app_1',
-    'weblodge deploy --build --sku B1',
+    'weblodge deploy --build --tier B1',
     'This is app 1.',
     'No parameters provided.'
 )
@@ -85,7 +85,7 @@ subdomain = ''.join(random.choice(string.ascii_lowercase) for _ in range(20))  #
 Path('.welodge.json').write_text('{"subdomain": "replace-by-cli-arg"}', encoding='utf-8')
 test(
     '.',
-    f'weblodge deploy --build --entry-point main.py --sku B1 --subdomain {subdomain} --src app_2 --requirements r.txt --flask-app myapp',
+    f'weblodge deploy --build --entry-point main.py --tier B1 --subdomain {subdomain} --src app_2 --requirements r.txt --flask-app myapp',
     'This is app 2.',
     'Specifies the source folder and the subdomain.'
 )

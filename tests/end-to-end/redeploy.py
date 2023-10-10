@@ -69,14 +69,14 @@ try:
     # Azure limits the `F1` SKU to one per region and per subscription.
     # Create the infrastructure and deploy the standard application with env variable.
     test(
-        'weblodge deploy --src app_1 --build --sku B1',
+        'weblodge deploy --src app_1 --build --tier B1',
         'TEST env var.',
         'Test env variable.'
     )
     # Deploy the same application with a different env variable.
     Path('.foo').write_text('RESULT="From foo."', encoding='utf-8')
     test(
-        'weblodge deploy --src app_1 --build --sku B1 --env-file .foo',
+        'weblodge deploy --src app_1 --build --tier B1 --env-file .foo',
         'From foo.',
         'Test specify env var variable.'
     )

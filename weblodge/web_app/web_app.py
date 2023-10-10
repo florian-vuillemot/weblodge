@@ -7,17 +7,17 @@ import logging
 
 from typing import Callable, Iterable, List, Dict, Optional, Tuple
 
-from weblodge._azure import AzureService, AzureWebApp, AzureAppServiceSku
+from weblodge._azure import AzureService, AzureWebApp
 from weblodge.config import Item as ConfigItem
 
 from ._all import _all as _all_az_web_app
 from .build import BuildConfig, build as _build
 from .delete import DeleteConfig, delete as _delete
 from .deploy import DeploymentConfig, deploy as _deploy
-from .exceptions import RequirementsFileNotFound, EntryPointFileNotFound, FlaskAppNotFound
+from .exceptions import RequirementsFileNotFound, EntryPointFileNotFound, FlaskAppNotFound, InvalidTier
 from .logs import LogsConfig, logs as _logs
 from .github import GitHubConfig, github, GitHubWorkflow
-from .tiers import TiersConfig, tiers as _tiers
+from .tiers import TiersConfig, tiers as _tiers, WebAppTier
 
 
 logger = logging.getLogger('weblodge')
@@ -70,18 +70,20 @@ class WebApp:
         logger.info('Successfully built.')
         return True, config
 
-    def deploy(self, config: Dict[str, str]) -> Tuple[bool, Dict[str, str]]:
+    def deploy(self, config: Dict[str, str]) -> Tuple[bool, Dict[str, str], WebAppTier]:
         """
         Deploy an application.
         """
         config = self.config_loader(DeploymentConfig.items, config)
         deployment_config = DeploymentConfig(**config)
 
+        tier = self._get_tier(config, deployment_config.tier)
+
         logger.info('Deploying...')
         self._web_app = _deploy(self.azure_service, deployment_config)
         logger.info('Successfully deployed.')
 
-        return True, config
+        return True, config, tier
 
     def url(self) -> str:
         """
@@ -149,10 +151,29 @@ class WebApp:
             for web_app in _all_az_web_app(self.azure_service)
         )
 
-    def tiers(self, config: Dict[str, str]) -> List[AzureAppServiceSku]:
+    def tiers(self, config: Dict[str, str]) -> List[WebAppTier]:
         """
         Return all tiers of the application.
         """
         config = self.config_loader(TiersConfig.items, config)
         tier_config = TiersConfig(**config)
         return _tiers(self.azure_service, tier_config)
+
+    def _get_tier(self, config, tier: str) -> WebAppTier:
+        """
+        Return the tier of the WebApp.
+        """
+        config = self.config_loader(TiersConfig.items, config)
+        tier_config = TiersConfig(**config)
+        tiers = _tiers(self.azure_service, tier_config)
+
+        # Match the tier by name.
+        tier = next((t for t in tiers if t.name.upper() == tier), None)
+
+        # If not found, the tier is invalid.
+        if not tier:
+            raise InvalidTier(
+                f"Can not find the tier '{tier}' in the location '{tier_config.location}."
+            )
+
+        return tier

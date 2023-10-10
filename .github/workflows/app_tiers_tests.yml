@@ -1,0 +1,33 @@
+name: App-tiers tests
+
+on: [push]
+
+jobs:
+  app-tiers:
+    environment: azure-tests
+
+    strategy:
+      matrix:
+        python-version: ["3.8", "3.9", "3.10", "3.11"]
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install poetry
+        poetry install --with tests
+
+    - name: Run app-tiers command tests.
+      working-directory: tests/end-to-end
+      run: |
+        poetry run python app-tiers.py
