@@ -54,3 +54,9 @@ class CanNotFindTierLocation(AppTierException):
     """
     Can not find any tier for the provided location.
     """
+
+
+class WebAppNotSetException(Exception):
+    """
+    The web app must be set before the action.
+    """

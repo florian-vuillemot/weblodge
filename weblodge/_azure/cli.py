@@ -5,9 +5,9 @@ import json
 import logging
 from io import StringIO
 import time
-from typing import Dict, List, Union
+from typing import Dict, List, Optional, Union
 
-from azure.cli.core import get_default_cli
+from azure.cli.core import get_default_cli  # type: ignore
 
 from .exceptions import CLIException
 
@@ -28,9 +28,9 @@ class Cli:
             self,
             command: str,
             to_json=True,
-            tags: Dict[str, str] = None,
+            tags: Optional[Dict[str, str]] = None,
             log_outputs: bool = False,
-            command_args: List[str] = None
+            command_args: Optional[List[str]] = None
         ) -> Union[str, Dict]:
         """
         Execute an Azure CLI command and return its output.
@@ -64,7 +64,7 @@ class Cli:
         self,
         command: str,
         to_json: bool,
-        tags: Dict[str, str],
+        tags: Union[Dict[str, str], None],
         log_outputs: bool,
         command_args: List[str]
     ) -> Union[str, Dict]:

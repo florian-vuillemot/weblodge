@@ -127,8 +127,8 @@ def _user_application(config: BuildConfig, zipf: zipfile.ZipFile):
     if config.flask_app not in entry_point.read_text():
         raise FlaskAppNotFound()
 
-    for root, _, files in os.walk(config.src):
-        root = Path(root)
+    for root_str, _, files in os.walk(config.src):
+        root = Path(root_str)
         # Skip hidden files and directories.
         if root.name.startswith('.'):
             continue

@@ -2,7 +2,7 @@
 SKU class for Azure resources.
 """
 from dataclasses import dataclass
-from typing import Iterable, Union
+from typing import Iterable
 
 from urllib3 import Retry as urllib_retry, request as urllib_request
 

@@ -14,7 +14,8 @@ from ._all import _all as _all_az_web_app
 from .build import BuildConfig, build as _build
 from .delete import DeleteConfig, delete as _delete
 from .deploy import DeploymentConfig, deploy as _deploy
-from .exceptions import RequirementsFileNotFound, EntryPointFileNotFound, FlaskAppNotFound, InvalidTier
+from .exceptions import RequirementsFileNotFound, EntryPointFileNotFound, FlaskAppNotFound, \
+    InvalidTier, WebAppNotSetException
 from .logs import LogsConfig, logs as _logs
 from .github import GitHubConfig, github, GitHubWorkflow
 from .tiers import TiersConfig, tiers as _tiers, WebAppTier
@@ -29,9 +30,9 @@ class WebApp:
     """
     def __init__(
         self,
-        config_loader: Callable[[List[ConfigItem]], Dict[str, str]],
+        config_loader: Callable[[List[ConfigItem], Optional[Dict[str, str]]], Dict],
         azure_service: AzureService,
-        web_app: AzureWebApp = None
+        web_app: Optional[AzureWebApp] = None
     ):
         self.config_loader = config_loader
         self._web_app = web_app
@@ -57,15 +58,15 @@ class WebApp:
         except RequirementsFileNotFound:
             logger.critical(f"Requirements file '{build_config.requirements}' not found.")
             logger.critical('Build failed.')
-            return False, build_config
+            return False, {}
         except EntryPointFileNotFound:
             logger.critical(f"Entry point file '{build_config.entry_point}' not found.")
             logger.critical('Build failed.')
-            return False, build_config
+            return False, {}
         except FlaskAppNotFound:
             logger.critical(f"Can not find the Flask application '{build_config.flask_app}' in the file '{build_config.entry_point}'.") # pylint: disable=line-too-long
             logger.critical('Build failed.')
-            return False, build_config
+            return False, {}
 
         logger.info('Successfully built.')
         return True, config
@@ -85,40 +86,45 @@ class WebApp:
 
         return True, config, tier
 
-    def url(self) -> str:
+    def url(self) -> Optional[str]:
         """
         Get the URL of the deployed application.
         """
+        if not self._web_app:
+            raise WebAppNotSetException('The web app must be set before the action.')
         return f'https://{self._web_app.domain}'
 
-    def delete(self, config: Dict[str, str] = None) -> Tuple[bool, Dict[str, str]]:
+    def delete(self, config: Optional[Dict[str, str]] = None) -> Tuple[bool, Dict[str, str]]:
         """
         Delete the application.
         """
+        if not self._web_app:
+            raise WebAppNotSetException('The web app must be set before the action.')
+
         if config is None:
             config = {'subdomain': self._web_app.name}
 
-        config = self.config_loader(DeleteConfig.items, config)
-        delete_config = DeleteConfig(**config)
+        new_config = config = self.config_loader(DeleteConfig.items, config)
+        delete_config = DeleteConfig(**new_config)
 
         logger.info('Deleting...')
         _delete(self.azure_service, delete_config)
         self._web_app = None
         logger.info('Successfully deleted.')
 
-        return True, config
+        return True, new_config
 
     def github(self, config: Dict[str, str]) -> Tuple[Dict[str, str], Optional[GitHubWorkflow]]:
         """
         Create a GitHub Workflow for the application.
         Workflow is None if the application has been deleted.
         """
-        config = self.config_loader(GitHubConfig.items, config)
-        github_config = GitHubConfig(**config)
+        new_config = self.config_loader(GitHubConfig.items, config)
+        github_config = GitHubConfig(**new_config)
         workflow = github(self.azure_service, github_config)
         # The deleted configuration is not one we want to propagate.
-        config.pop('delete', None)
-        return config, workflow
+        new_config.pop('delete', None)
+        return new_config, workflow
 
     def print_logs(self, config: Dict[str, str]):
         """
@@ -134,20 +140,24 @@ class WebApp:
         """
         Return True if the application exists, False otherwise.
         """
+        if not self._web_app:
+            raise WebAppNotSetException('The web app must be set before the action.')
         return self._web_app.exists()
 
     def infrastruture_exists(self) -> bool:
         """
         Return True if the application infrastructure exists, False otherwise.
         """
+        if not self._web_app:
+            raise WebAppNotSetException('The web app must be set before the action.')
         return self._web_app.resource_group.exists()
 
-    def all(self, config_loader: Callable[[List[ConfigItem]], Dict[str, str]] = None) -> Iterable['WebApp']:
+    def all(self) -> Iterable['WebApp']:
         """
         Return all WebApp created by WebLodge.
         """
         yield from (
-            WebApp(config_loader, self.azure_service, web_app)
+            WebApp(self.config_loader, self.azure_service, web_app)
             for web_app in _all_az_web_app(self.azure_service)
         )
 
@@ -155,25 +165,25 @@ class WebApp:
         """
         Return all tiers of the application.
         """
-        config = self.config_loader(TiersConfig.items, config)
-        tier_config = TiersConfig(**config)
+        new_config = self.config_loader(TiersConfig.items, config)
+        tier_config = TiersConfig(**new_config)
         return _tiers(self.azure_service, tier_config)
 
     def _get_tier(self, config, tier: str) -> WebAppTier:
         """
         Return the tier of the WebApp.
         """
-        config = self.config_loader(TiersConfig.items, config)
-        tier_config = TiersConfig(**config)
+        new_config = self.config_loader(TiersConfig.items, config)
+        tier_config = TiersConfig(**new_config)
         tiers = _tiers(self.azure_service, tier_config)
 
         # Match the tier by name.
-        tier = next((t for t in tiers if t.name.upper() == tier), None)
+        web_app_tier = next((t for t in tiers if t.name.upper() == tier), None)
 
         # If not found, the tier is invalid.
-        if not tier:
+        if not web_app_tier:
             raise InvalidTier(
                 f"Can not find the tier '{tier}' in the location '{tier_config.location}."
             )
 
-        return tier
+        return web_app_tier

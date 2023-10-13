@@ -6,7 +6,7 @@ Currently, the parameters are retrieved from the command line.
 import argparse
 
 from dataclasses import dataclass
-from typing import Callable, Dict, List
+from typing import Callable, Dict, List, Optional
 
 from weblodge.config import Item as ConfigItem
 
@@ -61,7 +61,7 @@ class Parser:
         self._triggers: List[ConfigTrigger] = []
 
     # pylint: disable=too-many-branches
-    def load(self, fields: List[ConfigItem], existing_parameters: Dict[str, str] = None) -> Dict[str, str]:
+    def load(self, fields: List[ConfigItem], existing_parameters: Optional[Dict[str, str]] = None) -> Dict[str, str]:
         """
         Load the configuration from the parser.
         Override the current config with the new values.
@@ -80,7 +80,7 @@ class Parser:
                 continue
             argument_provided.add(field.name)
 
-            argument = {
+            argument: Dict = {
                 'help': field.description,
             }
 

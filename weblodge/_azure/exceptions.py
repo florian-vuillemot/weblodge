@@ -17,6 +17,11 @@ class ResourceNotFound(AzureException):
     Raise when a resource cannot be found on Azure.
     """
 
+class CliNotSet(AzureException):
+    """
+    Raise when the Azure CLI is not set.
+    """
+
 class ResourceGroupNotFound(ResourceNotFound):
     """
     Raise when a resource group cannot be found on Azure.

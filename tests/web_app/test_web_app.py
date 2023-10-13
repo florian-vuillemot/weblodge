@@ -163,3 +163,12 @@ class TestWebApp(unittest.TestCase):
 
         with self.assertRaises(InvalidTier):
             web_app.deploy({'tier': 'invalid'})
+
+    def test_web_app_not_set(self):
+        """
+        Test the web_app_not_set exception.
+        """
+        web_app = WebApp(Parser().load, MagicMock())
+
+        with self.assertRaises(Exception):
+            web_app.url()

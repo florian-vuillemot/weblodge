@@ -16,14 +16,14 @@ class AppService(Resource, AzureAppService):
     """
     Azure AppService Plan representation.
     """
-    _cli_prefix = 'appservice plan'
+    _cli_prefix: str = 'appservice plan'
 
     # pylint: disable=too-many-arguments
     def __init__(
             self,
             name: str,
             resource_group: ResourceGroup,
-            from_az: Dict = None
+            from_az: Optional[Dict] = None
         ) -> None:
         super().__init__(name, from_az)
         self.resource_group = resource_group

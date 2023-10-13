@@ -4,7 +4,9 @@ Azure Web App representation.
 import json
 import os
 import tempfile
+from typing import Optional
 from .interfaces import MicrosoftEntra, MicrosoftEntraApplication
+from .exceptions import CliNotSet
 from .resource_group import ResourceGroup
 from .cli import Cli
 
@@ -32,7 +34,7 @@ class Entra(MicrosoftEntra):
     """
     Azure Entra facade.
     """
-    _cli = None
+    _cli: Optional[Cli] = None
 
     @classmethod
     def set_cli(cls, cli: Cli):
@@ -61,6 +63,9 @@ class Entra(MicrosoftEntra):
         :param resource_group: The resource group where the application will be deployed.
         :return: The Microsoft Entra representation.
         """
+        if not cls._cli:
+            raise CliNotSet()
+
         name = f'weblodge-{name}'
 
         # Retrieve need informations.
@@ -98,6 +103,9 @@ class Entra(MicrosoftEntra):
         """
         Retrieve the Service Principal of an Application or create it.
         """
+        if not cls._cli:
+            raise CliNotSet()
+
         service_principals = cls._cli.invoke(f'ad sp list --display-name {app_name}')
 
         for service_principal in service_principals:
@@ -113,6 +121,9 @@ class Entra(MicrosoftEntra):
         if it not already assigned.
         The owner role is required to assign authorizations to KeyVault consumers.
         """
+        if not cls._cli:
+            raise CliNotSet()
+
         role_assignments = cls._cli.invoke(
             ' '.join((
                 'role assignment list',
@@ -141,6 +152,9 @@ class Entra(MicrosoftEntra):
         """
         Create the federated credential for a GitHub access.
         """
+        if not cls._cli:
+            raise CliNotSet()
+
         cred_specs = {
             "name": name,
             "issuer": "https://token.actions.githubusercontent.com",

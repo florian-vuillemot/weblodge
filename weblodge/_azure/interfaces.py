@@ -40,6 +40,12 @@ class AzureLogLevel:
         Set the log level to warning.
         """
 
+    @abstractmethod
+    def to_azure(self) -> str:
+        """
+        Convert in Azure values.
+        """
+
 
 class AzureResourceGroup:
     """
@@ -61,7 +67,7 @@ class AzureResourceGroup:
         """
 
     @abstractmethod
-    def create(self, location: str, tags: Dict[str, str] = None) -> 'AzureResourceGroup':
+    def create(self, location: str, tags: Optional[Dict[str, str]] = None) -> 'AzureResourceGroup':
         """
         Create a new Resource Group and return it.
         """
@@ -77,6 +83,13 @@ class AzureResourceGroup:
     def all(cls) -> Iterator['AzureResourceGroup']:
         """
         Return all the WebApps.
+        """
+
+    @abstractmethod
+    def exists(self) -> bool:
+        """
+        Return True if the Resource Group exists.
+        False otherwise.
         """
 
 
@@ -337,6 +350,12 @@ class MicrosoftEntraApplication:
     client_id: str
     tenant_id: str
     subscription_id: str
+
+    @abstractmethod
+    def delete(self) -> None:
+        """
+        Delete the application.
+        """
 
 
 class MicrosoftEntra:

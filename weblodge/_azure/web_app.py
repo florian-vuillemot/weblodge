@@ -1,30 +1,29 @@
 """
 Azure Web App representation.
 """
-from typing import Dict
+from typing import Dict, Optional
 
 from .resource import Resource
-from .log_level import LogLevel
 from .appservice import AppService
 from .resource_group import ResourceGroup
 from .keyvault import KeyVault
-from .interfaces import AzureWebApp
+from .interfaces import AzureWebApp, AzureKeyVault, AzureAppService, AzureResourceGroup, AzureLogLevel
 
 
 class WebApp(Resource, AzureWebApp):
     """
     Azure Web App representation.
     """
-    _cli_prefix = 'webapp'
+    _cli_prefix: str = 'webapp'
 
     # pylint: disable=too-many-arguments
     def __init__(
             self,
             name: str,
-            resource_group: ResourceGroup,
-            app_service: AppService,
-            keyvault: KeyVault,
-            from_az: Dict = None
+            resource_group: AzureResourceGroup,
+            app_service: AzureAppService,
+            keyvault: AzureKeyVault,
+            from_az: Optional[Dict] = None
         ) -> None:
         super().__init__(name=name, from_az=from_az)
         self.python_version = '3.10'
@@ -89,7 +88,7 @@ class WebApp(Resource, AzureWebApp):
         self.keyvault.can_read_secrets(identity['principalId'])
         return self
 
-    def set_log_level(self, log_level: LogLevel) -> None:
+    def set_log_level(self, log_level: AzureLogLevel) -> None:
         """
         Update the log level of the WebApp.
         """

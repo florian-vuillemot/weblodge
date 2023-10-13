@@ -3,7 +3,7 @@ Abstract representation of an Azure resource.
 """
 import time
 import logging
-from typing import Dict
+from typing import Dict, Optional
 from abc import abstractmethod
 from collections import UserDict
 
@@ -39,7 +39,7 @@ class Resource:
     _cli_prefix = None
     _internal_tags = {'managedby': 'weblodge'}
 
-    def __init__(self, name: str, from_az: Dict = None) -> None:
+    def __init__(self, name: str, from_az: Optional[Dict] = None) -> None:
         self.name = name
         self._from_az = _AzDict(load=self.load, **(from_az or {}))
 
@@ -57,7 +57,7 @@ class Resource:
         """
         return self._from_az['tags']
 
-    def __eq__(self, other: object) -> bool:
+    def __eq__(self, other: 'Resource') -> bool:
         return other.name == self.name
 
     def load(self):
