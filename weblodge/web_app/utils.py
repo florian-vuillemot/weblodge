@@ -28,10 +28,9 @@ def get_webapp(azure_service: AzureService, subdomain: str) -> AzureWebApp:
     )
 
 
-def set_webapp_env_var(webapp: AzureWebApp, env_file: str, env_update_waiting_time: int) -> bool:
+def set_webapp_env_var(webapp: AzureWebApp, env_file: str, env_update_waiting_time: int) -> None:
     """
     Udpate a Web App environment variable.
-    Return True if the environment variable has been updated, False otherwise.
     """
     if os.path.exists(env_file):
         logger.info(f"Updating the environment variable with '{env_file}'...")
@@ -40,6 +39,5 @@ def set_webapp_env_var(webapp: AzureWebApp, env_file: str, env_update_waiting_ti
         logger.info('Environment variable updated.')
         logger.info('Waiting the application to restart...')
         time.sleep(env_update_waiting_time)
-        return
-
-    logger.info('No environment file found.')
+    else:
+        logger.info('No environment file found.')

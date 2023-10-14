@@ -5,9 +5,8 @@ import json
 import os
 import tempfile
 from typing import Optional
-from .interfaces import MicrosoftEntra, MicrosoftEntraApplication
+from .interfaces import MicrosoftEntra, MicrosoftEntraApplication,  AzureResourceGroup
 from .exceptions import CliNotSet
-from .resource_group import ResourceGroup
 from .cli import Cli
 
 
@@ -51,7 +50,7 @@ class Entra(MicrosoftEntra):
         username: str,
         repository: str,
         branch: str,
-        resource_group: ResourceGroup
+        resource_group:  AzureResourceGroup
     ) -> EntraApplication:
         """
         Create an GitHub Application on Microsoft Entra.
@@ -90,6 +89,9 @@ class Entra(MicrosoftEntra):
         """
         Retrieve the application ID if the application exists, otherwise create it.
         """
+        if not cls._cli:
+            raise CliNotSet()
+
         applications = cls._cli.invoke(f'ad app list --display-name {name}')
 
         for app in applications:

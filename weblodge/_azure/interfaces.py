@@ -51,6 +51,9 @@ class AzureResourceGroup:
     """
     Azure Resource Group.
     """
+    # The Resource Group Id.
+    id_: str
+
     # Name of the Resource Group.
     name: str
 

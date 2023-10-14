@@ -35,8 +35,8 @@ class Resource:
     # Ex:
     # - 'webapp' for Azure WebApp.
     # - 'appservice plan' for Azure AppService Plan.
-    _cli = None
-    _cli_prefix = None
+    _cli: Optional[Cli] = None
+    _cli_prefix: Optional[str] = None
     _internal_tags = {'managedby': 'weblodge'}
 
     def __init__(self, name: str, from_az: Optional[Dict] = None) -> None:
