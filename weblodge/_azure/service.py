@@ -28,12 +28,12 @@ class Service(AzureService):
     def __init__(self):
         self.cli = Cli()
 
-        self.resource_groups: AzureResourceGroup = ResourceGroup
-        self.app_services: AzureAppService = AppService
-        self.web_apps: AzureWebApp = WebApp
-        self.log_levels: AzureLogLevel = LogLevel
-        self.keyvaults: AzureKeyVault = KeyVault
-        self.entra: MicrosoftEntra = Entra
+        self.resource_groups = ResourceGroup
+        self.app_services = AppService
+        self.web_apps = WebApp
+        self.log_levels = LogLevel
+        self.keyvaults = KeyVault
+        self.entra = Entra
 
         self.resource_groups.set_cli(self.cli)
         self.app_services.set_cli(self.cli)

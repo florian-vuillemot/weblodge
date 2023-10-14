@@ -188,6 +188,9 @@ class AzureAppService:
     """
     Azure AppService Plan.
     """
+    # Id of the AppService Plan.
+    id_: str
+
     # Name of the Resource Group.
     name: str
 

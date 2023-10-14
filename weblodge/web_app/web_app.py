@@ -91,17 +91,16 @@ class WebApp:
         Get the URL of the deployed application.
         """
         if not self._web_app:
-            raise WebAppNotSetException('The web app must be set before the action.')
+            raise WebAppNotSetException('The web app must be set.')
         return f'https://{self._web_app.domain}'
 
     def delete(self, config: Optional[Dict[str, str]] = None) -> Tuple[bool, Dict[str, str]]:
         """
         Delete the application.
         """
-        if not self._web_app:
-            raise WebAppNotSetException('The web app must be set before the action.')
-
         if config is None:
+            if not self._web_app:
+                raise WebAppNotSetException('The web app must be set.')
             config = {'subdomain': self._web_app.name}
 
         new_config = config = self.config_loader(DeleteConfig.items, config)

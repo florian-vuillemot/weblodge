@@ -31,7 +31,7 @@ class Cli:
             tags: Optional[Dict[str, str]] = None,
             log_outputs: bool = False,
             command_args: Optional[List[str]] = None
-        ) -> Union[str, Dict]:
+        ) -> Union[str, Dict, List]:
         """
         Execute an Azure CLI command and return its output.
         If `to_json` is True, the output is converted to a JSON object.
