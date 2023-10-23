@@ -19,7 +19,7 @@ from weblodge._azure import AzureService, AzureWebApp, AzureLogLevel
 
 from .shared import WEBAPP_TAGS
 from .exceptions import NoMoreFreeApplicationAvailable
-from .utils import get_webapp, set_webapp_env_var
+from .utils import set_webapp_env_var
 
 
 logger = logging.getLogger('weblodge')
@@ -119,29 +119,21 @@ def deploy(azure_service: AzureService, config: DeploymentConfig) -> AzureWebApp
     """
     Deploy the application to Azure and return its URL.
     """
-    web_app = get_webapp(azure_service, config.subdomain)
+    web_app = azure_service.get_web_app(config.subdomain)
+    tags = {**config.tags, **WEBAPP_TAGS}
 
-    if not web_app.exists():
+    if web_app.exists():
+        if web_app.tier.name != config.tier:
+            _set_tier(azure_service, config, web_app)
+        web_app.tags = tags
+        logger.info('The infrastructure is being updated...')
+        web_app.update()
+        logger.info('The infrastructure is updated.')
+    else:
+        _set_tier(azure_service, config, web_app)
+        web_app.tags = tags
+        web_app.location = config.location
         logger.info('The infrastructure is being created...')
-        web_app.app_service.set_sku(config.tier)
-        if not web_app.app_service.exists():
-            if web_app.app_service.is_free:
-                # Only one free AppService Plan is allowed per Azure subscription and location.
-                # Check if a free AppService Plan already exists.
-                if free_web_app := azure_service.app_services.get_existing_free(config.location):
-                    logger.info('Stopping the deployment. No infrastructure created.')
-                    raise NoMoreFreeApplicationAvailable(free_web_app.name)
-            if not web_app.resource_group.exists():
-                web_app.resource_group.create(
-                    location=config.location,
-                    tags={
-                        **config.tags,
-                        **WEBAPP_TAGS
-                    }
-                )
-            web_app.app_service.create()
-        if not web_app.keyvault.exists():
-            web_app.keyvault.create()
         web_app.create()
         logger.info('The infrastructure is created.')
 
@@ -158,6 +150,26 @@ def deploy(azure_service: AzureService, config: DeploymentConfig) -> AzureWebApp
     logger.info('The application has been uploaded.')
 
     return web_app
+
+
+def _set_tier(
+        azure_service: AzureService,
+        config: DeploymentConfig,
+        web_app: AzureWebApp
+    ):
+    """
+    Update the tier of the WebApp.
+    The tier must not be updated if the WebApp already exists and the tier is the same.
+    Otherwise, if the tier is free, an exception is raised because the free tier is already in use.
+    """
+    web_app.tier = config.tier
+
+    if web_app.is_free():
+        # Only one free AppService Plan is allowed per Azure subscription and location.
+        # Check if a free AppService Plan already exists.
+        if free_web_app := azure_service.get_free_web_app(config.location):
+            logger.info('Stopping the deployment. No infrastructure created.')
+            raise NoMoreFreeApplicationAvailable(free_web_app.name)
 
 
 def _set_log_level(config: DeploymentConfig, log_level: AzureLogLevel) -> None:

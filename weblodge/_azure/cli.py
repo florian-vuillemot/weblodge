@@ -87,8 +87,8 @@ class Cli:
                 else:
                     exception = None
                     break
-            except (SystemExit, Exception) as exception: # pylint: disable=broad-exception-caught
-                exception = CLIException(f"Error during execution of the command '{command}'.\nTraceback: {exception}") # pylint: disable=raise-missing-from
+            except (SystemExit, Exception) as _exception: # pylint: disable=broad-exception-caught
+                exception = CLIException(f"Error during execution of the command '{command}'.\nTraceback: {_exception}") # pylint: disable=raise-missing-from
             time.sleep(i)
 
         if exception:

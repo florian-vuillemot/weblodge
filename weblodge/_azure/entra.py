@@ -5,7 +5,9 @@ import json
 import os
 import tempfile
 from typing import Optional
-from .interfaces import MicrosoftEntra, MicrosoftEntraApplication,  AzureResourceGroup
+
+from weblodge._azure.resource_group import ResourceGroup
+from .interfaces import MicrosoftEntra, MicrosoftEntraApplication
 from .exceptions import CliNotSet
 from .cli import Cli
 
@@ -50,7 +52,7 @@ class Entra(MicrosoftEntra):
         username: str,
         repository: str,
         branch: str,
-        resource_group:  AzureResourceGroup
+        resource_group:  ResourceGroup
     ) -> EntraApplication:
         """
         Create an GitHub Application on Microsoft Entra.

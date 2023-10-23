@@ -83,7 +83,7 @@ def tiers(azure_service: AzureService, config: TiersConfig) -> List[WebAppTier]:
                 ram=s.ram,
                 disk=s.disk,
             )
-            for s in azure_service.app_services.skus(config.location)
+            for s in azure_service.get_skus(config.location)
         ]
     except InvalidLocation:
         raise CanNotFindTierLocation(f"Can not find any tier for the location '{config.location}'.") from InvalidLocation  # pylint: disable=line-too-long

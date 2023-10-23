@@ -7,7 +7,8 @@ from .resource import Resource
 from .appservice import AppService
 from .resource_group import ResourceGroup
 from .keyvault import KeyVault
-from .interfaces import AzureWebApp, AzureKeyVault, AzureAppService, AzureResourceGroup, AzureLogLevel
+from .interfaces import AzureWebApp, AzureLogLevel
+from .exceptions import CanNotChangeTheResourceLocation
 
 
 class WebApp(Resource, AzureWebApp):
@@ -20,16 +21,30 @@ class WebApp(Resource, AzureWebApp):
     def __init__(
             self,
             name: str,
-            resource_group: AzureResourceGroup,
-            app_service: AzureAppService,
-            keyvault: AzureKeyVault,
+            resource_group: ResourceGroup,
+            app_service: AppService,
+            keyvault: KeyVault,
             from_az: Optional[Dict] = None
         ) -> None:
         super().__init__(name=name, from_az=from_az)
         self.python_version = '3.10'
-        self.app_service = app_service
-        self.resource_group = resource_group
-        self.keyvault = keyvault
+        self._app_service = app_service
+        self._resource_group = resource_group
+        self._keyvault = keyvault
+
+    @property
+    def tier(self) -> AzureWebApp:
+        """
+        Return the WebApp tier.
+        """
+        return self._app_service.sku
+
+    @tier.setter
+    def tier(self, tier_name: str):
+        """
+        Set the WebApp tier.
+        """
+        self._app_service.sku = tier_name
 
     @property
     def location(self) -> str:
@@ -37,7 +52,19 @@ class WebApp(Resource, AzureWebApp):
         The WebApp location.
         Ex: northeurope, westeurope, etc.
         """
-        return self._from_az['location']
+        return self._resource_group.location
+
+    @location.setter
+    def location(self, location) -> 'WebApp':
+        """
+        The WebApp location.
+        Ex: northeurope, westeurope, etc.
+        """
+        if self.exists():
+            raise CanNotChangeTheResourceLocation('Cannot change location of an existing WebApp')
+
+        self._resource_group.location = location
+        return self
 
     @property
     def domain(self) -> str:
@@ -45,6 +72,12 @@ class WebApp(Resource, AzureWebApp):
         WebApp domain.
         """
         return self._from_az['hostNames'][0] if self._from_az['hostNames'] else None
+
+    def is_free(self) -> bool:
+        """
+        Return True if the WebApp is Free.
+        """
+        return self._app_service.is_free
 
     def create(self) -> 'AzureWebApp':
         """
@@ -57,14 +90,23 @@ class WebApp(Resource, AzureWebApp):
         - Startup file: weblodge.startup
         """
         name = self.name
-        asp = self.app_service.id_
-        rg_name = self.resource_group.name
+        rg_name = self._resource_group.name
         python_version = self.python_version
+
+        if not self._resource_group.exists():
+            self._resource_group.create()
+
+        if not self._app_service.exists():
+            self._app_service.create()
+        asp = self._app_service.id_
+
+        if not self._keyvault.exists():
+            self._keyvault.create()
 
         # Create the WebApp infrastructure.
         self._invoke(
             f'{self._cli_prefix} create -g {rg_name} -p {asp} -n {name} --runtime PYTHON:{python_version}',
-            tags={**self.resource_group.tags, **self.app_service.tags}
+            tags=self.tags
         )
         # Update the WebApp settings.
         self._invoke(
@@ -73,19 +115,19 @@ class WebApp(Resource, AzureWebApp):
                 '--web-sockets-enabled true',
                 '--http20-enabled',
                 '--startup-file weblodge.startup',
-                f'--always-on {self.app_service.always_on_supported}',
+                f'--always-on {self._app_service.always_on_supported}',
             ))
         )
         # Retrieve the WebApp identity.
         identity = self._invoke(
             ' '.join((
                 f'{self._cli_prefix} identity assign',
-                f'-g {self.resource_group.name}',
+                f'-g {self._resource_group.name}',
                 f'-n {self.name}',
             ))
         )
         # Allow the WebApp to read the KeyVault secrets.
-        self.keyvault.can_read_secrets(identity['principalId'])
+        self._keyvault.can_read_secrets(identity['principalId'])
         return self
 
     def set_log_level(self, log_level: AzureLogLevel) -> None:
@@ -96,7 +138,7 @@ class WebApp(Resource, AzureWebApp):
             ' '.join((
                 f'{self._cli_prefix} log config',
                 f'--name {self.name}',
-                f'--resource-group {self.resource_group.name}',
+                f'--resource-group {self._resource_group.name}',
                 '--application-logging filesystem',
                 '--docker-container-logging filesystem',
                 '--detailed-error-messages true',
@@ -112,7 +154,7 @@ class WebApp(Resource, AzureWebApp):
         self._invoke(
             ' '.join((
                 f'{self._cli_prefix} deployment source config-zip',
-                f'-g {self.resource_group.name} -n {self.name}',
+                f'-g {self._resource_group.name} -n {self.name}',
                 f'--src {src}'
             ))
         )
@@ -123,7 +165,7 @@ class WebApp(Resource, AzureWebApp):
         This is a blocking operation. User must run CTRL+C to stop the process.
         """
         self._invoke(
-            f'{self._cli_prefix} log tail -g {self.resource_group.name} -n {self.name}',
+            f'{self._cli_prefix} log tail -g {self._resource_group.name} -n {self.name}',
             log_outputs=True
         )
 
@@ -135,7 +177,7 @@ class WebApp(Resource, AzureWebApp):
 
         # Insert secret in KeyVault.
         for name, value in env.items():
-            secret = self.keyvault.set(name, value)
+            secret = self._keyvault.set(name, value)
             env_formatted.append(f'{name}=@Microsoft.KeyVault(SecretUri={secret.uri})')
 
         # Update the WebApp environment variables.
@@ -143,7 +185,7 @@ class WebApp(Resource, AzureWebApp):
             ' '.join((
                 f'{self._cli_prefix} config appsettings set',
                 f'--name {self.name}',
-                f'--resource-group {self.resource_group.name}'
+                f'--resource-group {self._resource_group.name}'
             )),
             to_json=False,
             # Provide as independent arguments to avoid shell escaping issues.
@@ -158,7 +200,7 @@ class WebApp(Resource, AzureWebApp):
             ' '.join((
                 f'{self._cli_prefix} log deployment show',
                 f'--name {self.name}',
-                f'--resource-group {self.resource_group.name}'
+                f'--resource-group {self._resource_group.name}'
             ))
         )
         return any(
@@ -171,9 +213,18 @@ class WebApp(Resource, AzureWebApp):
         Restart the WebApp.
         """
         self._invoke(
-            f'{self._cli_prefix} restart -g {self.resource_group.name} -n {self.name}',
+            f'{self._cli_prefix} restart -g {self._resource_group.name} -n {self.name}',
             to_json=False
         )
+
+    def update(self) -> 'WebApp':
+        """
+        Update the WebApp infrastructure.
+        """
+        super().update()
+        self._resource_group.update()
+        self._app_service.update()
+        return self
 
     @classmethod
     def from_az(cls, name: str, from_az: Dict) -> 'AzureWebApp':
@@ -195,7 +246,7 @@ class WebApp(Resource, AzureWebApp):
         """
         self._from_az.update(
             self._invoke(
-                f'{self._cli_prefix} show --resource-group {self.resource_group.name} --name {self.name}'
+                f'{self._cli_prefix} show --resource-group {self._resource_group.name} --name {self.name}'
             )
         )
         return self

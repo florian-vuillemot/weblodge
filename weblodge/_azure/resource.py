@@ -41,7 +41,22 @@ class Resource:
 
     def __init__(self, name: str, from_az: Optional[Dict] = None) -> None:
         self.name = name
+        self._tags_updated = False
         self._from_az = _AzDict(load=self.load, **(from_az or {}))
+        if from_az:
+            self._tags = {
+                **self._from_az['tags'],
+                **self._internal_tags
+            }
+        else:
+            self._tags = self._internal_tags
+
+    @property
+    def id_(self) -> str:
+        """
+        Return the resource ID.
+        """
+        return self._from_az['id']
 
     @property
     def _user_id(self) -> str:
@@ -53,12 +68,34 @@ class Resource:
     @property
     def tags(self) -> Dict[str, str]:
         """
-        Return the resource tags.
+        Return the current resource tags of the cloud ressource.
+        Tags may not be updated in the cloud.
         """
-        return self._from_az['tags']
+        return self._tags
+
+    @tags.setter
+    def tags(self, tags: Dict[str, str]):
+        """
+        Set the new resource tags.
+        """
+        new_tags = {**tags, **self._internal_tags}
+
+        if new_tags != self._tags:
+            self._tags_updated = True
+            # Internals tags must be present and not None.
+            self._tags = {**tags, **self._internal_tags}
+        return self
 
     def __eq__(self, other: 'Resource') -> bool:
         return other.name == self.name
+
+    def update(self) -> 'Resource':
+        """
+        Update the resource.
+        """
+        if self._tags_updated:
+            self._invoke(f'tag create --resource-id {self.id_}', tags=self._tags)
+        return self
 
     def load(self):
         """

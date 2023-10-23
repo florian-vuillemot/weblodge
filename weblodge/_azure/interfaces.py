@@ -2,7 +2,7 @@
 Public interface of the Azure module.
 """
 from abc import abstractmethod
-from typing import Dict, Iterable, Iterator, Optional
+from typing import Dict, Iterable, Iterator
 
 
 class AzureLogLevel:
@@ -47,120 +47,6 @@ class AzureLogLevel:
         """
 
 
-class AzureResourceGroup:
-    """
-    Azure Resource Group.
-    """
-    # The Resource Group Id.
-    id_: str
-
-    # Name of the Resource Group.
-    name: str
-
-    # Location of the Resouce Group.
-    location: str
-
-    # Tags of the Resource Group.
-    tags: Dict[str, str]
-
-    @abstractmethod
-    def __init__(self, name: str) -> None:
-        """
-        Initialize the Resource Group.
-        """
-
-    @abstractmethod
-    def create(self, location: str, tags: Optional[Dict[str, str]] = None) -> 'AzureResourceGroup':
-        """
-        Create a new Resource Group and return it.
-        """
-
-    @abstractmethod
-    def delete(self) -> None:
-        """
-        Delete the resource group.
-        """
-
-    @classmethod
-    @abstractmethod
-    def all(cls) -> Iterator['AzureResourceGroup']:
-        """
-        Return all the WebApps.
-        """
-
-    @abstractmethod
-    def exists(self) -> bool:
-        """
-        Return True if the Resource Group exists.
-        False otherwise.
-        """
-
-
-class AzureKeyVaultSecret:
-    """
-    Azure KeyVault Secret representation.
-    """
-    # Secret name.
-    name: str
-
-    # Secret value.
-    value: str
-
-    # Secret URI.
-    uri: str
-
-
-class AzureKeyVault:
-    """
-    Azure KeyVault representation.
-    """
-    # The KeyVault name.
-    name: str
-
-    # It's resource group.
-    resource_group: AzureResourceGroup
-
-    # Tags of the KeyVault.
-    tags: Dict[str, str]
-
-    @abstractmethod
-    def __init__(self, name: str, resource_group: AzureResourceGroup):
-        """
-        Initialize the KeyVault.
-        """
-
-    @abstractmethod
-    def create(self) -> 'AzureKeyVault':
-        """
-        Create the Azure KeyVault.
-        """
-
-    @abstractmethod
-    def delete(self) -> None:
-        """
-        Delete the Azure KeyVault.
-        """
-
-    @abstractmethod
-    def exists(self) -> bool:
-        """
-        Return True if the Key Vault exists.
-        False otherwise.
-        """
-
-    @abstractmethod
-    def get_all(self) -> Iterable[AzureKeyVaultSecret]:
-        """
-        Return the KeyVault secrets.
-        """
-
-    @abstractmethod
-    def set(self, name: str, value: str) -> AzureKeyVaultSecret:
-        """
-        Create a secret.
-        """
-
-
 class AzureAppServiceSku:
     """
     Human representation of the SKU.
@@ -187,70 +73,6 @@ class AzureAppServiceSku:
     disk: int
 
 
-class AzureAppService:
-    """
-    Azure AppService Plan.
-    """
-    # Id of the AppService Plan.
-    id_: str
-
-    # Name of the Resource Group.
-    name: str
-
-    # Location of the Resouce Group.
-    location: str
-
-    # Tags of the Resource Group.
-    tags: Dict[str, str]
-
-    # True if the AppService Plan is Free.
-    is_free: bool
-
-    # True if the AppService Plan support AlwaysOn.
-    always_on_supported: bool
-
-
-    @abstractmethod
-    def __init__(self, name: str, resource_group: AzureResourceGroup) -> None:
-        """
-        Initialize the Azure App Service.
-        """
-
-    @abstractmethod
-    def create(self) -> 'AzureAppService':
-        """
-        Create a Linux AppService with Python.
-        """
-
-    @abstractmethod
-    def set_sku(self, sku_name: str) -> 'AzureAppService':
-        """
-        Set the AppService Plan SKU.
-        """
-
-    @classmethod
-    @abstractmethod
-    def all(cls) -> Iterator['AzureAppService']:
-        """
-        Return all the AppService.
-        """
-
-    @classmethod
-    @abstractmethod
-    def get_existing_free(cls, location: str) -> Optional['AzureAppService']:
-        """
-        Return the free existing Azure App Service if exists in that location.
-        None otherwise.
-        """
-
-    @staticmethod
-    @abstractmethod
-    def skus(location: str) -> Iterable[AzureAppServiceSku]:
-        """
-        Return the list of available SKUs for the given location.
-        """
-
-
 class AzureWebApp:
     """
     Azure Web App.
@@ -270,25 +92,13 @@ class AzureWebApp:
     # Tags of the Web App.
     tags: Dict[str, str]
 
-    # Azure App Service of the WebApp.
-    app_service: AzureAppService
-
-    # Azure Resource Group of the WebApp.
-    resource_group: AzureResourceGroup
-
-    # Azure KeyVault of the WebApp.
-    keyvault: AzureKeyVault
+    # Current tier of the WebApp.
+    tier: AzureAppServiceSku
 
     @abstractmethod
-    def __init__(
-        self,
-        name: str,
-        resource_group: AzureResourceGroup,
-        app_service: AzureAppService,
-        keyvault: AzureKeyVault
-    ) -> None:
+    def is_free(self) -> bool:
         """
-        Initialize the Azure Web App.
+        Return true if the current tier of the WebApp is free.
         """
 
     @abstractmethod
@@ -348,6 +158,12 @@ class AzureWebApp:
         Restart the WebApp.
         """
 
+    @abstractmethod
+    def update(self):
+        """
+        Update the WebApp infrastructure.
+        """
+
 
 class MicrosoftEntraApplication:
     """
@@ -377,7 +193,6 @@ class MicrosoftEntra:
         username: str,
         repository: str,
         branch: str,
-        resource_group: AzureResourceGroup
     ) -> MicrosoftEntraApplication:
         """
         Return a Azure Entra Application for a GitHub Account.
@@ -396,9 +211,32 @@ class AzureService:
     """
     Allow to instanciate Azure components.
     """
-    resource_groups: AzureResourceGroup
-    app_services: AzureAppService
-    web_apps: AzureWebApp
-    log_levels: AzureLogLevel
-    keyvaults: AzureKeyVault
-    entra: MicrosoftEntra
+    def get_web_app(self, subdomain: str) -> AzureWebApp:
+        """
+        Return a WebApp.
+        """
+
+    def get_free_web_app(self, location: str) -> AzureWebApp:
+        """
+        Return the existing WebApp using a free tier.
+        """
+
+    def entra(self, subdomain: str) -> MicrosoftEntra:
+        """
+        Return the Entra service.
+        """
+
+    def all(self) -> Iterable[AzureWebApp]:
+        """
+        Return all WebApp created by WebLodge.
+        """
+
+    def get_skus(self, location: str) -> Iterable[AzureAppServiceSku]:
+        """
+        Return all available tiers.
+        """
+
+    def log_levels(self) -> AzureLogLevel:
+        """
+        Return the log levels.
+        """

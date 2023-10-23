@@ -4,7 +4,9 @@ App Service Plan Tests.
 import json
 from pathlib import Path
 import unittest
+from unittest.mock import MagicMock
 
+from weblodge._azure import sku
 from weblodge._azure.appservice import AppService, ResourceGroup, InvalidSku
 
 from .cli import Cli
@@ -21,6 +23,9 @@ class TestAppService(unittest.TestCase):
         self.resource_group = json.loads(
             Path('./tests/_azure/api_mocks/resource_groups.json').read_text(encoding='utf-8')
         )[0]
+        self.skus = json.loads(
+            Path('./tests/_azure/api_mocks/skus.json').read_text(encoding='utf-8')
+        )
         return super().setUp()
 
     def test_create(self):
@@ -35,7 +40,7 @@ class TestAppService(unittest.TestCase):
             resource_group=resource_group
         )
         app_service.set_cli(Cli([expected_output, expected_output]))
-        app_service.set_sku('B1')
+        app_service.sku = 'B1'
         app_service = app_service.create()
 
         self.assertEqual(app_service.name, expected_output['name'])
@@ -75,17 +80,21 @@ class TestAppService(unittest.TestCase):
         """
         Set the SKU.
         """
-        asp = AppService(name='test', resource_group=None)
+        sku.REQUEST = MagicMock()
+        sku.REQUEST.return_value.json.return_value = self.skus
 
-        asp.set_sku('B1')
+        resource_group = MagicMock(location='westeurope')
+        asp = AppService(name='test', resource_group=resource_group)
 
-        self.assertEqual(asp._sku, 'B1') # pylint: disable=protected-access
+        asp.sku = 'B1'
+
+        self.assertEqual(asp.sku.name, 'B1')
         self.assertFalse(asp.is_free)
         self.assertTrue(asp.always_on_supported)
 
-        asp.set_sku('F1')
+        asp.sku = 'F1'
 
-        self.assertEqual(asp._sku, 'F1') # pylint: disable=protected-access
+        self.assertEqual(asp.sku.name, 'F1') # pylint: disable=protected-access
         self.assertTrue(asp.is_free)
         self.assertFalse(asp.always_on_supported)
 
@@ -96,7 +105,7 @@ class TestAppService(unittest.TestCase):
         asp = AppService(name='test', resource_group=None)
 
         with self.assertRaises(InvalidSku):
-            asp.set_sku('Invalid SKU')
+            asp.sku = 'Invalid SKU'
 
     def test_is_free(self):
         """
@@ -116,6 +125,7 @@ class TestAppService(unittest.TestCase):
                     "skuCapacity": None,
                     "tier": "PremiumV3"
                 },
+                "tags": {"managedby": "weblodge"},
             }
         )
 
@@ -135,6 +145,7 @@ class TestAppService(unittest.TestCase):
                     "skuCapacity": None,
                     "tier": "Shared"
                 },
+                "tags": {"managedby": "weblodge"},
             }
         )
 

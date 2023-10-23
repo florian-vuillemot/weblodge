@@ -25,11 +25,20 @@ class TestResourceGroup(unittest.TestCase):
         Test the create.
         """
         expected_output = self.resource_groups[0]
+        ResourceGroup.set_cli(Cli(expected_output))
 
         resource_group = ResourceGroup(
             name=expected_output['name'],
         )
-        resource_group.set_cli(Cli(expected_output))
 
         self.assertEqual(resource_group.name, expected_output['name'])
         self.assertEqual(resource_group.location, expected_output['location'])
+
+    def test_all(self):
+        """
+        Test the all method.
+        """
+        ResourceGroup.set_cli(Cli([self.resource_groups]))
+
+        resource_groups = ResourceGroup.all()
+        self.assertEqual(len(list(resource_groups)), 3)

@@ -9,10 +9,10 @@ from .sku import get_skus, AVAILABLE_SKUS
 from .resource import Resource
 from .exceptions import InvalidSku
 from .resource_group import ResourceGroup
-from .interfaces import AzureAppService, AzureAppServiceSku
+from .interfaces import AzureAppServiceSku
 
 
-class AppService(Resource, AzureAppService):
+class AppService(Resource):
     """
     Azure AppService Plan representation.
     """
@@ -26,8 +26,12 @@ class AppService(Resource, AzureAppService):
             from_az: Optional[Dict] = None
         ) -> None:
         super().__init__(name, from_az)
+        self._sku_updated = False
         self.resource_group = resource_group
-        self._sku = self._from_az['sku']['name'] if from_az else None
+        if from_az:
+            self._sku = self._from_az['sku']['name'] if from_az else None
+        else:
+            self._sku = None
 
     @property
     def id_(self) -> str:
@@ -59,17 +63,39 @@ class AppService(Resource, AzureAppService):
         """
         return self.resource_group.location
 
-    def set_sku(self, sku_name: str) -> 'AzureAppService':
+    @location.setter
+    def location(self, location: str) -> 'AppService':
+        """
+        Set the location.
+        """
+        self.resource_group.location = location
+        return self
+
+    @property
+    def sku(self) -> Optional[AzureAppServiceSku]:
+        """
+        Return the AppService Plan SKU.
+        """
+        if not self._sku:
+            self._sku = self._from_az['sku']['name']
+        return next(
+            (s for s in self.skus(self.location) if s.name == self._sku),
+            None
+        )
+
+    @sku.setter
+    def sku(self, sku_name: str) -> 'AppService':
         """
         Set the AppService Plan SKU.
         """
         if sku_name not in AVAILABLE_SKUS:
             raise InvalidSku(f"Invalid SKU: '{sku_name}'")
 
+        self._sku_updated = True
         self._sku = sku_name
         return self
 
-    def create(self) -> 'AzureAppService':
+    def create(self) -> 'AppService':
         """
         Create a Linux AppService Plan with Python.
         """
@@ -86,8 +112,24 @@ class AppService(Resource, AzureAppService):
         )
         return self
 
+    def update(self) -> 'AppService':
+        """
+        Update the AppService Plan.
+        """
+        super().update()
+        if self._sku_updated:
+            self._from_az = self._invoke(
+                ''.join([
+                    f'{self._cli_prefix} update',
+                    f' --name {self.name}',
+                    f' --resource-group {self.resource_group.name}',
+                    f' --sku {self._sku}'
+                ])
+            )
+        return self
+
     @classmethod
-    def get_existing_free(cls, location: str) -> Optional['AzureAppService']:
+    def get_existing_free(cls, location: str) -> Optional['AppService']:
         """
         Return the free existing Azure App Service if exists in that location. None otherwise.
         """
@@ -103,7 +145,7 @@ class AppService(Resource, AzureAppService):
         yield from get_skus(location)
 
     @classmethod
-    def from_id(cls, id_: str) -> 'AzureAppService':
+    def from_id(cls, id_: str) -> 'AppService':
         """
         Return an App Service from an Azure App Service Plan ID.
         """

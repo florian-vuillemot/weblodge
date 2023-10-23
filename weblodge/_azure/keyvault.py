@@ -7,12 +7,11 @@ from typing import Dict, Iterable
 from weblodge._azure.resource_group import ResourceGroup
 
 from .resource import Resource
-from .interfaces import AzureKeyVault, AzureKeyVaultSecret
 from .exceptions import CLIException, SecretNotFound
 
 
 @dataclass(frozen=True)
-class KeyVaultSecret(AzureKeyVaultSecret):
+class KeyVaultSecret:
     """
     Azure KeyVault secret representation.
     """
@@ -24,7 +23,7 @@ class KeyVaultSecret(AzureKeyVaultSecret):
     uri: str
 
 
-class KeyVault(Resource, AzureKeyVault):
+class KeyVault(Resource):
     """
     Azure KeyVault representation.
     It used to store AzureWebApp secrets.

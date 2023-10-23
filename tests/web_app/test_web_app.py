@@ -109,9 +109,15 @@ class TestWebApp(unittest.TestCase):
         """
         Test the deploy operation.
         """
+        web_app_mc = MagicMock()
         azure_service = MagicMock()
-        azure_service.app_services.skus.return_value = [self.s1_tier, self.f1_tier]
-        azure_service.web_apps.exists.return_value = True
+
+        azure_service.get_skus.return_value = [self.s1_tier, self.f1_tier]
+        azure_service.get_web_app.return_value = web_app_mc
+        web_app_mc.exists.return_value = True
+        web_app_mc.is_free.return_value = True
+        azure_service.get_free_web_app.return_value = []
+
         web_app = WebApp(Parser().load, azure_service)
         success, config, tier = web_app.deploy({})
 
@@ -131,9 +137,14 @@ class TestWebApp(unittest.TestCase):
         """
         Test the deploy operation with configuration.
         """
+        web_app_mc = MagicMock()
         azure_service = MagicMock()
-        azure_service.app_services.skus.return_value = [self.s1_tier, self.f1_tier]
-        azure_service.web_apps.exists.return_value = True
+
+        web_app_mc.exists.return_value = True
+        web_app_mc.is_free.return_value = False
+        azure_service.get_skus.return_value = [self.s1_tier, self.f1_tier]
+        azure_service.get_web_app.return_value = web_app_mc
+
         web_app = WebApp(Parser().load, azure_service)
         success, config, tier = web_app.deploy({
             'tier': 'S1',

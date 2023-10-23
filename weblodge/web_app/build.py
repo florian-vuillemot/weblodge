@@ -123,8 +123,10 @@ def _user_application(config: BuildConfig, zipf: zipfile.ZipFile):
     if not entry_point.exists():
         raise EntryPointFileNotFound()
 
-    # Ensure the flask app is in the entry point file.
-    if config.flask_app not in entry_point.read_text():
+    # Limited test on the definition of the flask app in the entry point file.
+    entry_point_content = entry_point.read_text()
+    if f'{config.flask_app} ' not in entry_point_content and \
+       f'{config.flask_app}=' not in entry_point_content:
         raise FlaskAppNotFound()
 
     for root_str, _, files in os.walk(config.src):

@@ -51,3 +51,8 @@ class SecretNotFound(AzureException):
     """
     Raise when a secret on a KeyVault cannot be found.
     """
+
+class CanNotChangeTheResourceLocation(AzureException):
+    """
+    Raise when a resource location cannot be changed.
+    """

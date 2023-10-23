@@ -4,8 +4,6 @@ Stream logs from an Azure Web App in the user console.
 from weblodge.config import Item as ConfigItem
 from weblodge._azure import AzureService
 
-from .utils import get_webapp
-
 
 class LogsConfig():
     """
@@ -31,4 +29,4 @@ def logs(azure_service: AzureService, config: LogsConfig):
     This function is blocking and never returns.
     User must run CTRL+C to stop the process.
     """
-    get_webapp(azure_service, config.subdomain).logs()
+    azure_service.get_web_app(config.subdomain).logs()

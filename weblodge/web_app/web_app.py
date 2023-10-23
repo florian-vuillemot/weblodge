@@ -10,7 +10,6 @@ from typing import Callable, Iterable, List, Dict, Optional, Tuple
 from weblodge._azure import AzureService, AzureWebApp
 from weblodge.config import Item as ConfigItem
 
-from ._all import _all as _all_az_web_app
 from .build import BuildConfig, build as _build
 from .delete import DeleteConfig, delete as _delete
 from .deploy import DeploymentConfig, deploy as _deploy
@@ -157,7 +156,7 @@ class WebApp:
         """
         yield from (
             WebApp(self.config_loader, self.azure_service, web_app)
-            for web_app in _all_az_web_app(self.azure_service)
+            for web_app in self.azure_service.all(self.azure_service)
         )
 
     def tiers(self, config: Dict[str, str]) -> List[WebAppTier]:
