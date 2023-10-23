@@ -231,6 +231,11 @@ class AzureService:
         Return all WebApp created by WebLodge.
         """
 
+    def delete(self, subdomain: str) -> None:
+        """
+        Delete a WebApp.
+        """
+
     def get_skus(self, location: str) -> Iterable[AzureAppServiceSku]:
         """
         Return all available tiers.

@@ -48,6 +48,12 @@ class Service(AzureService):
         """
         return AppService.get_existing_free(location)
 
+    def delete(self, subdomain: str) -> None:
+        """
+        Delete a WebApp.
+        """
+        ResourceGroup(subdomain).delete()
+
     def all(self) -> Iterable[AzureWebApp]:
         """
         Return all WebApp created by WebLodge.
