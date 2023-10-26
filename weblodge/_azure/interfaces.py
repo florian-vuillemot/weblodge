@@ -182,7 +182,7 @@ class MicrosoftEntraApplication:
 
 class MicrosoftEntra:
     """
-    Allow to create Azure Entra Applications.
+    Allow to access to an Azure Entra Applications.
     """
     # pylint: disable=too-many-arguments
     @classmethod
@@ -196,6 +196,7 @@ class MicrosoftEntra:
     ) -> MicrosoftEntraApplication:
         """
         Return a Azure Entra Application for a GitHub Account.
+        Create the application if not exists.
         Credentials are federated based.
 
         :param name: The name of the GitHub Application.

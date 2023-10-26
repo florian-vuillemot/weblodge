@@ -55,7 +55,7 @@ class Entra(MicrosoftEntra):
         resource_group:  ResourceGroup
     ) -> EntraApplication:
         """
-        Create an GitHub Application on Microsoft Entra.
+        Create or return an GitHub Application on Microsoft Entra.
 
         :param name: The name of the GitHub Application.
         :param branch: The branch of the repository that will trigger the GitHub Action.

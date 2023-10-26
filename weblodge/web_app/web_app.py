@@ -156,7 +156,7 @@ class WebApp:
         """
         yield from (
             WebApp(self.config_loader, self.azure_service, web_app)
-            for web_app in self.azure_service.all(self.azure_service)
+            for web_app in self.azure_service.all()
         )
 
     def tiers(self, config: Dict[str, str]) -> List[WebAppTier]:
