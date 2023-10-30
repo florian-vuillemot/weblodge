@@ -29,7 +29,7 @@ class TestGitHub(unittest.TestCase):
         workflow = github(azure_service, config)
 
         azure_service.get_github_application.assert_called_once_with(
-            name='test-subdomain',
+            subdomain='test-subdomain',
             branch='main-branch',
             username='test-username',
             repository='test-repository',
