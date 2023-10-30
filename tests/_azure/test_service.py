@@ -8,9 +8,8 @@ from unittest.mock import MagicMock
 
 from weblodge._azure.entra import Entra
 from weblodge._azure.web_app import WebApp
-from weblodge._azure.log_level import LogLevel
 from weblodge._azure.resource_group import ResourceGroup
-from weblodge._azure import AzureService, Service, AzureLogLevel, AzureWebApp
+from weblodge._azure import Service, AzureWebApp
 from weblodge._azure.appservice import AppService
 from weblodge._azure.keyvault import KeyVault
 
