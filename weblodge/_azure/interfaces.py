@@ -178,17 +178,20 @@ class AzureService:
     """
     Allow to instanciate Azure components.
     """
+    @abstractmethod
     def get_web_app(self, subdomain: str) -> AzureWebApp:
         """
         Return a WebApp.
         """
 
+    @abstractmethod
     def get_free_web_app(self, location: str) -> AzureWebApp:
         """
         Return the existing WebApp using a free tier.
         """
 
     # pylint: disable=too-many-arguments
+    @abstractmethod
     def get_github_application(
         self,
         subdomain: str,
@@ -210,16 +213,19 @@ class AzureService:
         :return: The Microsoft Entra representation.
         """
 
+    @abstractmethod
     def all(self) -> Iterable[AzureWebApp]:
         """
         Return all WebApp created by WebLodge.
         """
 
+    @abstractmethod
     def delete(self, subdomain: str) -> None:
         """
         Delete a WebApp.
         """
 
+    @abstractmethod
     def delete_github_application(self, subdomain: str) -> None:
         """
         Delete an Azure Entra Application for a GitHub Account.
@@ -227,11 +233,13 @@ class AzureService:
         :param subdomain: The application subdomain of the GitHub Application to delete.
         """
 
+    @abstractmethod
     def get_skus(self, location: str) -> Iterable[AzureAppServiceSku]:
         """
         Return all available tiers.
         """
 
+    @abstractmethod
     def log_levels(self) -> AzureLogLevel:
         """
         Return the log levels.

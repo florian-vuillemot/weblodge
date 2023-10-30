@@ -19,18 +19,12 @@ class Service(AzureService):
     Azure Service.
     Allow to instanciate Azure components.
     """
-    web_apps: AzureWebApp
-    log_levels: AzureLogLevel
-
-    def __init__(self):
-        self.cli = Cli()
-
-        self.web_apps = WebApp
-        self.log_levels = LogLevel
-        self.entra = Entra
-
-        self.web_apps.set_cli(self.cli)
-        self.entra.set_cli(self.cli)
+    def __init__(self, cli = Cli()):
+        WebApp.set_cli(cli)
+        Entra.set_cli(cli)
+        ResourceGroup.set_cli(cli)
+        KeyVault.set_cli(cli)
+        AppService.set_cli(cli)
 
     def get_web_app(self, subdomain: str) -> AzureWebApp:
         """
@@ -45,7 +39,15 @@ class Service(AzureService):
         """
         Return the existing WebApp using a free tier.
         """
-        return AppService.get_existing_free(location)
+        if asp := AppService.get_existing_free(location):
+            resource_group = ResourceGroup(name=asp.name, location=location)
+            return WebApp(
+                name=asp.name,
+                resource_group=resource_group,
+                app_service=asp,
+                keyvault=KeyVault(name=asp.name, resource_group=resource_group)
+            )
+        return None
 
     # pylint: disable=too-many-arguments
     def get_github_application(
@@ -68,7 +70,7 @@ class Service(AzureService):
         :param location: The location of the application.
         :return: The Microsoft Entra representation.
         """
-        return self.entra.get_github_application(
+        return Entra.get_github_application(
             subdomain=subdomain,
             branch=branch,
             username=username,
@@ -82,7 +84,7 @@ class Service(AzureService):
 
         :param subdomain: The application subdomain of the GitHub Application to delete.
         """
-        self.entra.delete_github_application(subdomain=subdomain)
+        Entra.delete_github_application(subdomain=subdomain)
 
     def delete(self, subdomain: str) -> None:
         """
@@ -110,3 +112,4 @@ class Service(AzureService):
         """
         Return the log levels.
         """
+        return LogLevel()

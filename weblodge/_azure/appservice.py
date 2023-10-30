@@ -2,6 +2,9 @@
 Azure AppService Plan abstraction.
 
 Allow to CRUD on Azure AppService Plan.
+
+The location is the same as that of the resource group.
+As all resources use the resource group location, there's no problem with naming, which remains ARM-based.
 """
 from typing import Dict, Iterable, Optional
 
