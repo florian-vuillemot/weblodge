@@ -4,7 +4,7 @@ Test the Entra facade.
 import json
 import unittest
 from pathlib import Path
-from unittest.mock import MagicMock, mock_open, patch
+from unittest.mock import mock_open, patch
 
 from weblodge._azure.entra import Entra
 from weblodge._azure.resource_group import ResourceGroup

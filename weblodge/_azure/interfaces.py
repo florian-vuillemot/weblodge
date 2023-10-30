@@ -188,6 +188,7 @@ class AzureService:
         Return the existing WebApp using a free tier.
         """
 
+    # pylint: disable=too-many-arguments
     def get_github_application(
         self,
         subdomain: str,

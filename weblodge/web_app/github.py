@@ -83,12 +83,12 @@ def github(service: AzureService, config: GitHubConfig) -> Optional[GitHubWorkfl
     :return: The GitHub workflow or None if the GitHub workflow has been deleted.
     """
     if config.delete:
-        service.delete_github_application(name=config.subdomain)
+        service.delete_github_application(subdomain=config.subdomain)
         return None
 
     # Retrieve/create the application.
     entra_application = service.get_github_application(
-        name=config.subdomain,
+        subdomain=config.subdomain,
         branch=config.branch,
         username=config.username,
         repository=config.repository,
