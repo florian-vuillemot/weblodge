@@ -30,10 +30,10 @@ class Service(AzureService):
         """
         Return a WebApp.
         """
-        rg = ResourceGroup(subdomain)
-        kv = KeyVault(subdomain, rg)
-        app_service = AppService(subdomain, rg)
-        return WebApp(subdomain, rg, app_service, kv)
+        resource_group = ResourceGroup(subdomain)
+        keyvault = KeyVault(subdomain, resource_group)
+        app_service = AppService(subdomain, resource_group)
+        return WebApp(subdomain, resource_group, app_service, keyvault)
 
     def get_free_web_app(self, location: str) -> AzureWebApp:
         """
@@ -96,11 +96,11 @@ class Service(AzureService):
         """
         Return all WebApp created by WebLodge.
         """
-        for rg in ResourceGroup.all():
-            subdomain = rg.name
-            kv = KeyVault(subdomain, rg)
-            app_service = AppService(subdomain, rg)
-            yield WebApp(subdomain, rg, app_service, kv)
+        for resource_group in ResourceGroup.all():
+            subdomain = resource_group.name
+            keyvault = KeyVault(subdomain, resource_group)
+            app_service = AppService(subdomain, resource_group)
+            yield WebApp(subdomain, resource_group, app_service, keyvault)
 
     def get_skus(self, location: str) -> Iterable[AzureAppServiceSku]:
         """
