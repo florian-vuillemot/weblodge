@@ -173,40 +173,6 @@ class MicrosoftEntraApplication:
     tenant_id: str
     subscription_id: str
 
-    @abstractmethod
-    def delete(self) -> None:
-        """
-        Delete the application.
-        """
-
-
-class MicrosoftEntra:
-    """
-    Allow to access to an Azure Entra Applications.
-    """
-    # pylint: disable=too-many-arguments
-    @classmethod
-    @abstractmethod
-    def github_application(
-        cls,
-        name: str,
-        username: str,
-        repository: str,
-        branch: str,
-    ) -> MicrosoftEntraApplication:
-        """
-        Return a Azure Entra Application for a GitHub Account.
-        Create the application if not exists.
-        Credentials are federated based.
-
-        :param name: The name of the GitHub Application.
-        :param branch: The branch of the repository that will trigger the GitHub Action.
-        :param username: The username/organisation of the repository owner.
-        :param repository: The name of the GitHub repository.
-        :param resource_group: The resource group where the application will be deployed. Must exists.
-        :return: The Microsoft Entra representation.
-        """
-
 
 class AzureService:
     """
@@ -222,9 +188,25 @@ class AzureService:
         Return the existing WebApp using a free tier.
         """
 
-    def entra(self, subdomain: str) -> MicrosoftEntra:
+    def get_github_application(
+        self,
+        subdomain: str,
+        username: str,
+        repository: str,
+        branch: str,
+        location: str
+    ) -> MicrosoftEntraApplication:
         """
-        Return the Entra service.
+        Return a Azure Entra Application for a GitHub Account.
+        Create the application if not exists.
+        Credentials are federated based.
+
+        :param subdomain: The application subdomain of the GitHub Application.
+        :param branch: The branch of the repository that will trigger the GitHub Action.
+        :param username: The username/organisation of the repository owner.
+        :param repository: The name of the GitHub repository.
+        :param location: The location of the application.
+        :return: The Microsoft Entra representation.
         """
 
     def all(self) -> Iterable[AzureWebApp]:
@@ -235,6 +217,13 @@ class AzureService:
     def delete(self, subdomain: str) -> None:
         """
         Delete a WebApp.
+        """
+
+    def delete_github_application(self, subdomain: str) -> None:
+        """
+        Delete an Azure Entra Application for a GitHub Account.
+
+        :param subdomain: The application subdomain of the GitHub Application to delete.
         """
 
     def get_skus(self, location: str) -> Iterable[AzureAppServiceSku]:

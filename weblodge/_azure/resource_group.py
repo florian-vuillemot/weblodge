@@ -78,7 +78,7 @@ class ResourceGroup(Resource):
         """
         Create the Resource Group from Azure.
         """
-        return cls(name, from_az)
+        return cls(name=name, from_az=from_az)
 
     def _load(self):
         """

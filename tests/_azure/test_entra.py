@@ -7,6 +7,7 @@ from pathlib import Path
 from unittest.mock import MagicMock, mock_open, patch
 
 from weblodge._azure.entra import Entra
+from weblodge._azure.resource_group import ResourceGroup
 
 from .cli import Cli
 
@@ -16,6 +17,9 @@ class TestEntra(unittest.TestCase):
     Test the Entra facade.
     """
     def setUp(self) -> None:
+        self.resource_groups = json.loads(
+            Path('./tests/_azure/api_mocks/resource_groups.json').read_text(encoding='utf-8')
+        )
         self.account = json.loads(
             Path('./tests/_azure/api_mocks/account_show.json').read_text(encoding='utf-8')
         )
@@ -32,21 +36,19 @@ class TestEntra(unittest.TestCase):
     @patch("weblodge._azure.entra.tempfile.NamedTemporaryFile", new_callable=mock_open)
     def test_github_application(self, mock_tempfile, mock_dump, mock_os):
         """
-        Test the creation of a GitHub Application on Entra.
+        Test the creation of a GitHub Application on Entra with an existing Resource Group.
         """
-        resource_group = MagicMock()
-        cli = Cli([self.account, [], self.entra_app, [], self.entra_sp, [], None, [], None])
+        cli = Cli([self.resource_groups, self.account, [], self.entra_app, [], self.entra_sp, [], None, [], None])
 
-        resource_group.id_ = '/subscriptions/15be6804-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/app-name'
+        Entra.set_cli(cli)
+        ResourceGroup.set_cli(cli)
 
-        entra = Entra()
-        entra.set_cli(cli)
-        app = entra.github_application(
-            name='app-name',
+        app = Entra.get_github_application(
+            subdomain='develop',
             branch='repo-branch',
             username='username',
             repository='repo-name',
-            resource_group=resource_group
+            location='northeurope',
         )
 
         # Ensure App and SP were created.
@@ -57,10 +59,10 @@ class TestEntra(unittest.TestCase):
         self.assertEqual(app.subscription_id, '15be6804-xxxx-xxxx-xxxx-xxxxxxxxxxxx')
         mock_dump.assert_called_once_with(
             {
-                "name": 'weblodge-app-name',
+                "name": 'weblodge-develop',
                 "issuer": "https://token.actions.githubusercontent.com",
                 "subject": "repo:username/repo-name:ref:refs/heads/repo-branch",
-                "description": 'WebLodge GitHub Application for application: weblodge-app-name',
+                "description": 'WebLodge GitHub Application for application: weblodge-develop',
                 "audiences": [
                     "api://AzureADTokenExchange"
                 ]
@@ -76,19 +78,17 @@ class TestEntra(unittest.TestCase):
         """
         Test the creation of a GitHub Application on Entra.
         """
-        resource_group = MagicMock()
-        cli = Cli([self.account, [self.entra_app], [self.entra_sp], [], None, [], None])
+        cli = Cli([self.resource_groups, self.account, [self.entra_app], [self.entra_sp], [], None, [], None])
 
-        resource_group.id_ = '/subscriptions/15be6804-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/app-name'
+        Entra.set_cli(cli)
+        ResourceGroup.set_cli(cli)
 
-        entra = Entra()
-        entra.set_cli(cli)
-        app = entra.github_application(
-            name='app-name',
+        app = Entra.get_github_application(
+            subdomain='develop',
             branch='repo-branch',
             username='username',
             repository='repo-name',
-            resource_group=resource_group
+            location='northeurope',
         )
 
         # Ensure App and SP were not created.
@@ -99,10 +99,10 @@ class TestEntra(unittest.TestCase):
         self.assertEqual(app.subscription_id, '15be6804-xxxx-xxxx-xxxx-xxxxxxxxxxxx')
         mock_dump.assert_called_once_with(
             {
-                "name": 'weblodge-app-name',
+                "name": 'weblodge-develop',
                 "issuer": "https://token.actions.githubusercontent.com",
                 "subject": "repo:username/repo-name:ref:refs/heads/repo-branch",
-                "description": 'WebLodge GitHub Application for application: weblodge-app-name',
+                "description": 'WebLodge GitHub Application for application: weblodge-develop',
                 "audiences": [
                     "api://AzureADTokenExchange"
                 ]
@@ -124,19 +124,19 @@ class TestEntra(unittest.TestCase):
                 "api://AzureADTokenExchange"
             ]
         }
-        resource_group = MagicMock()
-        cli = Cli([self.account, [self.entra_app], [self.entra_sp], [1], [github_federated_cred_specs]])
+        cli = Cli([
+            self.resource_groups, self.account, [self.entra_app], [self.entra_sp], [1], [github_federated_cred_specs]
+        ])
 
-        resource_group.id_ = '/subscriptions/15be6804-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/app-name'
+        Entra.set_cli(cli)
+        ResourceGroup.set_cli(cli)
 
-        entra = Entra()
-        entra.set_cli(cli)
-        app = entra.github_application(
-            name='app-name',
+        app = Entra.get_github_application(
+            subdomain='develop',
             branch='repo-branch',
             username='username',
             repository='repo-name',
-            resource_group=resource_group
+            location='northeurope',
         )
 
         # Ensure App and SP were not created.

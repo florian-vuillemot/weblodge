@@ -11,7 +11,7 @@ from .log_level import LogLevel
 from .appservice import AppService
 from .sku import get_skus as _get_skus
 from .resource_group import ResourceGroup
-from .interfaces import AzureWebApp, AzureService, AzureLogLevel, MicrosoftEntra, AzureAppServiceSku
+from .interfaces import AzureWebApp, AzureService, AzureLogLevel, MicrosoftEntraApplication, AzureAppServiceSku
 
 
 class Service(AzureService):
@@ -21,7 +21,6 @@ class Service(AzureService):
     """
     web_apps: AzureWebApp
     log_levels: AzureLogLevel
-    entra: MicrosoftEntra
 
     def __init__(self):
         self.cli = Cli()
@@ -48,6 +47,43 @@ class Service(AzureService):
         """
         return AppService.get_existing_free(location)
 
+    # pylint: disable=too-many-arguments
+    def get_github_application(
+        self,
+        subdomain: str,
+        username: str,
+        repository: str,
+        branch: str,
+        location: str
+    ) -> MicrosoftEntraApplication:
+        """
+        Return a Azure Entra Application for a GitHub Account.
+        Create the application if not exists.
+        Credentials are federated based.
+
+        :param subdomain: The application subdomain of the GitHub Application
+        :param branch: The branch of the repository that will trigger the GitHub Action.
+        :param username: The username/organisation of the repository owner.
+        :param repository: The name of the GitHub repository.
+        :param location: The location of the application.
+        :return: The Microsoft Entra representation.
+        """
+        return self.entra.get_github_application(
+            subdomain=subdomain,
+            branch=branch,
+            username=username,
+            repository=repository,
+            location=location,
+        )
+
+    def delete_github_application(self, subdomain: str) -> None:
+        """
+        Delete an Azure Entra Application for a GitHub Account.
+
+        :param subdomain: The application subdomain of the GitHub Application to delete.
+        """
+        self.entra.delete_github_application(subdomain=subdomain)
+
     def delete(self, subdomain: str) -> None:
         """
         Delete a WebApp.
@@ -69,11 +105,6 @@ class Service(AzureService):
         Return all available tiers.
         """
         return _get_skus(location)
-
-    def entra(self, subdomain: str) -> MicrosoftEntra:
-        """
-        Return the Entra service.
-        """
 
     def log_levels(self) -> AzureLogLevel:
         """

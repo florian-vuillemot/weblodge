@@ -82,29 +82,18 @@ def github(service: AzureService, config: GitHubConfig) -> Optional[GitHubWorkfl
     :param config: The GitHub Application configuration.
     :return: The GitHub workflow or None if the GitHub workflow has been deleted.
     """
-    rg_created = False
-    resource_group = service.resource_groups(config.subdomain)
+    if config.delete:
+        service.delete_github_application(name=config.subdomain)
+        return None
 
-    if not resource_group.exists():
-        rg_created = True
-        resource_group.create(config.location)
-
-    entra_application = service.entra.github_application(
+    # Retrieve/create the application.
+    entra_application = service.get_github_application(
         name=config.subdomain,
         branch=config.branch,
         username=config.username,
         repository=config.repository,
-        resource_group=resource_group
+        location=config.location,
     )
-
-    if config.delete:
-        entra_application.delete()
-        if rg_created:
-            # The resource group may have been deleted before requesting the application's deletion.
-            # In this case, we've recreated it to be able to find the application,
-            # and we need to delete it again.
-            resource_group.delete()
-        return None
 
     return GitHubWorkflow(
         branch=config.branch,

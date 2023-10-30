@@ -7,4 +7,4 @@ from .service import Service
 from .exceptions import InvalidLocation
 from .interfaces import AzureService, AzureAppServiceSku, \
     AzureWebApp, \
-    AzureLogLevel, MicrosoftEntraApplication, MicrosoftEntra
+    AzureLogLevel, MicrosoftEntraApplication

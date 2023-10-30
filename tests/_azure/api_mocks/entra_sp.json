@@ -4,7 +4,7 @@
     "addIns": [],
     "alternativeNames": [],
     "appDescription": null,
-    "appDisplayName": "weblodge-app-name",
+    "appDisplayName": "weblodge-develop",
     "appId": "29608a66-xxxx-xxxx-xxxxx-0ecee9437x42",
     "appOwnerOrganizationId": "901536cd-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "appRoleAssignmentRequired": false,
@@ -14,7 +14,7 @@
     "deletedDateTime": null,
     "description": null,
     "disabledByMicrosoftStatus": null,
-    "displayName": "weblodge-app-name",
+    "displayName": "weblodge-develop",
     "homepage": null,
     "id": "498a7c3c-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "info": {

@@ -10,7 +10,7 @@ from weblodge._azure.entra import Entra
 from weblodge._azure.web_app import WebApp
 from weblodge._azure.log_level import LogLevel
 from weblodge._azure.resource_group import ResourceGroup
-from weblodge._azure import AzureService, Service, AzureLogLevel, AzureWebApp, MicrosoftEntra
+from weblodge._azure import AzureService, Service, AzureLogLevel, AzureWebApp
 
 from .cli import Cli as Cli_mocked
 
@@ -28,7 +28,7 @@ class TestAzureService(unittest.TestCase):
         self.assertTrue(issubclass(Service, AzureService))
         self.assertTrue(issubclass(service.web_apps, AzureWebApp))
         self.assertTrue(issubclass(service.log_levels, AzureLogLevel))
-        self.assertTrue(issubclass(service.entra, MicrosoftEntra))
+        self.assertTrue(issubclass(service.entra, Entra))
 
     def test_service_type(self):
         """

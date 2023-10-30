@@ -42,7 +42,7 @@ class KeyVault(Resource):
         """
         return self._from_az['id']
 
-    def create(self) -> 'AzureKeyVault':
+    def create(self) -> 'KeyVault':
         """
         Create the Azure KeyVault and set the current user as Secret Officer.
         """

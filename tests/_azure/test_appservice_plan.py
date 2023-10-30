@@ -88,13 +88,13 @@ class TestAppService(unittest.TestCase):
 
         asp.sku = 'B1'
 
-        self.assertEqual(asp.sku.name, 'B1')
+        self.assertEqual(asp.sku.name, 'B1')  # pylint: disable=no-member
         self.assertFalse(asp.is_free)
         self.assertTrue(asp.always_on_supported)
 
         asp.sku = 'F1'
 
-        self.assertEqual(asp.sku.name, 'F1') # pylint: disable=protected-access
+        self.assertEqual(asp.sku.name, 'F1')  # pylint: disable=no-member
         self.assertTrue(asp.is_free)
         self.assertFalse(asp.always_on_supported)
 
