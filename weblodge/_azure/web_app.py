@@ -109,15 +109,7 @@ class WebApp(Resource, AzureWebApp):
             tags=self.tags
         )
         # Update the WebApp settings.
-        self._invoke(
-            ' '.join((
-                f'{self._cli_prefix} config set --resource-group {rg_name} --name {name}',
-                '--web-sockets-enabled true',
-                '--http20-enabled',
-                '--startup-file weblodge.startup',
-                f'--always-on {self._app_service.always_on_supported}',
-            ))
-        )
+        self._update_settings()
         # Retrieve the WebApp identity.
         identity = self._invoke(
             ' '.join((
@@ -222,8 +214,13 @@ class WebApp(Resource, AzureWebApp):
         Update the WebApp infrastructure.
         """
         super().update()
+        if not self._app_service.always_on_supported:
+            # If the (potential new) SKU is free, the Always On parameter must be deactivated before updating.
+            self._update_settings()
         self._resource_group.update()
-        self._app_service.update()
+        if self._app_service.always_on_supported:
+            # If the (potential new) SKU is not free, the Always On parameter must be activated after updating.
+            self._update_settings()
         return self
 
     @classmethod
@@ -250,3 +247,20 @@ class WebApp(Resource, AzureWebApp):
             )
         )
         return self
+
+    def _update_settings(self) -> None:
+        """
+        Update the WebApp settings.
+        """
+        name = self.name
+        rg_name = self._resource_group.name
+
+        self._invoke(
+            ' '.join((
+                f'{self._cli_prefix} config set --resource-group {rg_name} --name {name}',
+                '--web-sockets-enabled true',
+                '--http20-enabled',
+                '--startup-file weblodge.startup',
+                f'--always-on {self._app_service.always_on_supported}',
+            ))
+        )
