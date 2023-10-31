@@ -17,6 +17,11 @@ class ResourceNotFound(AzureException):
     Raise when a resource cannot be found on Azure.
     """
 
+class CliNotSet(AzureException):
+    """
+    Raise when the Azure CLI is not set.
+    """
+
 class ResourceGroupNotFound(ResourceNotFound):
     """
     Raise when a resource group cannot be found on Azure.
@@ -45,4 +50,9 @@ class InvalidLocation(AzureException):
 class SecretNotFound(AzureException):
     """
     Raise when a secret on a KeyVault cannot be found.
+    """
+
+class CanNotChangeTheResourceLocation(AzureException):
+    """
+    Raise when a resource location cannot be changed.
     """

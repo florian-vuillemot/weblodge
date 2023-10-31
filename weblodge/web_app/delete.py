@@ -27,4 +27,4 @@ def delete(azure_service: AzureService, config: DeleteConfig) -> None:
     """
     Delete the application and corresponding resources.
     """
-    azure_service.resource_groups(config.subdomain).delete()
+    azure_service.delete(config.subdomain)

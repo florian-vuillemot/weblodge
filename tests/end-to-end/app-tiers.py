@@ -1,7 +1,6 @@
 """
 These tests ensure the CLI's behavior in real-life conditions.
-Each test consists of deploying an application on the cloud and
-checking that it is accessible via HTTP.
+Test consists of running the `app-tiers` command and check the output.
 """
 import io
 import sys
@@ -12,13 +11,12 @@ from weblodge.cli import main
 
 def run_app_tiers(args: str) -> (str, str, bool):
     """
-    Deploy application by going in the `folder` and running the `cmd`.
-    Automatic delete the infrastructure at the end.
+    Run the `app-tiers` command with options and print outputs.
     """
     sys_exit = False
 
     print('--------------------------------------------')
-    print(f"Running: weblodge --app-tiers '{args}'", flush=True)
+    print(f"Running: weblodge app-tiers '{args}'", flush=True)
 
     # Simulate the CLI call.
     sys.argv = ['weblodge', 'app-tiers', *args.split()]

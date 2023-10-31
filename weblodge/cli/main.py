@@ -48,7 +48,7 @@ def main(return_web_app=False):
         elif action == 'github':
             success, config = github(config, web_app, config_file)
         elif action == 'list':
-            list_(parameters.load, web_app)
+            list_(web_app)
             success = True
         elif action == 'logs':
             print('Logs will be stream, execute CTRL+C to stop the application.', flush=True)
@@ -116,7 +116,7 @@ def deploy(config: Dict[str, str], web_app: WebApp, parameters: Parser):
         print(
             'The application may not be deployed, but the infrastructure may be' \
             f' partially created. You can delete it by running: {CLI_NAME} delete',
-            sys=sys.stderr,
+            file=sys.stderr,
             flush=True
         )
     return success, config
@@ -150,7 +150,7 @@ def clean(parameters: Parser, web_app: WebApp):
         attending_value=False
     )
 
-    for _wa in web_app.all(parameters.load):
+    for _wa in web_app.all():
         try:
             parameters.trigger_once(prompt)
             _wa.delete()
@@ -223,7 +223,7 @@ def list_app_tiers(config, web_app) -> bool:
 
     return True
 
-def list_(parameter_loader, web_app: WebApp):
+def list_(web_app: WebApp):
     """
     Print all the deployed applications.
     Warm the user if some infrastructure is not used.
@@ -231,7 +231,7 @@ def list_(parameter_loader, web_app: WebApp):
     unused_apps = []
     no_application_deployed = True
 
-    for _wapp in web_app.all(parameter_loader):
+    for _wapp in web_app.all():
         no_application_deployed = False
         if _wapp.exists():
             print(f"Application: {_wapp.url()}")

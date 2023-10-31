@@ -15,19 +15,22 @@ class TestDeploy(unittest.TestCase):
     """
     def test_web_app_exists(self):
         """
-        Ensure no infrastructure is created if WebApp exists.
+        Ensure no infrastructure is created if WebApp exists and correctly configured.
         """
+        tier = 'F1'
         azure_service = self._default_asp()
         web_app = MagicMock()
         web_app.exists.return_value = True
-        azure_service.web_apps.return_value = web_app
+        azure_service.get_web_app.return_value = web_app
+        web_app.tier.name = tier
+        web_app.tags = {'managedby': 'weblodge', 'environment': 'test'}
 
         log_level = MagicMock()
         azure_service.log_levels.return_value = log_level
 
         deployment_config = DeploymentConfig(
             subdomain='test',
-            tier='F1',
+            tier=tier,
             location='westeurope',
             environment='test',
             dist='dist',

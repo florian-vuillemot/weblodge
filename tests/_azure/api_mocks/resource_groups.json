@@ -31,5 +31,16 @@
     },
     "tags": {"managedby": "weblodge"},
     "type": "Microsoft.Resources/resourceGroups"
+  },
+  {
+    "id": "/subscriptions/2f0df319-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/noweblodge",
+    "location": "northeurope",
+    "managedBy": null,
+    "name": "production",
+    "properties": {
+      "provisioningState": "Succeeded"
+    },
+    "tags": {},
+    "type": "Microsoft.Resources/resourceGroups"
   }
 ]

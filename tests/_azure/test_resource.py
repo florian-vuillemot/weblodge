@@ -84,7 +84,7 @@ class TestResource(unittest.TestCase):
         MockResourceGroup.set_cli(Cli([self.resources]))
         resources = list(MockResourceGroup.all())
 
-        self.assertEqual(len(self.resources), len(resources))
+        self.assertEqual(len(resources), 3)
 
         develop = self.resources[0]
         develop_resource_group = MockResourceGroup(

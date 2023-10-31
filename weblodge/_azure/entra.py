@@ -4,35 +4,30 @@ Azure Web App representation.
 import json
 import os
 import tempfile
-from .interfaces import MicrosoftEntra, MicrosoftEntraApplication
-from .resource_group import ResourceGroup
+from typing import Optional
+
 from .cli import Cli
+from .exceptions import CliNotSet
+from .resource_group import ResourceGroup
+from .interfaces import MicrosoftEntraApplication
 
 
 class EntraApplication(MicrosoftEntraApplication):
     """
     Azure Entra Application with Federated Identity.
     """
-    def __init__(self, client_id: str, tenant_id: str, subscription_id: str, cli: Cli) -> None:
+    def __init__(self, client_id: str, tenant_id: str, subscription_id: str) -> None:
         super().__init__()
         self.client_id = client_id
         self.tenant_id = tenant_id
         self.subscription_id = subscription_id
 
-        self._cli = cli
 
-    def delete(self):
-        """
-        Delete the application.
-        """
-        self._cli.invoke(f'ad app delete --id {self.client_id}', to_json=False)
-
-
-class Entra(MicrosoftEntra):
+class Entra:
     """
     Azure Entra facade.
     """
-    _cli = None
+    _cli: Optional[Cli] = None
 
     @classmethod
     def set_cli(cls, cli: Cli):
@@ -41,50 +36,80 @@ class Entra(MicrosoftEntra):
         """
         cls._cli = cli
 
+    @classmethod
+    def delete_github_application(cls, subdomain: str) -> None:
+        """
+        Delete an Azure Entra Application for a GitHub Account.
+
+        :param subdomain: The application subdomain of the GitHub Application to delete.
+        """
+        app_name = cls._to_app_name(subdomain)
+        app_id = cls._get_app_id(app_name)
+        cls._cli.invoke(f'ad app delete --id {app_id}', to_json=False)
+
     # pylint: disable=too-many-arguments
     @classmethod
-    def github_application(
+    def get_github_application(
         cls,
-        name: str,
+        subdomain: str,
         username: str,
         repository: str,
         branch: str,
-        resource_group: ResourceGroup
+        location: str
     ) -> EntraApplication:
         """
-        Create an GitHub Application on Microsoft Entra.
+        Create or return an GitHub Application on Microsoft Entra.
 
-        :param name: The name of the GitHub Application.
+        :param subdomain: The application subdomain of the GitHub Application.
         :param branch: The branch of the repository that will trigger the GitHub Action.
         :param username: The username/organisation of the repository owner.
         :param repository: The name of the GitHub repository.
-        :param resource_group: The resource group where the application will be deployed.
+        :param location: The location of the application.
         :return: The Microsoft Entra representation.
         """
-        name = f'weblodge-{name}'
+        if not cls._cli:
+            raise CliNotSet()
+
+        resource_group = ResourceGroup(name=subdomain, location=location)
+
+        # Permissions are applied on the Resource Group.
+        # It must exists.
+        if not resource_group.exists():
+            resource_group.create()
+
+        app_name = cls._to_app_name(subdomain)
 
         # Retrieve need informations.
         account = cls._cli.invoke('account show')
         subscription_id = account['id']
         tenant_id = account['tenantId']
 
-        app_id = cls._get_app_id(name)
-        service_principal_id = cls._get_sp_id(name, app_id)
+        app_id = cls._get_app_id(app_name)
+        service_principal_id = cls._get_sp_id(app_name, app_id)
         cls._assign_role(subscription_id, service_principal_id, resource_group)
-        cls._create_federated_credential(name, app_id, username, repository, branch)
+        cls._create_federated_credential(app_name, app_id, username, repository, branch)
 
         return EntraApplication(
             client_id=app_id,
             tenant_id=tenant_id,
-            subscription_id=subscription_id,
-            cli=cls._cli
+            subscription_id=subscription_id
         )
+
+    @classmethod
+    def _to_app_name(cls, subdomain: str) -> str:
+        """
+        Convert the public subdomain to an internal GitHub Application name.
+        """
+        return f'weblodge-{subdomain}'
 
     @classmethod
     def _get_app_id(cls, name: str) -> str:
         """
         Retrieve the application ID if the application exists, otherwise create it.
         """
+        if not cls._cli:
+            raise CliNotSet()
+
         applications = cls._cli.invoke(f'ad app list --display-name {name}')
 
         for app in applications:
@@ -96,8 +121,13 @@ class Entra(MicrosoftEntra):
     @classmethod
     def _get_sp_id(cls, app_name: str, app_id: str) -> str:
         """
-        Retrieve the Service Principal of an Application or create it.
+        Retrieve/create the Service Principal of an Application.
+
+        Note: Only one Service Principal is created per Application.
         """
+        if not cls._cli:
+            raise CliNotSet()
+
         service_principals = cls._cli.invoke(f'ad sp list --display-name {app_name}')
 
         for service_principal in service_principals:
@@ -113,6 +143,9 @@ class Entra(MicrosoftEntra):
         if it not already assigned.
         The owner role is required to assign authorizations to KeyVault consumers.
         """
+        if not cls._cli:
+            raise CliNotSet()
+
         role_assignments = cls._cli.invoke(
             ' '.join((
                 'role assignment list',
@@ -141,6 +174,9 @@ class Entra(MicrosoftEntra):
         """
         Create the federated credential for a GitHub access.
         """
+        if not cls._cli:
+            raise CliNotSet()
+
         cred_specs = {
             "name": name,
             "issuer": "https://token.actions.githubusercontent.com",

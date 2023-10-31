@@ -36,7 +36,7 @@ class TestWebApp(unittest.TestCase):
 
         self.assertEqual(web_app.name, expected_output['name'])
         self.assertEqual(web_app.domain, expected_output['hostNames'][0])
-        self.assertEqual(web_app.location, expected_output['location'])
+        self.assertEqual(web_app.location, 'northeurope')
 
     def test_update_environment(self):
         """

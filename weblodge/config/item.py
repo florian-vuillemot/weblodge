@@ -3,6 +3,7 @@ A configuration item represents information about a function that can be
 overwritten at runtime.
 """
 from dataclasses import dataclass
+from typing import Optional
 
 
 @dataclass(frozen=True)
@@ -17,12 +18,12 @@ class Item:
     description: str
     # Does not expect a value from the user. The argument is a flag.
     # Example: --verbose
-    attending_value: str = True
+    attending_value: bool = True
     # Default value of the field.
     # When specified, the field is optional.
-    default: str = None
+    default: Optional[str] = None
     # List of possible values.
-    values_allowed: list = None
+    values_allowed: Optional[list] = None
 
     def __eq__(self, obj) -> bool:
         if isinstance(obj, Item):

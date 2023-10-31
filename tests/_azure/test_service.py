@@ -1,68 +1,119 @@
 """
 Service Tests.
 """
+import json
+from pathlib import Path
 import unittest
+from unittest.mock import MagicMock
 
-from weblodge._azure.cli import Cli
 from weblodge._azure.entra import Entra
 from weblodge._azure.web_app import WebApp
-from weblodge._azure.log_level import LogLevel
+from weblodge._azure.resource_group import ResourceGroup
+from weblodge._azure import Service, AzureWebApp
 from weblodge._azure.appservice import AppService
 from weblodge._azure.keyvault import KeyVault
-from weblodge._azure.resource_group import ResourceGroup
-from weblodge._azure import AzureService, Service, AzureLogLevel, \
-    AzureAppService, AzureResourceGroup, AzureWebApp, MicrosoftEntra, \
-    AzureKeyVault
+
+from .cli import Cli as Cli_mocked
 
 
 class TestAzureService(unittest.TestCase):
     """
     Service tests.
     """
-    def test_service_interface(self):
-        """
-        Ensure the service instanciate wanted interfaces.
-        """
-        service = Service()
-
-        self.assertTrue(issubclass(Service, AzureService))
-        self.assertTrue(issubclass(service.resource_groups, AzureResourceGroup))
-        self.assertTrue(issubclass(service.app_services, AzureAppService))
-        self.assertTrue(issubclass(service.web_apps, AzureWebApp))
-        self.assertTrue(issubclass(service.log_levels, AzureLogLevel))
-        self.assertTrue(issubclass(service.keyvaults, AzureKeyVault))
-        self.assertTrue(issubclass(service.entra, MicrosoftEntra))
-
-    def test_service_type(self):
-        """
-        Ensure the service instanciate wanted types.
-        """
-        service = Service()
-
-        self.assertIsInstance(service, AzureService)
-        self.assertEqual(service.resource_groups, ResourceGroup)
-        self.assertEqual(service.app_services, AppService)
-        self.assertEqual(service.web_apps, WebApp)
-        self.assertEqual(service.log_levels, LogLevel)
-        self.assertEqual(service.keyvaults, KeyVault)
-        self.assertEqual(service.entra, Entra)
-
     def test_cli(self):
         """
         Ensure the Cli is correctly instanciate.
         """
-        service = Service()
+        cli = MagicMock()
+        Service(cli=cli)
 
         # pylint: disable=protected-access
-        self.assertIsInstance(service.resource_groups._cli, Cli)
-        self.assertIsInstance(service.app_services._cli, Cli)
-        self.assertIsInstance(service.web_apps._cli, Cli)
-        self.assertIsInstance(service.keyvaults._cli, Cli)
-        self.assertIsInstance(service.entra._cli, Cli)
+        self.assertEqual(cli, WebApp._cli)
+        self.assertEqual(cli, Entra._cli)
+        self.assertEqual(cli, ResourceGroup._cli)
+        self.assertEqual(cli, KeyVault._cli)
+        self.assertEqual(cli, AppService._cli)
 
-        # pylint: disable=protected-access
-        self.assertEqual(service.cli, service.resource_groups._cli)
-        self.assertEqual(service.cli, service.app_services._cli)
-        self.assertEqual(service.cli, service.web_apps._cli)
-        self.assertEqual(service.cli, service.keyvaults._cli)
-        self.assertEqual(service.cli, service.entra._cli)
+    def test_all(self):
+        """
+        Ensure all webApp are correctly returned.
+        """
+        cli = Cli_mocked([
+            json.loads(
+                Path('./tests/_azure/api_mocks/resource_groups.json').read_text(encoding='utf-8')
+            )
+        ])
+        service = Service(cli=cli)
+
+        web_apps = list(service.all())
+
+        self.assertEqual(len(web_apps), 3)
+
+        self.assertIsInstance(web_apps[0], AzureWebApp)
+        self.assertIsInstance(web_apps[1], AzureWebApp)
+        self.assertIsInstance(web_apps[2], AzureWebApp)
+
+        self.assertEqual(web_apps[0].name, 'develop')
+        self.assertEqual(web_apps[1].name, 'staging')
+        self.assertEqual(web_apps[2].name, 'production')
+
+    def test_no_web_app(self):
+        """
+        Ensure the behaviours when there is no web app.
+        """
+        service = Service(cli=Cli_mocked([[]]))
+
+        web_apps = list(service.all())
+        self.assertEqual(len(web_apps), 0)
+
+    def test_get_web_app(self):
+        """
+        Ensure the web app is correctly returned.
+        """
+        web_apps = json.loads(
+            Path('./tests/_azure/api_mocks/web_apps.json').read_text(encoding='utf-8')
+        )
+        cli = Cli_mocked([web_apps, web_apps])
+        service = Service(cli=cli)
+
+        dev_web_app = service.get_web_app('develop')
+        prod_web_app = service.get_web_app('production')
+
+        self.assertIsInstance(dev_web_app, AzureWebApp)
+        self.assertEqual(dev_web_app.name, 'develop')
+
+        self.assertIsInstance(dev_web_app, AzureWebApp)
+        self.assertEqual(prod_web_app.name, 'production')
+
+    def test_get_free_web_app(self):
+        """
+        Ensure the free web app is correctly returned.
+        """
+        asp = json.loads(
+            Path('./tests/_azure/api_mocks/appservices_plan.json').read_text(encoding='utf-8')
+        )
+        resource_groups = json.loads(
+            Path('./tests/_azure/api_mocks/resource_groups.json').read_text(encoding='utf-8')
+        )
+        service = Service(
+            cli=Cli_mocked([
+                asp,
+                resource_groups[0], # The develop resource group.
+                resource_groups[1]  # The staging resource group.
+            ])
+        )
+
+        free_web_app = service.get_free_web_app('northeurope')
+
+        self.assertIsInstance(free_web_app, AzureWebApp)
+        self.assertEqual(free_web_app.name, 'staging')
+
+    def test_delete(self):
+        """
+        Ensure a webApp can be deleted.
+        """
+        cli = MagicMock()
+        service = Service(cli=cli)
+
+        service.delete('develop')
+        cli.invoke.assert_called_once_with('group delete --name develop --yes', to_json=False)
